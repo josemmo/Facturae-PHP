@@ -20,10 +20,14 @@ Facturae-PHP es una clase escrita puramente en PHP que permite generar facturas 
 Facturae-PHP pretende ser una clase extremadamente rápida y sencilla de usar. A continuación se incluyen varios ejemplos sobre su utilización.
 Para más información sobre todos los métodos de Facturae-PHP, la clase se encuentra comentada según bloques de código de [phpDocumentor](https://www.phpdoc.org/).
 
-### Ejemplo básico
+### Ejemplo básico usando Composer
 
-    // Importamos la clase
-    require_once "ruta/hacia/Facturae.class.php";
+    // Sistema de carga automática de composer.
+    require_once __DIR__ . '/../vendor/autoload.php';
+
+    // Importamos las clases usadas
+    use josemmo\Facturae\Facturae;
+    use josemmo\Facturae\FacturaeParty;
     
     // Creamos la factura
     $fac = new Facturae();
@@ -72,6 +76,8 @@ Para más información sobre todos los métodos de Facturae-PHP, la clase se enc
     
     // ... y exportarlo a un archivo
     $fac->export("ruta/de/salida.xsig");
+
+También se podrían usar directamente las clases mediante un `require_once "ruta/hacia/Facturae.php"; ...`.
 
 ### Compradores y vendedores
 Los compradores y vendedores son representados en Facturae-PHP con la clase `FacturaeParty` y pueden contener los siguientes atributos:
