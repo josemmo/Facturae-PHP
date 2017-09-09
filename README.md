@@ -16,18 +16,23 @@ Facturae-PHP es una clase escrita puramente en PHP que permite generar facturas 
 - [ ] Compatibilidad con el formato Facturae 3.2.2
 - [ ] Envío de facturas a FACe directamente desde la clase
 
+## Instalación
+
+    composer require josemmo/facturae-php
+
 ## Uso de la clase
 Facturae-PHP pretende ser una clase extremadamente rápida y sencilla de usar. A continuación se incluyen varios ejemplos sobre su utilización.
 Para más información sobre todos los métodos de Facturae-PHP, la clase se encuentra comentada según bloques de código de [phpDocumentor](https://www.phpdoc.org/).
 
 ### Ejemplo básico usando Composer
 
-    // Sistema de carga automática de composer.
+    // Sistema de carga automática de Composer
     require_once __DIR__ . '/../vendor/autoload.php';
 
     // Importamos las clases usadas
     use josemmo\Facturae\Facturae;
     use josemmo\Facturae\FacturaeParty;
+    use josemmo\Facturae\FacturaeCentre; // Esta es opcional
     
     // Creamos la factura
     $fac = new Facturae();
@@ -77,7 +82,17 @@ Para más información sobre todos los métodos de Facturae-PHP, la clase se enc
     // ... y exportarlo a un archivo
     $fac->export("ruta/de/salida.xsig");
 
-También se podrían usar directamente las clases mediante un `require_once "ruta/hacia/Facturae.php"; ...`.
+> ##### NOTA
+> En caso de no utilizar Composer, se deberá sustituir en el ejemplo anterior la línea de código:
+> ```
+> require_once __DIR__ . '/../vendor/autoload.php';
+> ```
+> Por las siguientes:
+> ```
+> require_once "../src/Facturae.php";
+> require_once "../src/FacturaeParty.php";
+> require_once "../src/FacturaeCentre.php";
+> ```
 
 ### Compradores y vendedores
 Los compradores y vendedores son representados en Facturae-PHP con la clase `FacturaeParty` y pueden contener los siguientes atributos:
