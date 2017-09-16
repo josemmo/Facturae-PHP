@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.0
+ * @version 1.0.1
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -24,14 +24,17 @@ class Facturae {
 
   /* CONSTANTS */
   const SCHEMA_3_2_1 = "3.2.1";
-  const TAX_IVA = 1;
-  const PAYMENT_CASH = "01";
-  const PAYMENT_TRANSFER = "04";
   const SIGN_POLICY_3_1 = array(
     "name" => "Política de Firma FacturaE v3.1",
     "url" => "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
     "digest" => "Ohixl6upD6av8N7pEvDABhEL6hM="
   );
+
+  const PAYMENT_CASH = "01";
+  const PAYMENT_TRANSFER = "04";
+
+  const TAX_IVA = "01";
+  const TAX_IRPF = "04";
 
 
   /* ATTRIBUTES */
@@ -228,30 +231,25 @@ class Facturae {
    * representing the item description or a 2 element array containing the item
    * description and an additional string of information.
    *
-   * @param string|array $desc      Item description
-   * @param float        $unitPrice Price per unit, taxes included
-   * @param float        $quantity  Quantity
-   * @param int          $taxType   Tax type
-   * @param float        $taxRate   Tax rate
+   * @param FacturaeItem|string|array $desc      Item to add or description
+   * @param float                     $unitPrice Price per unit, taxes included
+   * @param float                     $quantity  Quantity
+   * @param int                       $taxType   Tax type
+   * @param float                     $taxRate   Tax rate
    */
-  public function addItem($desc, $unitPrice, $quantity=1, $taxType=NULL, $taxRate=NULL) {
-    $unitPriceWithoutTax = $unitPrice;
-    if ($taxType == self::TAX_IVA) $unitPriceWithoutTax /= 1 + ($taxRate / 100);
-    $totalPriceWithoutTax = $unitPriceWithoutTax * $quantity;
-    $totalPrice = $unitPrice * $quantity;
-    $taxAmount = $totalPrice - $totalPriceWithoutTax;
-    array_push($this->items, array(
-      "description" => is_array($desc) ? $desc[0] : $desc,
-      "additionalInformation" => is_array($desc) ? $desc[1] : NULL,
-      "unitPrice" => $unitPrice,
-      "unitPriceWithoutTax" => $unitPriceWithoutTax,
-      "totalPrice" => $totalPrice,
-      "totalPriceWithoutTax" => $totalPriceWithoutTax,
-      "quantity" => $quantity,
-      "taxType" => $taxType,
-      "taxRate" => $taxRate,
-      "taxAmount" => $taxAmount
-    ));
+  public function addItem($desc, $unitPrice=NULL, $quantity=1, $taxType=NULL, $taxRate=NULL) {
+    if ($desc instanceOf FacturaeItem) {
+      $item = $desc;
+    } else {
+      $item = new FacturaeItem([
+        "name" => is_array($desc) ? $desc[0] : $desc,
+        "description" => is_array($desc) ? $desc[1] : NULL,
+        "quantity" => $quantity,
+        "unitPrice" => $unitPrice,
+        "taxes" => array($taxType => $taxRate)
+      ]);
+    }
+    array_push($this->items, $item);
   }
 
 
@@ -261,24 +259,35 @@ class Facturae {
    */
   public function getTotals() {
     // Define starting values
-    $totals = array("withTaxes"=>0, "withoutTaxes"=>0, "taxes"=>array());
+    $totals = array(
+      "taxes" => array(),
+      "invoiceAmount" => 0,
+      "grossAmount" => 0,
+      "grossAmountBeforeTaxes" => 0,
+      "taxAmount" => 0
+    );
 
-    // Run through each item
-    foreach ($this->items as $item) {
-      $totals['withTaxes'] += $item['totalPrice'];
-      $totals['withoutTaxes'] += $item['totalPriceWithoutTax'];
-      if ($item['taxType'] == self::TAX_IVA) {
-        if (!isset($totals['taxes'][$item['taxRate']]))
-          $totals['taxes'][$item['taxRate']] = array("base"=>0, "amount"=>0);
-        $totals['taxes'][$item['taxRate']]['base'] += $item['totalPriceWithoutTax'];
-        $totals['taxes'][$item['taxRate']]['amount'] += $item['taxAmount'];
+    // Run through every item
+    foreach ($this->items as $itemObj) {
+      $item = $itemObj->getData();
+      $totals['invoiceAmount'] += $item['totalAmount'];
+      $totals['grossAmount'] += $item['grossAmount'];
+      $totals['taxAmount'] += $item['taxAmount'];
+
+      // Get taxes
+      foreach ($item['taxes'] as $type=>$tax) {
+        if (!isset($totals['taxes'][$type])) $totals['taxes'][$type] = array();
+        if (!isset($totals['taxes'][$type][$tax['rate']]))
+          $totals['taxes'][$type][$tax['rate']] = array("base"=>0, "amount"=>0);
+        $totals['taxes'][$type][$tax['rate']]['base'] +=
+          $item['totalAmountWithoutTax'];
+        $totals['taxes'][$type][$tax['rate']]['amount'] += $tax['amount'];
       }
     }
 
-    // Get only taxes value
-    $totals['onlyTaxes'] = $totals['withTaxes'] - $totals['withoutTaxes'];
+    // Fill rest of values
+    $totals['grossAmountBeforeTaxes'] = $totals['grossAmount'];
 
-    // Return data
     return $totals;
   }
 
@@ -473,11 +482,11 @@ class Facturae {
       '<Modality>I</Modality><InvoiceIssuerType>EM</InvoiceIssuerType>' .
       '<Batch><BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
       '<InvoicesCount>1</InvoicesCount><TotalInvoicesAmount><TotalAmount>' .
-      $this->padTotal($totals['withTaxes']) . '</TotalAmount>' .
+      $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
       '</TotalInvoicesAmount><TotalOutstandingAmount><TotalAmount>' .
-      $this->padTotal($totals['withTaxes']) . '</TotalAmount>' .
+      $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
       '</TotalOutstandingAmount><TotalExecutableAmount>' .
-      '<TotalAmount>' . $this->padTotal($totals['withTaxes']) .
+      '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) .
       '</TotalAmount></TotalExecutableAmount><InvoiceCurrencyCode>' .
       $this->currency . '</InvoiceCurrencyCode></Batch></FileHeader>';
 
@@ -507,54 +516,61 @@ class Facturae {
     // Add invoice taxes
     if (count($totals['taxes']) > 0) {
       $xml .= '<TaxesOutputs>';
-      foreach ($totals['taxes'] as $rate=>$tax) {
-        $xml .= '<Tax><TaxTypeCode>01</TaxTypeCode><TaxRate>' . $rate .
-          '</TaxRate><TaxableBase><TotalAmount>' .
-          $this->padTotal($tax['base']) . '</TotalAmount></TaxableBase>' .
-          '<TaxAmount><TotalAmount>' . $this->padTotal($tax['amount']) .
-          '</TotalAmount></TaxAmount></Tax>';
+      foreach ($totals['taxes'] as $type=>$taxRows) {
+        foreach ($taxRows as $rate=>$tax) {
+          $xml .= '<Tax><TaxTypeCode>' . $type . '</TaxTypeCode><TaxRate>' .
+            $rate . '</TaxRate><TaxableBase><TotalAmount>' .
+            $this->padTotal($tax['base']) . '</TotalAmount></TaxableBase>' .
+            '<TaxAmount><TotalAmount>' . $this->padTotal($tax['amount']) .
+            '</TotalAmount></TaxAmount></Tax>';
+        }
       }
       $xml .= '</TaxesOutputs>';
     }
 
     // Add invoice totals
     $xml .= '<InvoiceTotals><TotalGrossAmount>' .
-      $this->padTotal($totals['withoutTaxes']) . '</TotalGrossAmount>' .
+      $this->padTotal($totals['grossAmount']) . '</TotalGrossAmount>' .
       '<TotalGeneralDiscounts>0.00</TotalGeneralDiscounts>' .
       '<TotalGeneralSurcharges>0.00</TotalGeneralSurcharges>' .
       '<TotalGrossAmountBeforeTaxes>' .
-      $this->padTotal($totals['withoutTaxes']) .
+      $this->padTotal($totals['grossAmountBeforeTaxes']) .
       '</TotalGrossAmountBeforeTaxes><TotalTaxOutputs>' .
-      $this->padTotal($totals['onlyTaxes']) .
+      $this->padTotal($totals['taxAmount']) .
       '</TotalTaxOutputs><TotalTaxesWithheld>0.00</TotalTaxesWithheld>' .
-      '<InvoiceTotal>' . $this->padTotal($totals['withTaxes']) .
+      '<InvoiceTotal>' . $this->padTotal($totals['invoiceAmount']) .
       '</InvoiceTotal><TotalOutstandingAmount>' .
-      $this->padTotal($totals['withTaxes']) . '</TotalOutstandingAmount>' .
-      '<TotalExecutableAmount>' . $this->padTotal($totals['withTaxes']) .
+      $this->padTotal($totals['invoiceAmount']) . '</TotalOutstandingAmount>' .
+      '<TotalExecutableAmount>' . $this->padTotal($totals['invoiceAmount']) .
       '</TotalExecutableAmount></InvoiceTotals>';
 
     // Add invoice items
     $xml .= '<Items>';
-    foreach ($this->items as $item) {
-      $xml .= '<InvoiceLine><ItemDescription>' . $item['description'] .
+    foreach ($this->items as $itemObj) {
+      $item = $itemObj->getData();
+      $xml .= '<InvoiceLine><ItemDescription>' . $item['name'] .
         '</ItemDescription><Quantity>' . $this->padTotal($item['quantity']) .
         '</Quantity><UnitOfMeasure>01</UnitOfMeasure><UnitPriceWithoutTax>' .
         $this->padItem($item['unitPriceWithoutTax']) .
         '</UnitPriceWithoutTax><TotalCost>' .
-        $this->padTotal($item['totalPriceWithoutTax']) . '</TotalCost>' .
-        '<GrossAmount>' . $this->padTotal($item['totalPriceWithoutTax']) .
+        $this->padTotal($item['totalAmountWithoutTax']) . '</TotalCost>' .
+        '<GrossAmount>' . $this->padTotal($item['grossAmount']) .
         '</GrossAmount>';
-      if ($item['taxType'] == self::TAX_IVA) {
-        $xml .= '<TaxesOutputs><Tax><TaxTypeCode>01</TaxTypeCode><TaxRate>' .
-        $item['taxRate'] . '</TaxRate><TaxableBase><TotalAmount>' .
-        $this->padTotal($item['totalPriceWithoutTax']) . '</TotalAmount>' .
-        '</TaxableBase><TaxAmount><TotalAmount>' .
-        $this->padTotal($item['taxAmount']) . '</TotalAmount></TaxAmount>' .
-        '</Tax></TaxesOutputs>';
+      if (count($item['taxes']) > 0) {
+        $xml .= '<TaxesOutputs>';
+        foreach ($item['taxes'] as $type=>$tax) {
+          $xml .= '<Tax><TaxTypeCode>' . $type . '</TaxTypeCode>' .
+            '<TaxRate>' . $tax['rate'] . '</TaxRate><TaxableBase>' .
+            '<TotalAmount>' . $this->padTotal($item['totalAmountWithoutTax']) .
+            '</TotalAmount></TaxableBase><TaxAmount><TotalAmount>' .
+            $this->padTotal($tax['amount']) . '</TotalAmount></TaxAmount>' .
+            '</Tax>';
+        }
+        $xml .= '</TaxesOutputs>';
       }
-      if (!is_null($item['additionalInformation'])) {
-        $xml .= '<AdditionalLineItemInformation>' .
-          $item['additionalInformation'] . '</AdditionalLineItemInformation>';
+      if (!is_null($item['description'])) {
+        $xml .= '<AdditionalLineItemInformation>' . $item['description'] .
+          '</AdditionalLineItemInformation>';
       }
       $xml .= '</InvoiceLine>';
     }
@@ -566,7 +582,7 @@ class Facturae {
         date('Y-m-d', is_null($this->header['dueDate']) ?
           $this->header['issueDate'] : $this->header['dueDate']) .
         '</InstallmentDueDate><InstallmentAmount>' .
-        $this->padTotal($totals['withTaxes']) . '</InstallmentAmount>' .
+        $this->padTotal($totals['invoiceAmount']) . '</InstallmentAmount>' .
         '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
       if ($this->header['paymentMethod'] == self::PAYMENT_TRANSFER) {
         $xml .= '<AccountToBeCredited><IBAN>' . $this->header['paymentIBAN'] .

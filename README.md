@@ -33,18 +33,19 @@ Para más información sobre todos los métodos de Facturae-PHP, la clase se enc
     use josemmo\Facturae\Facturae;
     use josemmo\Facturae\FacturaeParty;
     use josemmo\Facturae\FacturaeCentre; // Esta es opcional
-    
+    use josemmo\Facturae\FacturaeItem;   // Este es opcional
+
     // Creamos la factura
     $fac = new Facturae();
-    
+
     // Asignamos el número EMP2017120003 a la factura
     // Nótese que Facturae debe recibir el lote y el
     // número separados
     $fac->setNumber('EMP201712', '0003');
-    
+
     // Asignamos el 01/12/2017 como fecha de la factura
     $fac->setIssueNumber('2017-12-01');
-    
+
     // Incluimos los datos del vendedor
     $fac->setSeller(new FacturaeParty([
       "taxNumber" => "A00000000",
@@ -54,7 +55,7 @@ Para más información sobre todos los métodos de Facturae-PHP, la clase se enc
       "town"      => "Madrid",
       "province"  => "Madrid"
     ]);
-    
+
     // Incluimos los datos del comprador
     // Con finos demostrativos el comprador será
     // una persona física en vez de una empresa
@@ -69,16 +70,16 @@ Para más información sobre todos los métodos de Facturae-PHP, la clase se enc
       "town"          => "Madrid",
       "province"      => "Madrid"
     ]);
-    
+
     // Añadimos los productos a incluir en la factura
     // En este caso, probaremos con tres lámpara por
-    // precio unitario de 20,14€ + 21% IVA
+    // precio unitario de 20,14€ con 21% de IVA ya incluído
     $fac->addItem("Lámpara de pie", 20.14, 3, Facturae::TAX_IVA, 21);
-    
+
     // Ya solo queda firmar la factura ...
     $fac->sign("ruta/hacia/clave_publica.pem",
       "ruta/hacia/clave_privada.pem", "passphrase");
-    
+
     // ... y exportarlo a un archivo
     $fac->export("ruta/de/salida.xsig");
 
@@ -120,7 +121,7 @@ Los compradores y vendedores son representados en Facturae-PHP con la clase `Fac
       "cnoCnae" => "4791", // Clasif. Nacional de Act. Económicas
       "ineTownCode" => "280796" // Cód. de municipio del INE
     ]);
-    
+
     $personaFisica = new FacturaeParty([
       "isLegalEntity" => false,
       "taxNumber"     => "00000000A",
@@ -189,7 +190,7 @@ Es posible añadir una descripción además del concepto al añadir un producto 
 
     // Solo concepto, sin descripción
     $fac->addItem("Lámpara de pie", 20.14, 3, Facturae::TAX_IVA, 21);
-    
+
     // Con descripción incluída
     $fac->addItem(["Lámpara de pie", "Lámpara de madera de nogal con base rectangular y luz halógena"], 20.14, 3, Facturae::TAX_IVA, 21);
 
@@ -202,6 +203,33 @@ La forma adecuada de añadir elementos a los que no se les aplica IVA es la sigu
     $fac->addItem("Llevo IVA al 0%", 100, 1, Facturae::TAX_IVA, 0);
 
 Nótese que Facturae-PHP no limita este tipo de comportamientos, es responsabilidad del usuario crear la factura de acuerdo a la legislación aplicable.
+
+### Uso aún más avanzado de líneas de producto
+Supongamos que se quieren añadir varios impuestos a una misma línea de producto. En este caso se deberá hacer uso de la API avanzada de productos de Facturae-PHP a través de la clase `FacturaeItem`:
+
+    // Vamos a añadir un producto utilizando la API avanzada
+    // que tenga IVA al 10% e IRPF al 15%
+    $fac->addItem(new FacturaeItem([
+      "name" => "Una línea con varios impuestos",
+      "description" => "Esta línea es solo para probar Facturae-PHP",
+      "quantity" => 1, // Esto es opcional, es el valor por defecto si se omite
+      "unitPrice" => 43.64,
+      "taxes" => array(
+        Facturae::TAX_IVA  => 10,
+        Facturae::TAX_IRPF => 15
+      )
+    ]));
+
+Esta API también permite indicar el importe unitario del producto sin incluir impuestos (base imponible), ya que por defecto Facturae-PHP asume lo contrario:
+
+    // Vamos a añadir 3 bombillas LED con un coste de 6,50 € ...
+    // ... pero con los impuestos NO INCLUÍDOS en el precio unitario
+    $fac->addItem(new FacturaeItem([
+      "name" => "Bombilla LED",
+      "quantity" => 3,
+      "unitPriceWithoutTax" => 6.5, // NOTA: no confundir con unitPrice
+      "taxes" => array(Facturae::TAX_IVA => 21)
+    ]));
 
 ### Forma de pago y vencimiento
 Es posible indicar la forma de pago de una factura. Por ejemplo, en caso de pagarse al contado:
@@ -238,3 +266,17 @@ Es posible establecer el periodo de facturación con el siguiente método:
 También es posible obtener un `array` con los totales de la factura:
 
     $totales = $fac->getTotals();
+
+> ##### NOTA
+> El método `getTotals` se ha dejado público al considerar que puede ser de gran utilidad para muchos programadores.
+>
+> Aún así, este método es utilizado por la clase principal para generar el documento XML de la factura y, por tanto, **su salida está sujeta a cambios frecuentes** para acomodar futuras funciones.
+>
+> En conclusión: si usas este método en tu proyecto lee los cambios de versión antes de actualizar.
+
+### Herramientas de validación
+Todas las facturas generadas y firmadas con Facturae-PHP son probadas con las siguientes herramientas online para garantizar el cumplimiento del estándar:
+
+- https://viewer.facturadirecta.com/
+- http://sedeaplicaciones2.minetur.gob.es/FacturaE/index.jsp
+- https://face.gob.es/es/facturas/validar-visualizar-facturas
