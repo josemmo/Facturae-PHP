@@ -3,8 +3,6 @@ language: php
 
 # Run on top of a few versions to check compatibility
 php:
-  - 5.4
-  - 5.5
   - 5.6
   - 7.0
   - nightly
