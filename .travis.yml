@@ -10,5 +10,6 @@ php:
   - hhvm
   - nightly
 
-# And now, the moment of truth. Run PHPUnit tests
-script: phpunit
+# Install Composer package before testing
+install:
+  - composer install --no-interaction
