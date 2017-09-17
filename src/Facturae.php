@@ -342,7 +342,8 @@ class Facturae {
     // Define namespace
     $xmlns = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
       'xmlns:etsi="http://uri.etsi.org/01903/v1.3.2#" ' .
-      'xmlns:fe="http://www.facturae.es/Facturae/2014/v3.2.1/Facturae"';
+      'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
+      $this->version . '/Facturae"';
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;

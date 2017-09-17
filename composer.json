@@ -1,6 +1,7 @@
 {
     "name": "josemmo/facturae-php",
-    "description": "Librería para la generación y firma de facturas Facturae.",
+    "description": "Librería para la generación y firma de facturas Facturae",
+    "keywords": ["facturae", "xades"],
     "license": "MIT",
     "homepage": "https://github.com/josemmo/Facturae-PHP",
     "authors": [

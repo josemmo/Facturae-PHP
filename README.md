@@ -93,6 +93,7 @@ Para más información sobre todos los métodos de Facturae-PHP, la clase se enc
 > require_once "../src/Facturae.php";
 > require_once "../src/FacturaeParty.php";
 > require_once "../src/FacturaeCentre.php";
+> require_once "../src/FacturaeItem.php";
 > ```
 
 ### Compradores y vendedores
