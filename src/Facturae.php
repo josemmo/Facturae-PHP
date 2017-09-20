@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.1
+ * @version 1.0.2
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -34,7 +34,24 @@ class Facturae {
   const PAYMENT_TRANSFER = "04";
 
   const TAX_IVA = "01";
+  const TAX_IPSI = "02";
+  const TAX_IGIC = "03";
   const TAX_IRPF = "04";
+  const TAX_OTHER = "05";
+  const TAX_ITPAJD = "06";
+  const TAX_IE = "07";
+  const TAX_RA = "08";
+  const TAX_IGTECM = "09";
+  const TAX_IECDPCAC = "10";
+  const TAX_IIIMAB = "11";
+  const TAX_ICIO = "12";
+  const TAX_IMVDN = "13";
+  const TAX_IMSN = "14";
+  const TAX_IMGSN = "15";
+  const TAX_IMPN = "16";
+  const TAX_REIVA = "17";
+  const TAX_REIGIC = "18";
+  const TAX_REIPSI = "19";
 
 
   /* ATTRIBUTES */
@@ -342,7 +359,8 @@ class Facturae {
     // Define namespace
     $xmlns = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
       'xmlns:etsi="http://uri.etsi.org/01903/v1.3.2#" ' .
-      'xmlns:fe="http://www.facturae.es/Facturae/2014/v3.2.1/Facturae"';
+      'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
+      $this->version . '/Facturae"';
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
