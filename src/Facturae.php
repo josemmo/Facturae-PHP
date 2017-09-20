@@ -34,7 +34,24 @@ class Facturae {
   const PAYMENT_TRANSFER = "04";
 
   const TAX_IVA = "01";
+  const TAX_IPSI = "02";
+  const TAX_IGIC = "03";
   const TAX_IRPF = "04";
+  const TAX_OTHER = "05";
+  const TAX_ITPAJD = "06";
+  const TAX_IE = "07";
+  const TAX_RA = "08";
+  const TAX_IGTECM = "09";
+  const TAX_IECDPCAC = "10";
+  const TAX_IIIMAB = "11";
+  const TAX_ICIO = "12";
+  const TAX_IMVDN = "13";
+  const TAX_IMSN = "14";
+  const TAX_IMGSN = "15";
+  const TAX_IMPN = "16";
+  const TAX_REIVA = "17";
+  const TAX_REIGIC = "18";
+  const TAX_REIPSI = "19";
 
 
   /* ATTRIBUTES */
