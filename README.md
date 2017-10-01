@@ -291,11 +291,28 @@ $fac->setSignTime("2017-01-01T12:34:56+02:00");
 ```
 
 ### Otros métodos
+
+#### Periodo de facturación
+
 Es posible establecer el periodo de facturación con el siguiente método:
 
 ```php
 $fac->setBillingPeriod("2017-11-01", "2017-11-30");
 ```
+
+#### Textos literales
+
+Se pueden incluir textos literales (generalmente, declaraciones responsables del proveedor) en el XML de la factura:
+
+```php
+$fac->addLegalLiteral("Este es un mensaje de prueba");
+$fac->addLegalLiteral("Y este, otro más");
+```
+
+> ##### NOTA
+> El uso de `LegalLiterals` es obligatorio en determinadas facturas. Cosulta la legislación vigente para más información.
+
+#### Totales de la factura
 
 También es posible obtener un `array` con los totales de la factura:
 

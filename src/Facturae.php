@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.2
+ * @version 1.0.3
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -77,6 +77,7 @@ class Facturae {
     "buyer" => NULL
   );
   private $items = array();
+  private $legalLiterals = array();
 
   private $signTime = NULL;
   private $signPolicy = NULL;
@@ -267,6 +268,15 @@ class Facturae {
       ]);
     }
     array_push($this->items, $item);
+  }
+
+
+  /**
+   * Add legal literal
+   * @param string $message Legal literal reference
+   */
+  public function addLegalLiteral($message) {
+    $this->legalLiterals[] = $message;
   }
 
 
@@ -607,6 +617,15 @@ class Facturae {
           '</IBAN></AccountToBeCredited>';
       }
       $xml .= '</Installment></PaymentDetails>';
+    }
+
+    // Add legal literals
+    if (count($this->legalLiterals) > 0) {
+      $xml .= '<LegalLiterals>';
+      foreach ($this->legalLiterals as $reference) {
+        $xml .= '<LegalReference>' . $reference . '</LegalReference>';
+      }
+      $xml .= '</LegalLiterals>';
     }
 
     // Close invoice and document
