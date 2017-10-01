@@ -77,6 +77,11 @@ final class FacturaeTest extends TestCase {
       "taxes" => array(Facturae::TAX_IVA => 21)
     ]));
 
+    // Añadimos una declaración responsable
+    $fac->addLegalLiteral("Este es un mensaje de prueba que se incluirá " .
+      "dentro del campo LegalLiterals del XML de la factura");
+    $fac->addLegalLiteral("Y este, otro (se pueden añadir varios)");
+
     // Ya solo queda firmar la factura ...
     $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
 
