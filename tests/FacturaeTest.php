@@ -68,6 +68,20 @@ final class FacturaeTest extends TestCase {
       )
     ]));
 
+    // Por defecto, Facturae-PHP asume que el IRPF es un impuesto retenido y el
+    // IVA un impuesto repercutido. Para rizar un poco el rizo vamos a añadir
+    // una línea con IVA (repercutido) al 21% y también con impuestos especiales
+    // retenidos al 4%:
+    $fac->addItem(new FacturaeItem([
+      "name" => "Llevo impuestos retenidos",
+      "quantity" => 1,
+      "unitPrice" => 10,
+      "taxes" => array(
+        Facturae::TAX_IVA => 21,
+        Facturae::TAX_IE  => ["rate"=>4, "isWithheld"=>true]
+      )
+    ]));
+
     // Para terminar, añadimos 3 bombillas LED con un coste de 6,50 € ...
     // ... pero con los impuestos NO INCLUÍDOS en el precio unitario
     $fac->addItem(new FacturaeItem([

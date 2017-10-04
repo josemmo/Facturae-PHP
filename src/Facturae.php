@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.3
+ * @version 1.0.4
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -137,6 +137,19 @@ class Facturae {
    */
   private function padItem($val) {
     return $this->pad($val, $this->itemsPrecision, $this->itemsPadding);
+  }
+
+
+  /**
+   * Is withheld tax
+   *
+   * This method returns if a tax type is, by default, a withheld tax
+   *
+   * @param  string  $taxCode Tax
+   * @return boolean          Is withheld
+   */
+  public static function isWithheldTax($taxCode) {
+    return in_array($taxCode, [self::TAX_IRPF]);
   }
 
 
@@ -287,11 +300,13 @@ class Facturae {
   public function getTotals() {
     // Define starting values
     $totals = array(
-      "taxes" => array(),
+      "taxesOutputs" => array(),
+      "taxesWithheld" => array(),
       "invoiceAmount" => 0,
       "grossAmount" => 0,
       "grossAmountBeforeTaxes" => 0,
-      "taxAmount" => 0
+      "totalTaxesOutputs" => 0,
+      "totalTaxesWithheld" => 0
     );
 
     // Run through every item
@@ -299,16 +314,20 @@ class Facturae {
       $item = $itemObj->getData();
       $totals['invoiceAmount'] += $item['totalAmount'];
       $totals['grossAmount'] += $item['grossAmount'];
-      $totals['taxAmount'] += $item['taxAmount'];
+      $totals['totalTaxesOutputs'] += $item['totalTaxesOutputs'];
+      $totals['totalTaxesWithheld'] += $item['totalTaxesWithheld'];
 
       // Get taxes
-      foreach ($item['taxes'] as $type=>$tax) {
-        if (!isset($totals['taxes'][$type])) $totals['taxes'][$type] = array();
-        if (!isset($totals['taxes'][$type][$tax['rate']]))
-          $totals['taxes'][$type][$tax['rate']] = array("base"=>0, "amount"=>0);
-        $totals['taxes'][$type][$tax['rate']]['base'] +=
-          $item['totalAmountWithoutTax'];
-        $totals['taxes'][$type][$tax['rate']]['amount'] += $tax['amount'];
+      foreach (["taxesOutputs", "taxesWithheld"] as $taxGroup) {
+        foreach ($item[$taxGroup] as $type=>$tax) {
+          if (!isset($totals[$taxGroup][$type]))
+            $totals[$taxGroup][$type] = array();
+          if (!isset($totals[$taxGroup][$type][$tax['rate']]))
+            $totals[$taxGroup][$type][$tax['rate']] = array("base"=>0, "amount"=>0);
+          $totals[$taxGroup][$type][$tax['rate']]['base'] +=
+            $item['totalAmountWithoutTax'];
+          $totals[$taxGroup][$type][$tax['rate']]['amount'] += $tax['amount'];
+        }
       }
     }
 
@@ -334,7 +353,7 @@ class Facturae {
    * @param  string $publicPath  Path to public key PEM file
    * @param  string $privatePath Path to private key PEM file
    * @param  string $passphrase  Private key passphrase
-   * @param  array $policy       Facturae sign policy
+   * @param  array  $policy      Facturae sign policy
    */
   public function sign($publicPath, $privatePath, $passphrase, $policy=self::SIGN_POLICY_3_1) {
     $this->publicKey = openssl_x509_read(file_get_contents($publicPath));
@@ -542,9 +561,11 @@ class Facturae {
       '</TaxCurrencyCode><LanguageName>es</LanguageName></InvoiceIssueData>';
 
     // Add invoice taxes
-    if (count($totals['taxes']) > 0) {
-      $xml .= '<TaxesOutputs>';
-      foreach ($totals['taxes'] as $type=>$taxRows) {
+    foreach (["taxesOutputs", "taxesWithheld"] as $i=>$taxesGroup) {
+      if (count($totals[$taxesGroup]) == 0) continue;
+      $xmlTag = ucfirst($taxesGroup); // Just capitalize variable name
+      $xml .= "<$xmlTag>";
+      foreach ($totals[$taxesGroup] as $type=>$taxRows) {
         foreach ($taxRows as $rate=>$tax) {
           $xml .= '<Tax><TaxTypeCode>' . $type . '</TaxTypeCode><TaxRate>' .
             $rate . '</TaxRate><TaxableBase><TotalAmount>' .
@@ -553,7 +574,7 @@ class Facturae {
             '</TotalAmount></TaxAmount></Tax>';
         }
       }
-      $xml .= '</TaxesOutputs>';
+      $xml .= "</$xmlTag>";
     }
 
     // Add invoice totals
@@ -564,8 +585,9 @@ class Facturae {
       '<TotalGrossAmountBeforeTaxes>' .
       $this->padTotal($totals['grossAmountBeforeTaxes']) .
       '</TotalGrossAmountBeforeTaxes><TotalTaxOutputs>' .
-      $this->padTotal($totals['taxAmount']) .
-      '</TotalTaxOutputs><TotalTaxesWithheld>0.00</TotalTaxesWithheld>' .
+      $this->padTotal($totals['totalTaxesOutputs']) .
+      '</TotalTaxOutputs><TotalTaxesWithheld>' .
+      $this->padTotal($totals['totalTaxesWithheld']) . '</TotalTaxesWithheld>' .
       '<InvoiceTotal>' . $this->padTotal($totals['invoiceAmount']) .
       '</InvoiceTotal><TotalOutstandingAmount>' .
       $this->padTotal($totals['invoiceAmount']) . '</TotalOutstandingAmount>' .
@@ -584,9 +606,16 @@ class Facturae {
         $this->padTotal($item['totalAmountWithoutTax']) . '</TotalCost>' .
         '<GrossAmount>' . $this->padTotal($item['grossAmount']) .
         '</GrossAmount>';
-      if (count($item['taxes']) > 0) {
-        $xml .= '<TaxesOutputs>';
-        foreach ($item['taxes'] as $type=>$tax) {
+
+      // Add item taxes
+      // NOTE: As you can see here, taxesWithheld is before taxesOutputs.
+      // This is intentional, as most official administrations would mark the
+      // invoice as invalid XML if the order is incorrect.
+      foreach (["taxesWithheld", "taxesOutputs"] as $taxesGroup) {
+        if (count($item[$taxesGroup]) == 0) continue;
+        $xmlTag = ucfirst($taxesGroup); // Just capitalize variable name
+        $xml .= "<$xmlTag>";
+        foreach ($item[$taxesGroup] as $type=>$tax) {
           $xml .= '<Tax><TaxTypeCode>' . $type . '</TaxTypeCode>' .
             '<TaxRate>' . $tax['rate'] . '</TaxRate><TaxableBase>' .
             '<TotalAmount>' . $this->padTotal($item['totalAmountWithoutTax']) .
@@ -594,8 +623,10 @@ class Facturae {
             $this->padTotal($tax['amount']) . '</TotalAmount></TaxAmount>' .
             '</Tax>';
         }
-        $xml .= '</TaxesOutputs>';
+        $xml .= "</$xmlTag>";
       }
+
+      // Add item additional information
       if (!is_null($item['description'])) {
         $xml .= '<AdditionalLineItemInformation>' . $item['description'] .
           '</AdditionalLineItemInformation>';
