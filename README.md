@@ -253,6 +253,24 @@ $fac->addItem(new FacturaeItem([
 ]));
 ```
 
+Como último apunte sobre la API avanzada de productos, por defecto Facturae-PHP interprenta al IRPF como un impuesto retenido (aquellos que se restan a la base imponible) y al resto de impuestos como repercutidos (se suman a la base imponible).
+
+Si necesitas crear una factura "especial" es posible sobreescribir el comportamiento por defecto a través de la propiedad `isWithheld`:
+
+```php
+// Para rizar un poco el rizo vamos a añadir una línea con IVA (repercutido)
+// al 21% y también con impuestos especiales retenidos al 4%
+$fac->addItem(new FacturaeItem([
+  "name" => "Llevo impuestos retenidos",
+  "quantity" => 1,
+  "unitPrice" => 10,
+  "taxes" => array(
+    Facturae::TAX_IVA => 21,
+    Facturae::TAX_IE  => ["rate"=>4, "isWithheld"=>true]
+  )
+]));
+```
+
 ### Forma de pago y vencimiento
 Es posible indicar la forma de pago de una factura. Por ejemplo, en caso de pagarse al contado:
 
