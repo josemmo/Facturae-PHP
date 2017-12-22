@@ -364,7 +364,7 @@ class Facturae {
 
     if (is_file($pkcs12_file) and !empty($pkcs12_pass)) {
       if (openssl_pkcs12_read(file_get_contents($pkcs12_file), $certs, $pkcs12_pass)) {
-        $this->publicKey = $certs['cert'];
+        $this->publicKey = openssl_x509_read($certs['cert']);
         $this->privateKey = openssl_pkey_get_private($certs['pkey']);
       }
     }
