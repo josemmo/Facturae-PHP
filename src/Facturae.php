@@ -415,7 +415,7 @@ class Facturae {
     $this->signatureSignedPropertiesID = $this->random();
     $this->signatureObjectID = $this->random();
     
-    return $this->loadx509($publicPath, $privatePath, $passphrase);
+    return $this->load_x509($publicPath, $privatePath, $passphrase);
   }
 
 
