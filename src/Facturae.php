@@ -440,7 +440,7 @@ class Facturae {
     $this->signatureSignedPropertiesID = $this->random();
     $this->signatureObjectID = $this->random();
     
-    return load_pkcs12($pkcs12_file, $pkcs12_pass);
+    return $this->load_pkcs12($pkcs12_file, $pkcs12_pass);
   }
 
 
