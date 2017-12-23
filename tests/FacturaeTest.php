@@ -1,5 +1,4 @@
 <?php
-
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
@@ -10,7 +9,12 @@ final class FacturaeTest extends TestCase {
   const FILE_PATH = __DIR__ . "/salida.xsig";
   const COOKIES_PATH = __DIR__ . "/cookies.txt";
 
-  public function testCreateInvoice() {
+
+  /**
+   * Test Create Invoice
+   * @param boolean $isPfx Whether to test with PFX signature or PEM files
+   */
+  public function testCreateInvoice($isPfx=false) {
     // Creamos la factura
     $fac = new Facturae();
 
@@ -97,7 +101,11 @@ final class FacturaeTest extends TestCase {
     $fac->addLegalLiteral("Y este, otro (se pueden añadir varios)");
 
     // Ya solo queda firmar la factura ...
-    $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
+    if ($isPfx) {
+      $fac->sign(__DIR__ . "/test.pfx", NULL, "12345");
+    } else {
+      $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
+    }
 
     // ... y exportarlo a un archivo
     $res = $fac->export(self::FILE_PATH);
@@ -105,6 +113,17 @@ final class FacturaeTest extends TestCase {
   }
 
 
+  /**
+   * Test PFX
+   */
+  public function testPfx() {
+    $this->testCreateInvoice(true);
+  }
+
+
+  /**
+   * Test Invoice Complies with Format
+   */
   public function testInvoiceCompliesWithFormat() {
     // Prepare file to upload
     if (function_exists('curl_file_create')) {
