@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.4
+ * @version 1.0.5
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -24,6 +24,7 @@ class Facturae {
 
   /* CONSTANTS */
   const SCHEMA_3_2_1 = "3.2.1";
+  const SCHEMA_3_2_2 = "3.2.2";
   const SIGN_POLICY_3_1 = array(
     "name" => "Política de Firma FacturaE v3.1",
     "url" => "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
