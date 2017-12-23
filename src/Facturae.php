@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.4
+ * @version 1.0.5
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -24,6 +24,7 @@ class Facturae {
 
   /* CONSTANTS */
   const SCHEMA_3_2_1 = "3.2.1";
+  const SCHEMA_3_2_2 = "3.2.2";
   const SIGN_POLICY_3_1 = array(
     "name" => "Política de Firma FacturaE v3.1",
     "url" => "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
@@ -101,10 +102,14 @@ class Facturae {
    * This method is used for generating random IDs required when signing the
    * document.
    *
-   * @return int  Random number
+   * @return int Random number
    */
   private function random() {
-    return rand(100000, 999999);
+    if (function_exists('random_int')) {
+      return random_int(0x10000000, 0x7FFFFFFF);
+    } else {
+      return rand(100000, 999999);
+    }
   }
 
 
@@ -348,17 +353,57 @@ class Facturae {
 
 
   /**
-   * Sign
+   * Load a PKCS#12 Certificate Store
+   *
+   * @param  string $pkcs12File  The certificate store file name
+   * @param  string $pkcs12Pass  Encryption password for unlocking the PKCS#12 file
+   * @return bool                Success
+   */
+  private function loadPkcs12($pkcs12File, $pkcs12Pass="") {
+    if (!is_file($pkcs12File)) return false;
+
+    // Extract public and private keys from store
+    if (openssl_pkcs12_read(file_get_contents($pkcs12File), $certs, $pkcs12Pass)) {
+      $this->publicKey = openssl_x509_read($certs['cert']);
+      $this->privateKey = openssl_pkey_get_private($certs['pkey']);
+    }
+
+    return (!empty($this->publicKey) && !empty($this->privateKey));
+  }
+
+
+  /**
+   * Load a X.509 certificate and PEM encoded private key
    *
    * @param  string $publicPath  Path to public key PEM file
    * @param  string $privatePath Path to private key PEM file
    * @param  string $passphrase  Private key passphrase
-   * @param  array  $policy      Facturae sign policy
+   * @return bool                Success
    */
-  public function sign($publicPath, $privatePath, $passphrase, $policy=self::SIGN_POLICY_3_1) {
-    $this->publicKey = openssl_x509_read(file_get_contents($publicPath));
-    $this->privateKey = openssl_pkey_get_private(
-      file_get_contents($privatePath), $passphrase);
+  private function loadX509($publicPath, $privatePath, $passphrase="") {
+    if (is_file($publicPath) && is_file($privatePath)) {
+      $this->publicKey = openssl_x509_read(file_get_contents($publicPath));
+      $this->privateKey = openssl_pkey_get_private(
+        file_get_contents($privatePath),
+        $passphrase
+      );
+    }
+    return (!empty($this->publicKey) && !empty($this->privateKey));
+  }
+
+
+  /**
+   * Sign
+   *
+   * @param  string $publicPath  Path to public key PEM file or PKCS#12 certificate store
+   * @param  string $privatePath Path to private key PEM file (should be NULL in case of PKCS#12)
+   * @param  string $passphrase  Private key passphrase
+   * @param  array  $policy      Facturae sign policy
+   * @return bool                Success
+   */
+  public function sign($publicPath, $privatePath=NULL, $passphrase="", $policy=self::SIGN_POLICY_3_1) {
+    $this->publicKey = NULL;
+    $this->privateKey = NULL;
     $this->signPolicy = $policy;
 
     // Generate random IDs
@@ -370,6 +415,13 @@ class Facturae {
     $this->referenceID = $this->random();
     $this->signatureSignedPropertiesID = $this->random();
     $this->signatureObjectID = $this->random();
+
+    // Load public and private keys
+    if (empty($privatePath)) {
+      return $this->loadPkcs12($publicPath, $passphrase);
+    } else {
+      return $this->loadX509($publicPath, $privatePath, $passphrase);
+    }
   }
 
 
@@ -380,7 +432,7 @@ class Facturae {
    */
   private function injectSignature($xml) {
     // Make sure we have all we need to sign the document
-    if (is_null($this->publicKey) || is_null($this->privateKey)) return $xml;
+    if (empty($this->publicKey) || empty($this->privateKey)) return $xml;
 
     // Normalize document
     $xml = str_replace("\r", "", $xml);
@@ -400,6 +452,8 @@ class Facturae {
                   "OU=" . $certData['issuer']['OU'] . "," .
                   "O=" .  $certData['issuer']['O']  . "," .
                   "C=" .  $certData['issuer']['C'];
+
+    // Generate signed properties
     $prop = '<etsi:SignedProperties Id="Signature' . $this->signatureID .
       '-SignedProperties' . $this->signatureSignedPropertiesID . '">' .
       '<etsi:SignedSignatureProperties><etsi:SigningTime>' .
