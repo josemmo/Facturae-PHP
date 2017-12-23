@@ -101,7 +101,7 @@ class Facturae {
    * This method is used for generating random IDs required when signing the
    * document.
    *
-   * @return int  Random number
+   * @return int Random number
    */
   private function random() {
     if (function_exists('random_int')) {
@@ -354,55 +354,55 @@ class Facturae {
   /**
    * Load a PKCS#12 Certificate Store
    *
-   * @param  string $pkcs12_file  The certificate store file name
-   * @param  string $pkcs12_pass  Encryption password for unlocking the PKCS#12 file
-   * @return bool  true on success or FALSE on failure.
+   * @param  string $pkcs12File  The certificate store file name
+   * @param  string $pkcs12Pass  Encryption password for unlocking the PKCS#12 file
+   * @return bool                Success
    */
-  public function load_pkcs12 ($pkcs12_file, $pkcs12_pass) {
-    $this->publicKey = null;
-    $this->privateKey = null;
+  private function loadPkcs12($pkcs12File, $pkcs12Pass="") {
+    if (!is_file($pkcs12File)) return false;
 
-    if (is_file($pkcs12_file) and !empty($pkcs12_pass)) {
-      if (openssl_pkcs12_read(file_get_contents($pkcs12_file), $certs, $pkcs12_pass)) {
-        $this->publicKey = openssl_x509_read($certs['cert']);
-        $this->privateKey = openssl_pkey_get_private($certs['pkey']);
-      }
+    // Extract public and private keys from store
+    if (openssl_pkcs12_read(file_get_contents($pkcs12File), $certs, $pkcs12Pass)) {
+      $this->publicKey = openssl_x509_read($certs['cert']);
+      $this->privateKey = openssl_pkey_get_private($certs['pkey']);
     }
 
-    return (!empty($this->publicKey) and !empty($this->privateKey));
+    return (!empty($this->publicKey) && !empty($this->privateKey));
   }
 
+
   /**
-   * Load a X.509 certificate and PEM encoded private key 
+   * Load a X.509 certificate and PEM encoded private key
    *
    * @param  string $publicPath  Path to public key PEM file
    * @param  string $privatePath Path to private key PEM file
    * @param  string $passphrase  Private key passphrase
-   * @return bool  true on success or FALSE on failure.
+   * @return bool                Success
    */
-  public function load_x509 ($publicPath, $privatePath, $passphrase = '') {
-    $this->publicKey = null;
-    $this->privateKey = null;
-
-    if (is_file($publicPath) and is_file($privatePath)) {
+  private function loadX509($publicPath, $privatePath, $passphrase="") {
+    if (is_file($publicPath) && is_file($privatePath)) {
       $this->publicKey = openssl_x509_read(file_get_contents($publicPath));
-      $this->privateKey = openssl_pkey_get_private(file_get_contents($privatePath), $passphrase);
+      $this->privateKey = openssl_pkey_get_private(
+        file_get_contents($privatePath),
+        $passphrase
+      );
     }
-
-    return (!empty($this->publicKey) and !empty($this->privateKey));
+    return (!empty($this->publicKey) && !empty($this->privateKey));
   }
 
 
   /**
    * Sign
    *
-   * @param  string $publicPath  Path to public key PEM file
-   * @param  string $privatePath Path to private key PEM file
+   * @param  string $publicPath  Path to public key PEM file or PKCS#12 certificate store
+   * @param  string $privatePath Path to private key PEM file (should be NULL in case of PKCS#12)
    * @param  string $passphrase  Private key passphrase
    * @param  array  $policy      Facturae sign policy
-   * @return bool  true on success or FALSE on failure.
+   * @return bool                Success
    */
-  public function sign($publicPath, $privatePath, $passphrase, $policy=self::SIGN_POLICY_3_1) {
+  public function sign($publicPath, $privatePath=NULL, $passphrase="", $policy=self::SIGN_POLICY_3_1) {
+    $this->publicKey = NULL;
+    $this->privateKey = NULL;
     $this->signPolicy = $policy;
 
     // Generate random IDs
@@ -414,33 +414,13 @@ class Facturae {
     $this->referenceID = $this->random();
     $this->signatureSignedPropertiesID = $this->random();
     $this->signatureObjectID = $this->random();
-    
-    return $this->load_x509($publicPath, $privatePath, $passphrase);
-  }
 
-
-  /**
-   * Sign with PKCS#12 Certificate Store
-   *
-   * @param  string $pkcs12_file  The certificate store file name
-   * @param  string $pkcs12_pass  Encryption password for unlocking the PKCS#12 file
-   * @param  array  $policy      Facturae sign policy
-   * @return bool  true on success or FALSE on failure.
-   */
-  public function sign_pkcs12($pkcs12_file, $pkcs12_pass, $policy=self::SIGN_POLICY_3_1) {
-    $this->signPolicy = $policy;
-
-    // Generate random IDs
-    $this->signatureID = $this->random();
-    $this->signedInfoID = $this->random();
-    $this->signedPropertiesID = $this->random();
-    $this->signatureValueID = $this->random();
-    $this->certificateID = $this->random();
-    $this->referenceID = $this->random();
-    $this->signatureSignedPropertiesID = $this->random();
-    $this->signatureObjectID = $this->random();
-    
-    return $this->load_pkcs12($pkcs12_file, $pkcs12_pass);
+    // Load public and private keys
+    if (empty($privatePath)) {
+      return $this->loadPkcs12($publicPath, $passphrase);
+    } else {
+      return $this->loadX509($publicPath, $privatePath, $passphrase);
+    }
   }
 
 
@@ -451,29 +431,28 @@ class Facturae {
    */
   private function injectSignature($xml) {
     // Make sure we have all we need to sign the document
-    if (is_null($this->publicKey) || is_null($this->privateKey)) return $xml;
+    if (empty($this->publicKey) || empty($this->privateKey)) return $xml;
 
     // Normalize document
     $xml = str_replace("\r", "", $xml);
 
     // Define namespace
-    $xmlns = null;
-    $xmlns .= 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ';
-    $xmlns .= 'xmlns:xades="http://uri.xades.org/01903/v1.3.2#" ';
-    $xmlns .= 'xmlns:fe="http://www.facturae.es/Facturae/2014/v' . $this->version . '/Facturae"';
+    $xmlns = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
+      'xmlns:etsi="http://uri.etsi.org/01903/v1.3.2#" ' .
+      'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
+      $this->version . '/Facturae"';
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
-
     $certData = openssl_x509_parse($this->publicKey);
-    $certDigest = openssl_x509_fingerprint($this->publicKey, 'sha1', true);
+    $certDigest = openssl_x509_fingerprint($this->publicKey, "sha1", true);
     $certDigest = base64_encode($certDigest);
+    $certIssuer = "CN=" . $certData['issuer']['CN'] . "," .
+                  "OU=" . $certData['issuer']['OU'] . "," .
+                  "O=" .  $certData['issuer']['O']  . "," .
+                  "C=" .  $certData['issuer']['C'];
 
-    foreach (['CN', 'OU', 'O', 'C'] as $item) {
-      $certIssuer[] = $item . '=' . $certData['issuer'][$item];
-    }
-    $certIssuer = implode(',', $certIssuer);
-    
+    // Generate signed properties
     $prop = '<etsi:SignedProperties Id="Signature' . $this->signatureID .
       '-SignedProperties' . $this->signatureSignedPropertiesID . '">' .
       '<etsi:SignedSignatureProperties><etsi:SigningTime>' .
