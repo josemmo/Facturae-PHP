@@ -448,7 +448,7 @@ class Facturae {
     $certData = openssl_x509_parse($this->publicKey);
     $certDigest = openssl_x509_fingerprint($this->publicKey, "sha1", true);
     $certDigest = base64_encode($certDigest);
-    foreach ($certData['issuer'] as $item => $value) {
+    foreach ($certData['issuer'] as $item=>$value) {
       $certIssuer[] = $item . '=' . $value;
     }
     $certIssuer = implode(',', $certIssuer);

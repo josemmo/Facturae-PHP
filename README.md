@@ -345,7 +345,7 @@ $fac->addLegalLiteral("Y este, otro más");
 ```
 
 > ##### NOTA
-> El uso de `LegalLiterals` es obligatorio en determinadas facturas. Cosulta la legislación vigente para más información.
+> El uso de `LegalLiterals` es obligatorio en determinadas facturas. Consulta la legislación vigente para más información.
 
 #### Totales de la factura
 
