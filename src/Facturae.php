@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.5
+ * @version 1.1.0
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -437,51 +437,55 @@ class Facturae {
     // Normalize document
     $xml = str_replace("\r", "", $xml);
 
-    // Define namespace
-    $xmlns = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
-      'xmlns:etsi="http://uri.etsi.org/01903/v1.3.2#" ' .
-      'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
+    // Define namespace (NOTE: in alphabetical order)
+    $xmlns = array();
+    $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
+    $xmlns[] = 'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
       $this->version . '/Facturae"';
+    $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
+    $xmlns = implode(' ', $xmlns);
+
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
     $certData = openssl_x509_parse($this->publicKey);
     $certDigest = openssl_x509_fingerprint($this->publicKey, "sha1", true);
     $certDigest = base64_encode($certDigest);
+    $certIssuer = array();
     foreach ($certData['issuer'] as $item=>$value) {
       $certIssuer[] = $item . '=' . $value;
     }
     $certIssuer = implode(',', $certIssuer);
 
     // Generate signed properties
-    $prop = '<etsi:SignedProperties Id="Signature' . $this->signatureID .
+    $prop = '<xades:SignedProperties Id="Signature' . $this->signatureID .
       '-SignedProperties' . $this->signatureSignedPropertiesID . '">' .
-      '<etsi:SignedSignatureProperties><etsi:SigningTime>' .
-      date('c', $signTime) . '</etsi:SigningTime>' .
-      '<etsi:SigningCertificate><etsi:Cert><etsi:CertDigest>' .
+      '<xades:SignedSignatureProperties><xades:SigningTime>' .
+      date('c', $signTime) . '</xades:SigningTime>' .
+      '<xades:SigningCertificate><xades:Cert><xades:CertDigest>' .
       '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
       '</ds:DigestMethod><ds:DigestValue>' . $certDigest .
-      '</ds:DigestValue></etsi:CertDigest><etsi:IssuerSerial>' .
+      '</ds:DigestValue></xades:CertDigest><xades:IssuerSerial>' .
       '<ds:X509IssuerName>' . $certIssuer .
       '</ds:X509IssuerName><ds:X509SerialNumber>' .
       $certData['serialNumber'] . '</ds:X509SerialNumber>' .
-      '</etsi:IssuerSerial></etsi:Cert></etsi:SigningCertificate>' .
-      '<etsi:SignaturePolicyIdentifier><etsi:SignaturePolicyId>' .
-      '<etsi:SigPolicyId><etsi:Identifier>' . $this->signPolicy['url'] .
-      '</etsi:Identifier><etsi:Description>' . $this->signPolicy['name'] .
-      '</etsi:Description></etsi:SigPolicyId><etsi:SigPolicyHash>' .
+      '</xades:IssuerSerial></xades:Cert></xades:SigningCertificate>' .
+      '<xades:SignaturePolicyIdentifier><xades:SignaturePolicyId>' .
+      '<xades:SigPolicyId><xades:Identifier>' . $this->signPolicy['url'] .
+      '</xades:Identifier><xades:Description>' . $this->signPolicy['name'] .
+      '</xades:Description></xades:SigPolicyId><xades:SigPolicyHash>' .
       '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
       '</ds:DigestMethod><ds:DigestValue>' . $this->signPolicy['digest'] .
-      '</ds:DigestValue></etsi:SigPolicyHash></etsi:SignaturePolicyId>' .
-      '</etsi:SignaturePolicyIdentifier><etsi:SignerRole>' .
-      '<etsi:ClaimedRoles><etsi:ClaimedRole>emisor</etsi:ClaimedRole>' .
-      '</etsi:ClaimedRoles></etsi:SignerRole>' .
-      '</etsi:SignedSignatureProperties><etsi:SignedDataObjectProperties>' .
-      '<etsi:DataObjectFormat ObjectReference="#Reference-ID-' .
-      $this->referenceID . '"><etsi:Description>Factura electrónica' .
-      '</etsi:Description><etsi:MimeType>text/xml</etsi:MimeType>' .
-      '</etsi:DataObjectFormat></etsi:SignedDataObjectProperties>' .
-      '</etsi:SignedProperties>';
+      '</ds:DigestValue></xades:SigPolicyHash></xades:SignaturePolicyId>' .
+      '</xades:SignaturePolicyIdentifier><xades:SignerRole>' .
+      '<xades:ClaimedRoles><xades:ClaimedRole>emisor</xades:ClaimedRole>' .
+      '</xades:ClaimedRoles></xades:SignerRole>' .
+      '</xades:SignedSignatureProperties><xades:SignedDataObjectProperties>' .
+      '<xades:DataObjectFormat ObjectReference="#Reference-ID-' .
+      $this->referenceID . '"><xades:Description>Factura electrónica' .
+      '</xades:Description><xades:MimeType>text/xml</xades:MimeType>' .
+      '</xades:DataObjectFormat></xades:SignedDataObjectProperties>' .
+      '</xades:SignedProperties>';
 
     // Prepare key info
     $kInfo = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' .
@@ -504,8 +508,8 @@ class Facturae {
       "\n" . '</ds:KeyInfo>';
 
     // Calculate digests
-    $propDigest = base64_encode(sha1(str_replace('<etsi:SignedProperties',
-      '<etsi:SignedProperties ' . $xmlns, $prop), true));
+    $propDigest = base64_encode(sha1(str_replace('<xades:SignedProperties',
+      '<xades:SignedProperties ' . $xmlns, $prop), true));
     $kInfoDigest = base64_encode(sha1(str_replace('<ds:KeyInfo',
       '<ds:KeyInfo ' . $xmlns, $kInfo), true));
     $documentDigest = base64_encode(sha1($xml, true));
@@ -545,14 +549,14 @@ class Facturae {
     $signatureResult = str_replace("\r", "", $signatureResult);
 
     // Make signature
-    $sig = '<ds:Signature xmlns:etsi="http://uri.etsi.org/01903/v1.3.2#" ' .
+    $sig = '<ds:Signature xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" ' .
       'Id="Signature' . $this->signatureID . '">' . "\n" . $sInfo . "\n" .
       '<ds:SignatureValue Id="SignatureValue' . $this->signatureValueID . '">' .
       "\n" . $signatureResult . '</ds:SignatureValue>' . "\n" . $kInfo . "\n" .
       '<ds:Object Id="Signature' . $this->signatureID . '-Object' .
-      $this->signatureObjectID . '"><etsi:QualifyingProperties ' .
+      $this->signatureObjectID . '"><xades:QualifyingProperties ' .
       'Target="#Signature' . $this->signatureID . '">' . $prop .
-      '</etsi:QualifyingProperties></ds:Object></ds:Signature>';
+      '</xades:QualifyingProperties></ds:Object></ds:Signature>';
 
     // Inject signature
     $xml = str_replace('</fe:Facturae>', $sig . '</fe:Facturae>', $xml);
