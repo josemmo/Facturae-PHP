@@ -448,10 +448,10 @@ class Facturae {
     $certData = openssl_x509_parse($this->publicKey);
     $certDigest = openssl_x509_fingerprint($this->publicKey, "sha1", true);
     $certDigest = base64_encode($certDigest);
-    $certIssuer = "CN=" . $certData['issuer']['CN'] . "," .
-                  "OU=" . $certData['issuer']['OU'] . "," .
-                  "O=" .  $certData['issuer']['O']  . "," .
-                  "C=" .  $certData['issuer']['C'];
+    foreach ($certData['issuer'] as $item => $value) {
+      $certIssuer[] = $item . '=' . $value;
+    }
+    $certIssuer = implode(',', $certIssuer);
 
     // Generate signed properties
     $prop = '<etsi:SignedProperties Id="Signature' . $this->signatureID .
