@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.5
+ * @version 1.1.0
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
