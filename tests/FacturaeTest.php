@@ -6,17 +6,21 @@ use PHPUnit\Framework\TestCase;
 
 final class FacturaeTest extends TestCase {
 
-  const FILE_PATH = __DIR__ . "/salida.xsig";
+  const FILE_PATH = __DIR__ . "/salida-*.xsig";
   const COOKIES_PATH = __DIR__ . "/cookies.txt";
 
 
   /**
    * Test Create Invoice
-   * @param boolean $isPfx Whether to test with PFX signature or PEM files
+   *
+   * @param string  $schemaVersion FacturaE Schema Version
+   * @param boolean $isPfx         Whether to test with PFX signature or PEM files
+   *
+   * @dataProvider  invoicesProvider
    */
-  public function testCreateInvoice($isPfx=false) {
+  public function testCreateInvoice($schemaVersion, $isPfx) {
     // Creamos la factura
-    $fac = new Facturae();
+    $fac = new Facturae($schemaVersion);
 
     // Asignamos el número EMP2017120003 a la factura
     // Nótese que Facturae debe recibir el lote y el
@@ -107,29 +111,43 @@ final class FacturaeTest extends TestCase {
       $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
     }
 
-    // ... y exportarlo a un archivo
-    $res = $fac->export(self::FILE_PATH);
-    $this->assertEquals($res, true);
+    // ... exportarlo a un archivo ...
+    $isPfxStr = $isPfx ? "PKCS12" : "X509";
+    $outputPath = str_replace("*", "$schemaVersion-$isPfxStr", self::FILE_PATH);
+    $res = $fac->export($outputPath);
+
+    // ... y validar la factura
+    $this->validateInvoiceXML($outputPath);
   }
 
 
   /**
-   * Test PFX
+   * Invoices provider
    */
-  public function testPfx() {
-    $this->testCreateInvoice(true);
+  public function invoicesProvider() {
+    // TODO: uncomment last two tests
+    // Not ready for production as almost no provider supports v3.2.2,
+    // not even the Spanish Goverment itself. Maybe in 2018?
+    return [
+      "v3.2.1 (X.509)"   => [Facturae::SCHEMA_3_2_1, false],
+      "v3.2.1 (PKCS#12)" => [Facturae::SCHEMA_3_2_1, true],
+      //"v3.2.2 (X.509)"   => [Facturae::SCHEMA_3_2_2, false],
+      //"v3.2.2 (PKCS#12)" => [Facturae::SCHEMA_3_2_2, true]
+    ];
   }
 
 
   /**
-   * Test Invoice Complies with Format
+   * Validate Invoice XML
+   *
+   * @param string $path Invoice path
    */
-  public function testInvoiceCompliesWithFormat() {
+  private function validateInvoiceXML($path) {
     // Prepare file to upload
     if (function_exists('curl_file_create')) {
-      $postFile = curl_file_create(self::FILE_PATH);
+      $postFile = curl_file_create($path);
     } else {
-      $postFile = "@" . realpath(self::FILE_PATH);
+      $postFile = "@" . realpath($path);
     }
 
     // Send upload request
