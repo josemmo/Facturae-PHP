@@ -25,6 +25,7 @@ class FacturaeItem {
 
   /**
    * Construct
+   *
    * @param array $properties Item properties as an array
    */
   public function __construct($properties=array()) {
