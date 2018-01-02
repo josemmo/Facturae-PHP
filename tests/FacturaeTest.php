@@ -37,7 +37,10 @@ final class FacturaeTest extends TestCase {
       "address"   => "C/ Falsa, 123",
       "postCode"  => "23456",
       "town"      => "Madrid",
-      "province"  => "Madrid"
+      "province"  => "Madrid",
+      "book"      => "0",
+      "merchantRegister" => "RG",
+      "sheet"     => "1"
     ]));
 
     // Incluimos los datos del comprador
