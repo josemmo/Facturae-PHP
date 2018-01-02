@@ -23,6 +23,7 @@ namespace josemmo\Facturae;
 class Facturae {
 
   /* CONSTANTS */
+  const SCHEMA_3_2 = "3.2";
   const SCHEMA_3_2_1 = "3.2.1";
   const SCHEMA_3_2_2 = "3.2.2";
   const SIGN_POLICY_3_1 = array(
@@ -53,6 +54,14 @@ class Facturae {
   const TAX_REIVA = "17";
   const TAX_REIGIC = "18";
   const TAX_REIPSI = "19";
+
+
+  /* PRIVATE CONSTANTS */
+  private static $SCHEMA_NS = array(
+    self::SCHEMA_3_2   => "http://www.facturae.es/Facturae/2009/v3.2/Facturae",
+    self::SCHEMA_3_2_1 => "http://www.facturae.es/Facturae/2014/v3.2.1/Facturae",
+    self::SCHEMA_3_2_2 => "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
+  );
 
 
   /* ATTRIBUTES */
@@ -440,8 +449,7 @@ class Facturae {
     // Define namespace (NOTE: in alphabetical order)
     $xmlns = array();
     $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
-    $xmlns[] = 'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
-      $this->version . '/Facturae"';
+    $xmlns[] = 'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"';
     $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
     $xmlns = implode(' ', $xmlns);
 
@@ -576,8 +584,7 @@ class Facturae {
   public function export($filePath=NULL) {
     // Prepare document
     $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
-           'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
-           $this->version . '/Facturae">';
+           'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
     $totals = $this->getTotals();
 
     // Add header
