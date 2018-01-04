@@ -8,7 +8,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.0.5
+ * @version 1.1.0
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -23,6 +23,7 @@ namespace josemmo\Facturae;
 class Facturae {
 
   /* CONSTANTS */
+  const SCHEMA_3_2 = "3.2";
   const SCHEMA_3_2_1 = "3.2.1";
   const SCHEMA_3_2_2 = "3.2.2";
   const SIGN_POLICY_3_1 = array(
@@ -53,6 +54,14 @@ class Facturae {
   const TAX_REIVA = "17";
   const TAX_REIGIC = "18";
   const TAX_REIPSI = "19";
+
+
+  /* PRIVATE CONSTANTS */
+  private static $SCHEMA_NS = array(
+    self::SCHEMA_3_2   => "http://www.facturae.es/Facturae/2009/v3.2/Facturae",
+    self::SCHEMA_3_2_1 => "http://www.facturae.es/Facturae/2014/v3.2.1/Facturae",
+    self::SCHEMA_3_2_2 => "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
+  );
 
 
   /* ATTRIBUTES */
@@ -115,6 +124,7 @@ class Facturae {
 
   /**
    * Pad
+   *
    * @param  float  $val       Input
    * @param  int    $precision Decimals to round
    * @param  int    $padding   Decimals to pad
@@ -127,6 +137,7 @@ class Facturae {
 
   /**
    * Pad total value
+   *
    * @param  float $val Input
    * @return string     Padded value
    */
@@ -137,8 +148,9 @@ class Facturae {
 
   /**
    * Pad item value
-   * @param  float $val Input
-   * @return string     Padded value
+   *
+   * @param  float  $val Input
+   * @return string      Padded value
    */
   private function padItem($val) {
     return $this->pad($val, $this->itemsPrecision, $this->itemsPadding);
@@ -250,6 +262,7 @@ class Facturae {
 
   /**
    * Set payment method
+   *
    * @param string $method Payment method
    * @param string $iban   Bank account in case of bank transfer
    */
@@ -291,6 +304,7 @@ class Facturae {
 
   /**
    * Add legal literal
+   *
    * @param string $message Legal literal reference
    */
   public function addLegalLiteral($message) {
@@ -300,6 +314,7 @@ class Facturae {
 
   /**
    * Get totals
+   *
    * @return array Invoice totals
    */
   public function getTotals() {
@@ -345,6 +360,7 @@ class Facturae {
 
   /**
    * Set sign time
+   *
    * @param int|string $time Time of the signature
    */
   public function setSignTime($time) {
@@ -355,9 +371,9 @@ class Facturae {
   /**
    * Load a PKCS#12 Certificate Store
    *
-   * @param  string $pkcs12File  The certificate store file name
-   * @param  string $pkcs12Pass  Encryption password for unlocking the PKCS#12 file
-   * @return bool                Success
+   * @param  string  $pkcs12File  The certificate store file name
+   * @param  string  $pkcs12Pass  Encryption password for unlocking the PKCS#12 file
+   * @return boolean              Success
    */
   private function loadPkcs12($pkcs12File, $pkcs12Pass="") {
     if (!is_file($pkcs12File)) return false;
@@ -395,11 +411,11 @@ class Facturae {
   /**
    * Sign
    *
-   * @param  string $publicPath  Path to public key PEM file or PKCS#12 certificate store
-   * @param  string $privatePath Path to private key PEM file (should be NULL in case of PKCS#12)
-   * @param  string $passphrase  Private key passphrase
-   * @param  array  $policy      Facturae sign policy
-   * @return bool                Success
+   * @param  string  $publicPath  Path to public key PEM file or PKCS#12 certificate store
+   * @param  string  $privatePath Path to private key PEM file (should be NULL in case of PKCS#12)
+   * @param  string  $passphrase  Private key passphrase
+   * @param  array   $policy      Facturae sign policy
+   * @return boolean              Success
    */
   public function sign($publicPath, $privatePath=NULL, $passphrase="", $policy=self::SIGN_POLICY_3_1) {
     $this->publicKey = NULL;
@@ -427,6 +443,7 @@ class Facturae {
 
   /**
    * Inject signature
+   *
    * @param  string Unsigned XML document
    * @return string Signed XML document
    */
@@ -437,122 +454,151 @@ class Facturae {
     // Normalize document
     $xml = str_replace("\r", "", $xml);
 
-    // Define namespace
-    $xmlns = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
-      'xmlns:etsi="http://uri.etsi.org/01903/v1.3.2#" ' .
-      'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
-      $this->version . '/Facturae"';
+    // Define namespace (NOTE: in alphabetical order)
+    $xmlns = array();
+    $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
+    $xmlns[] = 'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"';
+    $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
+    $xmlns = implode(' ', $xmlns);
+
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
     $certData = openssl_x509_parse($this->publicKey);
     $certDigest = openssl_x509_fingerprint($this->publicKey, "sha1", true);
     $certDigest = base64_encode($certDigest);
-    $certIssuer = "CN=" . $certData['issuer']['CN'] . "," .
-                  "OU=" . $certData['issuer']['OU'] . "," .
-                  "O=" .  $certData['issuer']['O']  . "," .
-                  "C=" .  $certData['issuer']['C'];
+    $certIssuer = array();
+    foreach ($certData['issuer'] as $item=>$value) {
+      $certIssuer[] = $item . '=' . $value;
+    }
+    $certIssuer = implode(',', $certIssuer);
 
     // Generate signed properties
-    $prop = '<etsi:SignedProperties Id="Signature' . $this->signatureID .
-      '-SignedProperties' . $this->signatureSignedPropertiesID . '">' .
-      '<etsi:SignedSignatureProperties><etsi:SigningTime>' .
-      date('c', $signTime) . '</etsi:SigningTime>' .
-      '<etsi:SigningCertificate><etsi:Cert><etsi:CertDigest>' .
-      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
-      '</ds:DigestMethod><ds:DigestValue>' . $certDigest .
-      '</ds:DigestValue></etsi:CertDigest><etsi:IssuerSerial>' .
-      '<ds:X509IssuerName>' . $certIssuer .
-      '</ds:X509IssuerName><ds:X509SerialNumber>' .
-      $certData['serialNumber'] . '</ds:X509SerialNumber>' .
-      '</etsi:IssuerSerial></etsi:Cert></etsi:SigningCertificate>' .
-      '<etsi:SignaturePolicyIdentifier><etsi:SignaturePolicyId>' .
-      '<etsi:SigPolicyId><etsi:Identifier>' . $this->signPolicy['url'] .
-      '</etsi:Identifier><etsi:Description>' . $this->signPolicy['name'] .
-      '</etsi:Description></etsi:SigPolicyId><etsi:SigPolicyHash>' .
-      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
-      '</ds:DigestMethod><ds:DigestValue>' . $this->signPolicy['digest'] .
-      '</ds:DigestValue></etsi:SigPolicyHash></etsi:SignaturePolicyId>' .
-      '</etsi:SignaturePolicyIdentifier><etsi:SignerRole>' .
-      '<etsi:ClaimedRoles><etsi:ClaimedRole>emisor</etsi:ClaimedRole>' .
-      '</etsi:ClaimedRoles></etsi:SignerRole>' .
-      '</etsi:SignedSignatureProperties><etsi:SignedDataObjectProperties>' .
-      '<etsi:DataObjectFormat ObjectReference="#Reference-ID-' .
-      $this->referenceID . '"><etsi:Description>Factura electrónica' .
-      '</etsi:Description><etsi:MimeType>text/xml</etsi:MimeType>' .
-      '</etsi:DataObjectFormat></etsi:SignedDataObjectProperties>' .
-      '</etsi:SignedProperties>';
+    $prop = '<xades:SignedProperties Id="Signature' . $this->signatureID .
+            '-SignedProperties' . $this->signatureSignedPropertiesID . '">' .
+              '<xades:SignedSignatureProperties>' .
+                '<xades:SigningTime>' . date('c', $signTime) . '</xades:SigningTime>' .
+                '<xades:SigningCertificate>' .
+                  '<xades:Cert>' .
+                    '<xades:CertDigest>' .
+                      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>' .
+                      '<ds:DigestValue>' . $certDigest . '</ds:DigestValue>' .
+                    '</xades:CertDigest>' .
+                    '<xades:IssuerSerial>' .
+                      '<ds:X509IssuerName>' . $certIssuer . '</ds:X509IssuerName>' .
+                      '<ds:X509SerialNumber>' . $certData['serialNumber'] . '</ds:X509SerialNumber>' .
+                    '</xades:IssuerSerial>' .
+                  '</xades:Cert>' .
+                '</xades:SigningCertificate>' .
+                '<xades:SignaturePolicyIdentifier>' .
+                  '<xades:SignaturePolicyId>' .
+                    '<xades:SigPolicyId>' .
+                      '<xades:Identifier>' . $this->signPolicy['url'] . '</xades:Identifier>' .
+                      '<xades:Description>' . $this->signPolicy['name'] . '</xades:Description>' .
+                    '</xades:SigPolicyId>' .
+                    '<xades:SigPolicyHash>' .
+                      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>' .
+                      '<ds:DigestValue>' . $this->signPolicy['digest'] . '</ds:DigestValue>' .
+                    '</xades:SigPolicyHash>' .
+                  '</xades:SignaturePolicyId>' .
+                '</xades:SignaturePolicyIdentifier>' .
+                '<xades:SignerRole>' .
+                  '<xades:ClaimedRoles>' .
+                    '<xades:ClaimedRole>emisor</xades:ClaimedRole>' .
+                  '</xades:ClaimedRoles>' .
+                '</xades:SignerRole>' .
+              '</xades:SignedSignatureProperties>' .
+              '<xades:SignedDataObjectProperties>' .
+                '<xades:DataObjectFormat ObjectReference="#Reference-ID-' . $this->referenceID . '">' .
+                  '<xades:Description>Factura electrónica</xades:Description>' .
+                  '<xades:MimeType>text/xml</xades:MimeType>' .
+                '</xades:DataObjectFormat>' .
+              '</xades:SignedDataObjectProperties>' .
+            '</xades:SignedProperties>';
 
     // Prepare key info
-    $kInfo = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' .
-      "\n" . '<ds:X509Data>' . "\n" . '<ds:X509Certificate>' . "\n";
     $publicPEM = "";
     openssl_x509_export($this->publicKey, $publicPEM);
     $publicPEM = str_replace("-----BEGIN CERTIFICATE-----", "", $publicPEM);
     $publicPEM = str_replace("-----END CERTIFICATE-----", "", $publicPEM);
     $publicPEM = str_replace("\n", "", $publicPEM);
     $publicPEM = str_replace("\r", "", chunk_split($publicPEM, 76));
-    $kInfo .= $publicPEM . '</ds:X509Certificate>' . "\n" . '</ds:X509Data>' .
-      "\n" . '<ds:KeyValue>' . "\n" . '<ds:RSAKeyValue>' . "\n" .
-      '<ds:Modulus>' . "\n";
+
     $privateData = openssl_pkey_get_details($this->privateKey);
     $modulus = chunk_split(base64_encode($privateData['rsa']['n']), 76);
     $modulus = str_replace("\r", "", $modulus);
     $exponent = base64_encode($privateData['rsa']['e']);
-    $kInfo .= $modulus . '</ds:Modulus>' . "\n" . '<ds:Exponent>' . $exponent .
-      '</ds:Exponent>' . "\n" . '</ds:RSAKeyValue>' . "\n" . '</ds:KeyValue>' .
-      "\n" . '</ds:KeyInfo>';
+
+    // Generate KeyInfo
+    $kInfo = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' . "\n" .
+               '<ds:X509Data>' . "\n" .
+                 '<ds:X509Certificate>' . "\n" . $publicPEM . '</ds:X509Certificate>' . "\n" .
+               '</ds:X509Data>' . "\n" .
+               '<ds:KeyValue>' . "\n" .
+                 '<ds:RSAKeyValue>' . "\n" .
+                   '<ds:Modulus>' . "\n" . $modulus . '</ds:Modulus>' . "\n" .
+                   '<ds:Exponent>' . $exponent . '</ds:Exponent>' . "\n" .
+                 '</ds:RSAKeyValue>' . "\n" .
+               '</ds:KeyValue>' . "\n" .
+             '</ds:KeyInfo>';
 
     // Calculate digests
-    $propDigest = base64_encode(sha1(str_replace('<etsi:SignedProperties',
-      '<etsi:SignedProperties ' . $xmlns, $prop), true));
+    $propDigest = base64_encode(sha1(str_replace('<xades:SignedProperties',
+      '<xades:SignedProperties ' . $xmlns, $prop), true));
     $kInfoDigest = base64_encode(sha1(str_replace('<ds:KeyInfo',
       '<ds:KeyInfo ' . $xmlns, $kInfo), true));
     $documentDigest = base64_encode(sha1($xml, true));
 
-    // Prepare signed info
-    $sInfo = '<ds:SignedInfo Id="Signature-SignedInfo' . $this->signedInfoID .
-      '">' . "\n" . '<ds:CanonicalizationMethod Algorithm="' .
-      'http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
-      '</ds:CanonicalizationMethod>' . "\n" . '<ds:SignatureMethod ' .
-      'Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1">' .
-      '</ds:SignatureMethod>' . "\n" . '<ds:Reference Id="SignedPropertiesID' .
-      $this->signedPropertiesID . '" ' .
-      'Type="http://uri.etsi.org/01903#SignedProperties" ' .
-      'URI="#Signature' . $this->signatureID . '-SignedProperties' .
-      $this->signatureSignedPropertiesID . '">' . "\n" . '<ds:DigestMethod ' .
-      'Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
-      '</ds:DigestMethod>' . "\n" . '<ds:DigestValue>' . $propDigest .
-      '</ds:DigestValue>' . "\n" . '</ds:Reference>' . "\n" . '<ds:Reference ' .
-      'URI="#Certificate' . $this->certificateID . '">' . "\n" .
-      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
-      '</ds:DigestMethod>' . "\n" . '<ds:DigestValue>' . $kInfoDigest .
-      '</ds:DigestValue>' . "\n" . '</ds:Reference>' . "\n" .
-      '<ds:Reference Id="Reference-ID-' . $this->referenceID . '" URI="">' .
-      "\n" . '<ds:Transforms>' . "\n" . '<ds:Transform Algorithm="' .
-      'http://www.w3.org/2000/09/xmldsig#enveloped-signature">' .
-      '</ds:Transform>' . "\n" . '</ds:Transforms>' . "\n" .
-      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
-      '</ds:DigestMethod>' . "\n" . '<ds:DigestValue>' . $documentDigest .
-      '</ds:DigestValue>' . "\n" . '</ds:Reference>' . "\n" .'</ds:SignedInfo>';
+    // Generate SignedInfo
+    $sInfo = '<ds:SignedInfo Id="Signature-SignedInfo' . $this->signedInfoID . '">' . "\n" .
+               '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
+               '</ds:CanonicalizationMethod>' . "\n" .
+               '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1">' .
+               '</ds:SignatureMethod>' . "\n" .
+               '<ds:Reference Id="SignedPropertiesID' . $this->signedPropertiesID . '" ' .
+               'Type="http://uri.etsi.org/01903#SignedProperties" ' .
+               'URI="#Signature' . $this->signatureID . '-SignedProperties' .
+               $this->signatureSignedPropertiesID . '">' . "\n" .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '</ds:DigestMethod>' . "\n" .
+                 '<ds:DigestValue>' . $propDigest . '</ds:DigestValue>' . "\n" .
+               '</ds:Reference>' . "\n" .
+               '<ds:Reference URI="#Certificate' . $this->certificateID . '">' . "\n" .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '</ds:DigestMethod>' . "\n" .
+                 '<ds:DigestValue>' . $kInfoDigest . '</ds:DigestValue>' . "\n" .
+               '</ds:Reference>' . "\n" .
+               '<ds:Reference Id="Reference-ID-' . $this->referenceID . '" URI="">' . "\n" .
+                 '<ds:Transforms>' . "\n" .
+                   '<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature">' .
+                   '</ds:Transform>' . "\n" .
+                 '</ds:Transforms>' . "\n" .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '</ds:DigestMethod>' . "\n" .
+                 '<ds:DigestValue>' . $documentDigest . '</ds:DigestValue>' . "\n" .
+               '</ds:Reference>' . "\n" .
+             '</ds:SignedInfo>';
 
     // Calculate signature
-    $signaturePayload = str_replace('<ds:SignedInfo',
-      '<ds:SignedInfo ' . $xmlns, $sInfo);
+    $signaturePayload = str_replace('<ds:SignedInfo', '<ds:SignedInfo ' . $xmlns, $sInfo);
     $signatureResult = "";
     openssl_sign($signaturePayload, $signatureResult, $this->privateKey);
     $signatureResult = chunk_split(base64_encode($signatureResult), 76);
     $signatureResult = str_replace("\r", "", $signatureResult);
 
     // Make signature
-    $sig = '<ds:Signature xmlns:etsi="http://uri.etsi.org/01903/v1.3.2#" ' .
-      'Id="Signature' . $this->signatureID . '">' . "\n" . $sInfo . "\n" .
-      '<ds:SignatureValue Id="SignatureValue' . $this->signatureValueID . '">' .
-      "\n" . $signatureResult . '</ds:SignatureValue>' . "\n" . $kInfo . "\n" .
-      '<ds:Object Id="Signature' . $this->signatureID . '-Object' .
-      $this->signatureObjectID . '"><etsi:QualifyingProperties ' .
-      'Target="#Signature' . $this->signatureID . '">' . $prop .
-      '</etsi:QualifyingProperties></ds:Object></ds:Signature>';
+    $sig = '<ds:Signature xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="Signature' . $this->signatureID . '">' . "\n" .
+             $sInfo . "\n" .
+             '<ds:SignatureValue Id="SignatureValue' . $this->signatureValueID . '">' . "\n" .
+               $signatureResult .
+             '</ds:SignatureValue>' . "\n" .
+             $kInfo . "\n" .
+             '<ds:Object Id="Signature' . $this->signatureID . '-Object' . $this->signatureObjectID . '">' .
+               '<xades:QualifyingProperties Target="#Signature' . $this->signatureID . '">' .
+                 $prop .
+               '</xades:QualifyingProperties>' .
+             '</ds:Object>' .
+           '</ds:Signature>';
 
     // Inject signature
     $xml = str_replace('</fe:Facturae>', $sig . '</fe:Facturae>', $xml);
@@ -572,47 +618,59 @@ class Facturae {
   public function export($filePath=NULL) {
     // Prepare document
     $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
-           'xmlns:fe="http://www.facturae.es/Facturae/2014/v' .
-           $this->version . '/Facturae">';
+           'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
     $totals = $this->getTotals();
 
     // Add header
     $batchIdentifier = $this->parties['seller']->taxNumber .
       $this->header['number'] . $this->header['serie'];
-    $xml .= '<FileHeader><SchemaVersion>' . $this->version .'</SchemaVersion>' .
-      '<Modality>I</Modality><InvoiceIssuerType>EM</InvoiceIssuerType>' .
-      '<Batch><BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
-      '<InvoicesCount>1</InvoicesCount><TotalInvoicesAmount><TotalAmount>' .
-      $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
-      '</TotalInvoicesAmount><TotalOutstandingAmount><TotalAmount>' .
-      $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
-      '</TotalOutstandingAmount><TotalExecutableAmount>' .
-      '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) .
-      '</TotalAmount></TotalExecutableAmount><InvoiceCurrencyCode>' .
-      $this->currency . '</InvoiceCurrencyCode></Batch></FileHeader>';
+    $xml .= '<FileHeader>' .
+              '<SchemaVersion>' . $this->version .'</SchemaVersion>' .
+              '<Modality>I</Modality>' .
+              '<InvoiceIssuerType>EM</InvoiceIssuerType>' .
+              '<Batch>' .
+                '<BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
+                '<InvoicesCount>1</InvoicesCount>' .
+                '<TotalInvoicesAmount>' .
+                  '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
+                '</TotalInvoicesAmount>' .
+                '<TotalOutstandingAmount>' .
+                  '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
+                '</TotalOutstandingAmount>' .
+                '<TotalExecutableAmount>' .
+                  '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
+                '</TotalExecutableAmount>' .
+                '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
+              '</Batch>' .
+            '</FileHeader>';
 
     // Add parties
-    $xml .= '<Parties><SellerParty>' .
-      $this->parties['seller']->getXML($this->version) . '</SellerParty>' .
-      '<BuyerParty>' . $this->parties['buyer']->getXML($this->version) .
-      '</BuyerParty></Parties>';
+    $xml .= '<Parties>' .
+              '<SellerParty>' . $this->parties['seller']->getXML($this->version) . '</SellerParty>' .
+              '<BuyerParty>' . $this->parties['buyer']->getXML($this->version) . '</BuyerParty>' .
+            '</Parties>';
 
     // Add invoice data
-    $xml .= '<Invoices><Invoice><InvoiceHeader><InvoiceNumber>' .
-      $this->header['number'] . '</InvoiceNumber><InvoiceSeriesCode>' .
-      $this->header['serie'] . '</InvoiceSeriesCode><InvoiceDocumentType>' .
-      'FC</InvoiceDocumentType><InvoiceClass>OO</InvoiceClass>' .
-      '</InvoiceHeader><InvoiceIssueData><IssueDate>' .
-      date('Y-m-d', $this->header['issueDate']) . '</IssueDate>';
+    $xml .= '<Invoices>' .
+              '<Invoice>' .
+                '<InvoiceHeader>' .
+                  '<InvoiceNumber>' . $this->header['number'] . '</InvoiceNumber>' .
+                  '<InvoiceSeriesCode>' . $this->header['serie'] . '</InvoiceSeriesCode>' .
+                  '<InvoiceDocumentType>FC</InvoiceDocumentType>' .
+                  '<InvoiceClass>OO</InvoiceClass>' .
+                '</InvoiceHeader>' .
+                '<InvoiceIssueData>' .
+                  '<IssueDate>' . date('Y-m-d', $this->header['issueDate']) . '</IssueDate>';
     if (!is_null($this->header['startDate'])) {
-      $xml .= '<InvoicingPeriod><StartDate>' .
-        date('Y-m-d', $this->header['startDate']) . '</StartDate><EndDate>' .
-        date('Y-m-d', $this->header['endDate']) . '</EndDate>' .
-        '</InvoicingPeriod>';
+      $xml .=     '<InvoicingPeriod>' .
+                    '<StartDate>' . date('Y-m-d', $this->header['startDate']) . '</StartDate>' .
+                    '<EndDate>' . date('Y-m-d', $this->header['endDate']) . '</EndDate>' .
+                  '</InvoicingPeriod>';
     }
-    $xml .= '<InvoiceCurrencyCode>' . $this->currency .
-      '</InvoiceCurrencyCode><TaxCurrencyCode>' . $this->currency .
-      '</TaxCurrencyCode><LanguageName>es</LanguageName></InvoiceIssueData>';
+    $xml .=       '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
+                  '<TaxCurrencyCode>' . $this->currency . '</TaxCurrencyCode>' .
+                  '<LanguageName>es</LanguageName>' .
+                '</InvoiceIssueData>';
 
     // Add invoice taxes
     foreach (["taxesOutputs", "taxesWithheld"] as $i=>$taxesGroup) {
@@ -621,45 +679,45 @@ class Facturae {
       $xml .= "<$xmlTag>";
       foreach ($totals[$taxesGroup] as $type=>$taxRows) {
         foreach ($taxRows as $rate=>$tax) {
-          $xml .= '<Tax><TaxTypeCode>' . $type . '</TaxTypeCode><TaxRate>' .
-            $rate . '</TaxRate><TaxableBase><TotalAmount>' .
-            $this->padTotal($tax['base']) . '</TotalAmount></TaxableBase>' .
-            '<TaxAmount><TotalAmount>' . $this->padTotal($tax['amount']) .
-            '</TotalAmount></TaxAmount></Tax>';
+          $xml .= '<Tax>' .
+                    '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
+                    '<TaxRate>' . $rate . '</TaxRate>' .
+                    '<TaxableBase>' .
+                      '<TotalAmount>' . $this->padTotal($tax['base']) . '</TotalAmount>' .
+                    '</TaxableBase>' .
+                    '<TaxAmount>' .
+                      '<TotalAmount>' . $this->padTotal($tax['amount']) . '</TotalAmount>' .
+                    '</TaxAmount>' .
+                  '</Tax>';
         }
       }
       $xml .= "</$xmlTag>";
     }
 
     // Add invoice totals
-    $xml .= '<InvoiceTotals><TotalGrossAmount>' .
-      $this->padTotal($totals['grossAmount']) . '</TotalGrossAmount>' .
-      '<TotalGeneralDiscounts>0.00</TotalGeneralDiscounts>' .
-      '<TotalGeneralSurcharges>0.00</TotalGeneralSurcharges>' .
-      '<TotalGrossAmountBeforeTaxes>' .
-      $this->padTotal($totals['grossAmountBeforeTaxes']) .
-      '</TotalGrossAmountBeforeTaxes><TotalTaxOutputs>' .
-      $this->padTotal($totals['totalTaxesOutputs']) .
-      '</TotalTaxOutputs><TotalTaxesWithheld>' .
-      $this->padTotal($totals['totalTaxesWithheld']) . '</TotalTaxesWithheld>' .
-      '<InvoiceTotal>' . $this->padTotal($totals['invoiceAmount']) .
-      '</InvoiceTotal><TotalOutstandingAmount>' .
-      $this->padTotal($totals['invoiceAmount']) . '</TotalOutstandingAmount>' .
-      '<TotalExecutableAmount>' . $this->padTotal($totals['invoiceAmount']) .
-      '</TotalExecutableAmount></InvoiceTotals>';
+    $xml .= '<InvoiceTotals>' .
+              '<TotalGrossAmount>' . $this->padTotal($totals['grossAmount']) . '</TotalGrossAmount>' .
+              '<TotalGeneralDiscounts>0.00</TotalGeneralDiscounts>' .
+              '<TotalGeneralSurcharges>0.00</TotalGeneralSurcharges>' .
+              '<TotalGrossAmountBeforeTaxes>' . $this->padTotal($totals['grossAmountBeforeTaxes']) . '</TotalGrossAmountBeforeTaxes>' .
+              '<TotalTaxOutputs>' . $this->padTotal($totals['totalTaxesOutputs']) . '</TotalTaxOutputs>' .
+              '<TotalTaxesWithheld>' . $this->padTotal($totals['totalTaxesWithheld']) . '</TotalTaxesWithheld>' .
+              '<InvoiceTotal>' . $this->padTotal($totals['invoiceAmount']) . '</InvoiceTotal>' .
+              '<TotalOutstandingAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalOutstandingAmount>' .
+              '<TotalExecutableAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalExecutableAmount>' .
+            '</InvoiceTotals>';
 
     // Add invoice items
     $xml .= '<Items>';
     foreach ($this->items as $itemObj) {
       $item = $itemObj->getData();
-      $xml .= '<InvoiceLine><ItemDescription>' . $item['name'] .
-        '</ItemDescription><Quantity>' . $this->padTotal($item['quantity']) .
-        '</Quantity><UnitOfMeasure>01</UnitOfMeasure><UnitPriceWithoutTax>' .
-        $this->padItem($item['unitPriceWithoutTax']) .
-        '</UnitPriceWithoutTax><TotalCost>' .
-        $this->padTotal($item['totalAmountWithoutTax']) . '</TotalCost>' .
-        '<GrossAmount>' . $this->padTotal($item['grossAmount']) .
-        '</GrossAmount>';
+      $xml .= '<InvoiceLine>' .
+                '<ItemDescription>' . $item['name'] . '</ItemDescription>' .
+                '<Quantity>' . $this->padTotal($item['quantity']) . '</Quantity>' .
+                '<UnitOfMeasure>01</UnitOfMeasure>' .
+                '<UnitPriceWithoutTax>' . $this->padItem($item['unitPriceWithoutTax']) . '</UnitPriceWithoutTax>' .
+                '<TotalCost>' . $this->padTotal($item['totalAmountWithoutTax']) . '</TotalCost>' .
+                '<GrossAmount>' . $this->padTotal($item['grossAmount']) . '</GrossAmount>';
 
       // Add item taxes
       // NOTE: As you can see here, taxesWithheld is before taxesOutputs.
@@ -670,20 +728,23 @@ class Facturae {
         $xmlTag = ucfirst($taxesGroup); // Just capitalize variable name
         $xml .= "<$xmlTag>";
         foreach ($item[$taxesGroup] as $type=>$tax) {
-          $xml .= '<Tax><TaxTypeCode>' . $type . '</TaxTypeCode>' .
-            '<TaxRate>' . $tax['rate'] . '</TaxRate><TaxableBase>' .
-            '<TotalAmount>' . $this->padTotal($item['totalAmountWithoutTax']) .
-            '</TotalAmount></TaxableBase><TaxAmount><TotalAmount>' .
-            $this->padTotal($tax['amount']) . '</TotalAmount></TaxAmount>' .
-            '</Tax>';
+          $xml .= '<Tax>' .
+                    '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
+                    '<TaxRate>' . $tax['rate'] . '</TaxRate>' .
+                    '<TaxableBase>' .
+                      '<TotalAmount>' . $this->padTotal($item['totalAmountWithoutTax']) . '</TotalAmount>' .
+                    '</TaxableBase>' .
+                    '<TaxAmount>' .
+                      '<TotalAmount>' . $this->padTotal($tax['amount']) . '</TotalAmount>' .
+                    '</TaxAmount>' .
+                  '</Tax>';
         }
         $xml .= "</$xmlTag>";
       }
 
       // Add item additional information
       if (!is_null($item['description'])) {
-        $xml .= '<AdditionalLineItemInformation>' . $item['description'] .
-          '</AdditionalLineItemInformation>';
+        $xml .= '<AdditionalLineItemInformation>' . $item['description'] . '</AdditionalLineItemInformation>';
       }
       $xml .= '</InvoiceLine>';
     }
@@ -691,17 +752,21 @@ class Facturae {
 
     // Add payment details
     if (!is_null($this->header['paymentMethod'])) {
-      $xml .= '<PaymentDetails><Installment><InstallmentDueDate>' .
-        date('Y-m-d', is_null($this->header['dueDate']) ?
-          $this->header['issueDate'] : $this->header['dueDate']) .
-        '</InstallmentDueDate><InstallmentAmount>' .
-        $this->padTotal($totals['invoiceAmount']) . '</InstallmentAmount>' .
-        '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
+      $dueDate = is_null($this->header['dueDate']) ?
+        $this->header['issueDate'] :
+        $this->header['dueDate'];
+      $xml .= '<PaymentDetails>' .
+                '<Installment>' .
+                  '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>' .
+                  '<InstallmentAmount>' . $this->padTotal($totals['invoiceAmount']) . '</InstallmentAmount>' .
+                  '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
       if ($this->header['paymentMethod'] == self::PAYMENT_TRANSFER) {
-        $xml .= '<AccountToBeCredited><IBAN>' . $this->header['paymentIBAN'] .
-          '</IBAN></AccountToBeCredited>';
+        $xml .=   '<AccountToBeCredited>' .
+                    '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>' .
+                  '</AccountToBeCredited>';
       }
-      $xml .= '</Installment></PaymentDetails>';
+      $xml .=   '</Installment>' .
+              '</PaymentDetails>';
     }
 
     // Add legal literals

@@ -9,11 +9,11 @@ Facturae-PHP es una clase escrita puramente en PHP que permite generar facturas 
 
 ### Características
 - [x] Generación de facturas 100% conformes con la [Ley 25/2013 del 27 de diciembre](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-13722) listas para enviar a FACe
-- [x] Exportación según el [formato Facturae 3.2.1](http://www.facturae.gob.es/formato/Paginas/version-3-2.aspx)
+- [x] Exportación según las versiones [3.2, 3.2.1 y 3.2.2](http://www.facturae.gob.es/formato/Paginas/version-3-2.aspx) de Facturae
 - [x] Firmado de acuerdo a la [política de firma de Facturae 3.1](http://www.facturae.gob.es/formato/Paginas/politicas-firma-electronica.aspx) basada en XAdES
 
 ### Funciones previstas
-- [ ] Compatibilidad con el formato Facturae 3.2.2
+- [ ] Firma con sellado de tiempo (TSA)
 - [ ] Envío de facturas a FACe directamente desde la clase
 
 ---------------------------------------------------------
@@ -103,6 +103,12 @@ $fac->export("ruta/de/salida.xsig");
 > require_once "../src/FacturaeCentre.php";
 > require_once "../src/FacturaeItem.php";
 > ```
+
+### Versión de Facturae
+Por defecto el paquete creará la factura siguiendo el formato Facturae 3.2.1 al ser actualmente el más extendido. Si se quisiera utilizar otra versión se deberá indicar al instanciar el objeto de la factura:
+```php
+$fac = new Facturae(Facturae::SCHEMA_3_2_2);
+```
 
 ### Compradores y vendedores
 Los compradores y vendedores son representados en Facturae-PHP con la clase `FacturaeParty` y pueden contener los siguientes atributos:
@@ -345,7 +351,7 @@ $fac->addLegalLiteral("Y este, otro más");
 ```
 
 > ##### NOTA
-> El uso de `LegalLiterals` es obligatorio en determinadas facturas. Cosulta la legislación vigente para más información.
+> El uso de `LegalLiterals` es obligatorio en determinadas facturas. Consulta la legislación vigente para más información.
 
 #### Totales de la factura
 
@@ -370,6 +376,7 @@ $totales = $fac->getTotals();
 
 |Constante|Descripción|
 |--------:|:----------|
+|`Facturae::SCHEMA_3_2`|Formato de Facturae 3.2|
 |`Facturae::SCHEMA_3_2_1`|Formato de Facturae 3.2.1|
 |`Facturae::SCHEMA_3_2_2`|Formato de Facturae 3.2.2|
 |`Facturae::SIGN_POLICY_3_1`|Formato de firma 3.1|
@@ -405,6 +412,7 @@ $totales = $fac->getTotals();
 ### Herramientas de validación
 Todas las facturas generadas y firmadas con Facturae-PHP son probadas con las siguientes herramientas online para garantizar el cumplimiento del estándar:
 
-- https://viewer.facturadirecta.com/
+- https://viewer.facturadirecta.com/ (no soporta 3.2.2)
+- http://plataforma.firma-e.com/VisualizadorFacturae/ (no soporta 3.2.2)
 - http://sedeaplicaciones2.minetur.gob.es/FacturaE/index.jsp
 - https://face.gob.es/es/facturas/validar-visualizar-facturas

@@ -34,6 +34,7 @@ class FacturaeCentre {
 
   /**
    * Construct
+   * 
    * @param array $properties Party properties as an array
    */
   public function __construct($properties=array()) {

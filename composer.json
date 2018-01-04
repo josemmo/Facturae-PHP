@@ -7,7 +7,8 @@
     "authors": [
         {
             "name": "josemmo",
-            "email": "josemmo@protonmail.com"
+            "email": "josemmo@protonmail.com",
+            "homepage": "https://github.com/josemmo"
         }
     ],
     "require": {

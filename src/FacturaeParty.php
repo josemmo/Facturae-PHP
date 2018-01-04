@@ -44,6 +44,7 @@ class FacturaeParty {
 
   /**
    * Construct
+   *
    * @param array $properties Party properties as an array
    */
   public function __construct($properties=array()) {
@@ -53,76 +54,86 @@ class FacturaeParty {
 
   /**
    * Get XML
+   *
    * @param  string $schema Facturae schema version
    * @return string         Entity as Facturae XML
    */
   public function getXML($schema) {
     // Add tax identification
-    $xml = '<TaxIdentification><PersonTypeCode>' .
-      ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>' .
-      '<ResidenceTypeCode>R</ResidenceTypeCode><TaxIdentificationNumber>' .
-      $this->taxNumber . '</TaxIdentificationNumber></TaxIdentification>';
+    $xml = '<TaxIdentification>' .
+             '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>' .
+             '<ResidenceTypeCode>R</ResidenceTypeCode>' .
+             '<TaxIdentificationNumber>' . $this->taxNumber . '</TaxIdentificationNumber>' .
+           '</TaxIdentification>';
 
     // Add administrative centres
     if (count($this->centres) > 0) {
       $xml .= '<AdministrativeCentres>';
       foreach ($this->centres as $centre) {
-        $xml .= '<AdministrativeCentre><CentreCode>' . $centre->code .
-        '</CentreCode><RoleTypeCode>' . $centre->role . '</RoleTypeCode>' .
-        '<Name>' . $centre->name . '</Name>';
-        if (!is_null($centre->firstSurname)) $xml .= '<FirstSurname>' .
-          $centre->firstSurname . '</FirstSurname>';
-        if (!is_null($centre->lastSurname)) $xml .= '<SecondSurname>' .
-          $centre->lastSurname . '</SecondSurname>';
-        $xml .= '<AddressInSpain><Address>' . $this->address . '</Address>' .
-          '<PostCode>' . $this->postCode . '</PostCode><Town>' . $this->town .
-          '</Town><Province>' . $this->province . '</Province><CountryCode>' .
-          $this->countryCode . '</CountryCode></AddressInSpain>';
-        if (!is_null($centre->description)) $xml .= '<CentreDescription>' .
-          $centre->description . '</CentreDescription>';
+        $xml .= '<AdministrativeCentre>' .
+        $xml .= '<CentreCode>' . $centre->code . '</CentreCode>';
+        $xml .= '<RoleTypeCode>' . $centre->role . '</RoleTypeCode>';
+        $xml .= '<Name>' . $centre->name . '</Name>';
+        if (!is_null($centre->firstSurname)) {
+          $xml .= '<FirstSurname>' . $centre->firstSurname . '</FirstSurname>';
+        }
+        if (!is_null($centre->lastSurname)) {
+          $xml .= '<SecondSurname>' . $centre->lastSurname . '</SecondSurname>';
+        }
+        $xml .= '<AddressInSpain>' .
+                  '<Address>' . $this->address . '</Address>' .
+                  '<PostCode>' . $this->postCode . '</PostCode>' .
+                  '<Town>' . $this->town .'</Town>' .
+                  '<Province>' . $this->province . '</Province>' .
+                  '<CountryCode>' . $this->countryCode . '</CountryCode>' .
+                '</AddressInSpain>';
+        if (!is_null($centre->description)) {
+          $xml .= '<CentreDescription>' . $centre->description . '</CentreDescription>';
+        }
         $xml .= '</AdministrativeCentre>';
       }
       $xml .= '</AdministrativeCentres>';
     }
 
-    // Add custom block
+    // Add custom block (either `LegalEntity` or `Individual`)
     $xml .= ($this->isLegalEntity) ? '<LegalEntity>' : '<Individual>';
 
-    // Add legal entity data
+    // Add data exclusive to `LegalEntity`
     if ($this->isLegalEntity) {
       $xml .= '<CorporateName>' . $this->name . '</CorporateName>';
-      if (
-        !is_null($this->book) || !is_null($this->merchantRegister) ||
-        !is_null($this->sheet) || !is_null($this->folio) ||
-        !is_null($this->section) || !is_null($this->volume)
-      ) {
+      $fields = array("book", "merchantRegister", "sheet", "folio",
+        "section", "volume");
+
+      $nonEmptyFields = array();
+      foreach ($fields as $fieldName) {
+        if (!empty($this->{$fieldName})) $nonEmptyFields[] = $fieldName;
+      }
+
+      if (count($nonEmptyFields) > 0) {
         $xml .= '<RegistrationData>';
-        if (!is_null($this->book)) $xml .= '<Book>' . $this->book . '</Book>';
-        if (!is_null($this->merchantRegister)) $xml .=
-          '<RegisterOfCompaniesLocation>' . $this->merchantRegister .
-          '</RegisterOfCompaniesLocation>';
-        if (!is_null($this->sheet)) $xml .= '<Sheet>' . $this->sheet . '</Sheet>';
-        if (!is_null($this->folio)) $xml .= '<Folio>' . $this->folio . '</Folio>';
-        if (!is_null($this->section)) $xml .= '<Section>' . $this->section .
-          '</Section>';
-        if (!is_null($this->volume)) $xml .= '<Volume>' . $this->volume .
-          '</Volume>';
+        foreach ($nonEmptyFields as $fieldName) {
+          $tag = ucfirst($fieldName);
+          $xml .= "<$tag>" . $this->{$fieldName} . "</$tag>";
+        }
         $xml .= '</RegistrationData>';
       }
     }
 
-    // Add individual data
+    // Add data exclusive to `Individual`
     if (!$this->isLegalEntity) {
-      $xml .= '<Name>' . $this->name . '</Name><FirstSurname>' .
-        $this->firstSurname . '</FirstSurname><SecondSurname>' .
-        $this->lastSurname . '</SecondSurname>';
+      $xml .= '<Name>' . $this->name . '</Name>';
+      $xml .= '<FirstSurname>' . $this->firstSurname . '</FirstSurname>';
+      $xml .= '<SecondSurname>' . $this->lastSurname . '</SecondSurname>';
     }
 
     // Add address
-    $xml .= '<AddressInSpain><Address>' . $this->address . '</Address>' .
-      '<PostCode>' . $this->postCode . '</PostCode><Town>' . $this->town .
-      '</Town><Province>' . $this->province . '</Province><CountryCode>' .
-      $this->countryCode . '</CountryCode></AddressInSpain>';
+    $xml .= '<AddressInSpain>' .
+              '<Address>' . $this->address . '</Address>' .
+              '<PostCode>' . $this->postCode . '</PostCode>' .
+              '<Town>' . $this->town . '</Town>' .
+              '<Province>' . $this->province . '</Province>' .
+              '<CountryCode>' . $this->countryCode . '</CountryCode>' .
+            '</AddressInSpain>';
 
     // Close custom block
     $xml .= ($this->isLegalEntity) ? '</LegalEntity>' : '</Individual>';
