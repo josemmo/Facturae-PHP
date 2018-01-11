@@ -70,7 +70,7 @@ class FacturaeParty {
     if (count($this->centres) > 0) {
       $xml .= '<AdministrativeCentres>';
       foreach ($this->centres as $centre) {
-        $xml .= '<AdministrativeCentre>' .
+        $xml .= '<AdministrativeCentre>';
         $xml .= '<CentreCode>' . $centre->code . '</CentreCode>';
         $xml .= '<RoleTypeCode>' . $centre->role . '</RoleTypeCode>';
         $xml .= '<Name>' . $centre->name . '</Name>';
