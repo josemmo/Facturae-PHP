@@ -1,5 +1,32 @@
 # Facturae-PHP [![Build Status](https://travis-ci.org/josemmo/Facturae-PHP.svg?branch=master)](https://travis-ci.org/josemmo/Facturae-PHP)
 
+## Índice
+- [Qué es](#qu-es)
+	- [Requisitos](#requisitos)
+	- [Características](#caractersticas)
+	- [Funciones previstas](#funciones-previstas)
+- [Documentación](#documentacin)
+	- [Instalación](#instalacin)
+	- [Ejemplo básico usando Composer](#ejemplo-bsico-usando-composer)
+	- [Versión de Facturae](#versin-de-facturae)
+	- [Compradores y vendedores](#compradores-y-vendedores)
+	- [Centros administrativos](#centros-administrativos)
+	- [Uso avanzado de líneas de producto](#uso-avanzado-de-lneas-de-producto)
+	- [Uso aún más avanzado de líneas de producto](#uso-an-ms-avanzado-de-lneas-de-producto)
+	- [Forma de pago y vencimiento](#forma-de-pago-y-vencimiento)
+	- [Firmado de facturas](#firmado-de-facturas)
+		- [Firmado con clave pública y privada X.509](#firmado-con-clave-pblica-y-privada-x509)
+		- [Firmado con PKCS#12](#firmado-con-pkcs12)
+	- [Otros métodos](#otros-mtodos)
+		- [Periodo de facturación](#periodo-de-facturacin)
+		- [Textos literales](#textos-literales)
+		- [Totales de la factura](#totales-de-la-factura)
+- [Anexos](#anexos)
+	- [Constantes](#constantes)
+	- [Herramientas de validación](#herramientas-de-validacin)
+
+---
+
 ## Qué es
 Facturae-PHP es una clase escrita puramente en PHP que permite generar facturas siguiendo el formato estructurado de factura electrónica [Facturae](http://www.facturae.gob.es/) e incluso firmarlas con firma electrónica XAdES sin necesidad de ninguna librería o clase adicional.
 
@@ -16,9 +43,9 @@ Facturae-PHP es una clase escrita puramente en PHP que permite generar facturas 
 - [ ] Firma con sellado de tiempo (TSA)
 - [ ] Envío de facturas a FACe directamente desde la clase
 
----------------------------------------------------------
+---
 
-## Uso del paquete
+## Documentación
 Facturae-PHP pretende ser una clase extremadamente rápida y sencilla de usar. A continuación se incluyen varios ejemplos sobre su utilización.
 Para más información sobre todos los métodos de Facturae-PHP, la clase se encuentra comentada según bloques de código de [phpDocumentor](https://www.phpdoc.org/).
 
@@ -368,7 +395,7 @@ $totales = $fac->getTotals();
 >
 > En conclusión: si usas este método en tu proyecto lee los cambios de versión antes de actualizar.
 
----------------------------------------------------------
+---
 
 ## Anexos
 

@@ -2,6 +2,7 @@
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
+use josemmo\Facturae\FacturaeCentre;
 use PHPUnit\Framework\TestCase;
 
 final class FacturaeTest extends TestCase {
@@ -39,23 +40,47 @@ final class FacturaeTest extends TestCase {
       "town"      => "Madrid",
       "province"  => "Madrid",
       "book"      => "0",
-      "merchantRegister" => "RG",
-      "sheet"     => "1"
+      "sheet"     => "1",
+      "merchantRegister" => "RG"
     ]));
 
     // Incluimos los datos del comprador
-    // Con finos demostrativos el comprador será
-    // una persona física en vez de una empresa
     $fac->setBuyer(new FacturaeParty([
-      "isLegalEntity" => false,       // Importante!
-      "taxNumber"     => "00000000A",
-      "name"          => "Antonio",
-      "firstSurname"  => "García",
-      "lastSurname"   => "Pérez",
-      "address"       => "Avda. Mayor, 7",
-      "postCode"      => "65432",
-      "town"          => "Madrid",
-      "province"      => "Madrid"
+      "taxNumber" => "P2813400E",
+      "name"      => "Ayuntamiento de San Sebastián de los Reyes",
+      "address"   => "Plaza de la Constitución, 1",
+      "postCode"  => "28701",
+      "town"      => "San Sebastián de los Reyes",
+      "province"  => "Madrid",
+      "centres"   => [
+        new FacturaeCentre([
+            "role"     => FacturaeCentre::ROLE_GESTOR,
+            "code"     => "L01281343",
+            "name"     => "Intervención Municipal",
+            "address"  => "Plaza de la Constitución, 1",
+            "postCode" => "28701",
+            "town"     => "San Sebastián de los Reyes",
+            "province" => "Madrid"
+        ]),
+        new FacturaeCentre([
+            "role"     => FacturaeCentre::ROLE_TRAMITADOR,
+            "code"     => "L01281343",
+            "name"     => "Intervención Municipal",
+            "address"  => "Plaza de la Constitución, 1",
+            "postCode" => "28701",
+            "town"     => "San Sebastián de los Reyes",
+            "province" => "Madrid"
+        ]),
+        new FacturaeCentre([
+            "role"     => FacturaeCentre::ROLE_CONTABLE,
+            "code"     => "L01281343",
+            "name"     => "Intervención Municipal",
+            "address"  => "Plaza de la Constitución, 1",
+            "postCode" => "28701",
+            "town"     => "San Sebastián de los Reyes",
+            "province" => "Madrid"
+        ])
+      ]
     ]));
 
     // Añadimos los productos a incluir en la factura
