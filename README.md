@@ -1,29 +1,29 @@
 # Facturae-PHP [![Build Status](https://travis-ci.org/josemmo/Facturae-PHP.svg?branch=master)](https://travis-ci.org/josemmo/Facturae-PHP)
 
-## Índice
-- [Qué es](#qu-es)
+- [Qué es](#qu%C3%A9-es)
 	- [Requisitos](#requisitos)
-	- [Características](#caractersticas)
+	- [Características](#caracter%C3%ADsticas)
 	- [Funciones previstas](#funciones-previstas)
-- [Documentación](#documentacin)
-	- [Instalación](#instalacin)
-	- [Ejemplo básico usando Composer](#ejemplo-bsico-usando-composer)
-	- [Versión de Facturae](#versin-de-facturae)
+- [Documentación](#documentaci%C3%B3n)
+	- [Instalación](#instalaci%C3%B3n)
+	- [Ejemplo básico usando Composer](#ejemplo-b%C3%A1sico-usando-composer)
+	- [Versión de Facturae](#versi%C3%B3n-de-facturae)
 	- [Compradores y vendedores](#compradores-y-vendedores)
 	- [Centros administrativos](#centros-administrativos)
-	- [Uso avanzado de líneas de producto](#uso-avanzado-de-lneas-de-producto)
-	- [Uso aún más avanzado de líneas de producto](#uso-an-ms-avanzado-de-lneas-de-producto)
+	- [Uso avanzado de líneas de producto](#uso-avanzado-de-l%C3%ADneas-de-producto)
+	- [Uso aún más avanzado de líneas de producto](#uso-a%C3%BAn-m%C3%A1s-avanzado-de-l%C3%ADneas-de-producto)
 	- [Forma de pago y vencimiento](#forma-de-pago-y-vencimiento)
 	- [Firmado de facturas](#firmado-de-facturas)
-		- [Firmado con clave pública y privada X.509](#firmado-con-clave-pblica-y-privada-x509)
+		- [Firmado con clave pública y privada X.509](#firmado-con-clave-p%C3%BAblica-y-privada-x509)
 		- [Firmado con PKCS#12](#firmado-con-pkcs12)
-	- [Otros métodos](#otros-mtodos)
-		- [Periodo de facturación](#periodo-de-facturacin)
+		- [Sellado de tiempo](#sellado-de-tiempo)
+	- [Otros métodos](#otros-m%C3%A9todos)
+		- [Periodo de facturación](#periodo-de-facturaci%C3%B3n)
 		- [Textos literales](#textos-literales)
 		- [Totales de la factura](#totales-de-la-factura)
 - [Anexos](#anexos)
 	- [Constantes](#constantes)
-	- [Herramientas de validación](#herramientas-de-validacin)
+	- [Herramientas de validación](#herramientas-de-validaci%C3%B3n)
 
 ---
 
@@ -357,6 +357,21 @@ Desde la versión 1.0.5 de Facturae-PHP ya es posible cargar un banco de certifi
 ```php
 $fac->sign("certificado.pfx", NULL, "passphrase");
 ```
+
+#### Sellado de tiempo
+Además de firmar las facturas, se puede añadir un sello de tiempo según el [RFC 3161](https://tools.ietf.org/html/rfc3161) para garantizar su validez durante unos meses o incluso años. Para ello, se debe llamar al siguiente método antes de exportar la factura:
+
+```php
+$fac->setTimestampServer("https://freetsa.org/tsr");
+```
+
+En caso de necesitar autenticarse con el servidor TSA se deben pasar el usuario y contraseña como parámetros:
+
+```php
+$fac->setTimestampServer("https://www.safestamper.com/tsa", "usuario", "contraseña");
+```
+
+> NOTA: Para poder hacer uso de esta funcionalidad es necesario tener instalado OpenSSL (la librería, no la extensión de PHP).
 
 ### Otros métodos
 

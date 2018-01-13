@@ -62,6 +62,7 @@ class Facturae {
     self::SCHEMA_3_2_1 => "http://www.facturae.es/Facturae/2014/v3.2.1/Facturae",
     self::SCHEMA_3_2_2 => "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
   );
+  private static $USER_AGENT = "FacturaePHP/1.1.0";
 
 
   /* ATTRIBUTES */
@@ -90,6 +91,9 @@ class Facturae {
   private $legalLiterals = array();
 
   private $signTime = NULL;
+  private $timestampServer = NULL;
+  private $timestampUser = NULL;
+  private $timestampPass = NULL;
   private $signPolicy = NULL;
   private $publicKey = NULL;
   private $privateKey = NULL;
@@ -369,11 +373,25 @@ class Facturae {
 
 
   /**
+   * Set timestamp server
+   *
+   * @param string $server Timestamp Authority URL
+   * @param string $user   TSA User
+   * @param string $pass   TSA Password
+   */
+  public function setTimestampServer($server, $user=NULL, $pass=NULL) {
+    $this->timestampServer = $server;
+    $this->timestampUser = $user;
+    $this->timestampPass = $pass;
+  }
+
+
+  /**
    * Load a PKCS#12 Certificate Store
    *
-   * @param  string  $pkcs12File  The certificate store file name
-   * @param  string  $pkcs12Pass  Encryption password for unlocking the PKCS#12 file
-   * @return boolean              Success
+   * @param  string  $pkcs12File The certificate store file name
+   * @param  string  $pkcs12Pass Encryption password for unlocking the PKCS#12 file
+   * @return boolean             Success
    */
   private function loadPkcs12($pkcs12File, $pkcs12Pass="") {
     if (!is_file($pkcs12File)) return false;
@@ -391,10 +409,10 @@ class Facturae {
   /**
    * Load a X.509 certificate and PEM encoded private key
    *
-   * @param  string $publicPath  Path to public key PEM file
-   * @param  string $privatePath Path to private key PEM file
-   * @param  string $passphrase  Private key passphrase
-   * @return bool                Success
+   * @param  string  $publicPath  Path to public key PEM file
+   * @param  string  $privatePath Path to private key PEM file
+   * @param  string  $passphrase  Private key passphrase
+   * @return boolean              Success
    */
   private function loadX509($publicPath, $privatePath, $passphrase="") {
     if (is_file($publicPath) && is_file($privatePath)) {
@@ -442,10 +460,101 @@ class Facturae {
 
 
   /**
+   * Get XML NameSpaces
+   *
+   * NOTE: Should be defined in alphabetical order
+   *
+   * @return string XML NameSpaces
+   */
+  private function getNamespaces() {
+    $xmlns = array();
+    $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
+    $xmlns[] = 'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"';
+    $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
+    $xmlns = implode(' ', $xmlns);
+    return $xmlns;
+  }
+
+
+  /**
+   * Inject timestamp
+   *
+   * @param  string $signedXml Signed XML document
+   * @return string            Signed and timestamped XML document
+   */
+  private function injectTimestamp($signedXml) {
+    // Prepare data to timestamp
+    $payload = explode('<ds:SignatureValue', $signedXml)[1];
+    $payload = explode('</ds:SignatureValue>', $payload)[0];
+    $payload = '<ds:SignatureValue ' . $this->getNamespaces() . $payload . '</ds:SignatureValue>';
+
+    // Create TimeStamp Query
+    $tmpPayloadPath = tempnam(sys_get_temp_dir(), 'facturaephp');
+    $tmpTsqPath = tempnam(sys_get_temp_dir(), 'facturaephp');
+    file_put_contents($tmpPayloadPath, $payload);
+    $cmd = "openssl ts -query -data " . escapeshellarg($tmpPayloadPath) .
+      " -cert -no_nonce -sha512 -out " . escapeshellarg($tmpTsqPath);
+    if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
+      $cmd .= " >nul 2>&1";
+    } else {
+      $cmd .= " &>/dev/null";
+    }
+    shell_exec($cmd);
+    $tsq = file_get_contents($tmpTsqPath);
+
+    // Clean up temporal files
+    unlink($tmpPayloadPath);
+    unlink($tmpTsqPath);
+    if (empty($tsq)) throw new \Exception('Malformed TSQ. Is OpenSSL installed?');
+
+    // Await TimeStamp Request
+    $chOpts = array(
+      CURLOPT_URL => $this->timestampServer,
+      CURLOPT_RETURNTRANSFER => 1,
+      CURLOPT_BINARYTRANSFER => 1,
+      CURLOPT_SSL_VERIFYPEER => 0,
+      CURLOPT_FOLLOWLOCATION => 1,
+	    CURLOPT_CONNECTTIMEOUT => 0,
+	    CURLOPT_TIMEOUT => 5, // 5 seconds timeout
+      CURLOPT_POST => 1,
+      CURLOPT_POSTFIELDS => $tsq,
+      CURLOPT_HTTPHEADER => array("Content-Type: application/timestamp-query"),
+      CURLOPT_USERAGENT => self::$USER_AGENT
+    );
+    if (!empty($this->timestampUser) && !empty($this->timestampPass)) {
+      $chOpts[CURLOPT_USERPWD] = $this->timestampUser . ":" . $this->timestampPass;
+    }
+    $ch = curl_init();
+    curl_setopt_array($ch, $chOpts);
+    $tsr = curl_exec($ch);
+    curl_close($ch);
+
+    // Validate TSR
+    if (strlen($tsr) < 1000) throw new \Exception('The returned TSR is invalid');
+
+    // Inject timestamp
+    $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $this->random() . '">' .
+               '<xades:UnsignedSignatureProperties>' .
+                 '<xades:SignatureTimeStamp Id="Timestamp-' . $this->random() . '">' .
+                   '<xades:Include URI="#SignatureValue' . $this->signatureValueID . '"></xades:Include>' .
+                   '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
+                   '</ds:CanonicalizationMethod>' .
+                   '<xades:EncapsulatedTimeStamp>' . "\n" .
+                     str_replace("\r", "", chunk_split(base64_encode($tsr), 76)) .
+                   '</xades:EncapsulatedTimeStamp>' .
+                 '</xades:SignatureTimeStamp>' .
+               '</xades:UnsignedSignatureProperties>' .
+             '</xades:UnsignedProperties>';
+    $signedXml = str_replace('</xades:QualifyingProperties>', $tsXml . '</xades:QualifyingProperties>', $signedXml);
+    return $signedXml;
+  }
+
+
+  /**
    * Inject signature
    *
-   * @param  string Unsigned XML document
-   * @return string Signed XML document
+   * @param  string $xml Unsigned XML document
+   * @return string      Signed XML document
    */
   private function injectSignature($xml) {
     // Make sure we have all we need to sign the document
@@ -454,13 +563,8 @@ class Facturae {
     // Normalize document
     $xml = str_replace("\r", "", $xml);
 
-    // Define namespace (NOTE: in alphabetical order)
-    $xmlns = array();
-    $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
-    $xmlns[] = 'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"';
-    $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
-    $xmlns = implode(' ', $xmlns);
-
+    // Define namespace
+    $xmlns = $this->getNamespaces();
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
@@ -581,7 +685,6 @@ class Facturae {
 
     // Calculate signature
     $signaturePayload = str_replace('<ds:SignedInfo', '<ds:SignedInfo ' . $xmlns, $sInfo);
-    $signatureResult = "";
     openssl_sign($signaturePayload, $signatureResult, $this->privateKey);
     $signatureResult = chunk_split(base64_encode($signatureResult), 76);
     $signatureResult = str_replace("\r", "", $signatureResult);
@@ -602,6 +705,11 @@ class Facturae {
 
     // Inject signature
     $xml = str_replace('</fe:Facturae>', $sig . '</fe:Facturae>', $xml);
+
+    // Inject timestamp
+    if (!empty($this->timestampServer)) {
+      $xml = $this->injectTimestamp($xml);
+    }
 
     return $xml;
   }

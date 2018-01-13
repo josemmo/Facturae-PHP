@@ -15,6 +15,9 @@
         "php": ">=5.6",
         "ext-openssl": "*"
     },
+    "suggest": {
+      "lib-openssl": "*"
+    },
     "autoload": {
         "psr-4": {
             "josemmo\\Facturae\\": "src/"
