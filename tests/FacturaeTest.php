@@ -138,6 +138,7 @@ final class FacturaeTest extends TestCase {
     } else {
       $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
     }
+    $fac->setTimestampServer("https://freetsa.org/tsr");
 
     // ... exportarlo a un archivo ...
     $isPfxStr = $isPfx ? "PKCS12" : "X509";
@@ -183,15 +184,20 @@ final class FacturaeTest extends TestCase {
     curl_setopt_array($ch, array(
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_SSL_VERIFYPEER => false,
-      CURLOPT_URL => "https://viewer.facturadirecta.com/dp/viewer/upload.void",
+      CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/index2.jsp",
       CURLOPT_POST => 1,
-      CURLOPT_POSTFIELDS => array("xmlFile" => $postFile),
+      CURLOPT_POSTFIELDS => array(
+        "referencia" => $postFile,
+        "valContable" => "on",
+        "valFirma" => "on",
+        "aceptarCondiciones" => "on",
+        "submit" => "Siguiente"
+      ),
       CURLOPT_COOKIEJAR => self::COOKIES_PATH
     ));
     $res = curl_exec($ch);
     curl_close($ch);
-    if (strpos($res, "<h1>Ok</h1>") === false) {
+    if (strpos($res, "window.open('facturae.jsp'") === false) {
       $this->expectException(UnexpectedValueException::class);
     }
 
@@ -200,19 +206,21 @@ final class FacturaeTest extends TestCase {
     curl_setopt_array($ch, array(
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_SSL_VERIFYPEER => false,
-      CURLOPT_URL => "https://viewer.facturadirecta.com/dp/viewer/viewer.void",
-      CURLOPT_POST => 1,
+      CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/facturae.jsp",
       CURLOPT_COOKIEFILE => self::COOKIES_PATH
     ));
     $res = curl_exec($ch);
     curl_close($ch);
 
-    // Parse results
-    $res = explode('<json><![CDATA[', $res);
-    $res = explode(']]></json>', $res[1]);
-    $res = json_decode(trim($res[0]));
-    $this->assertEquals($res->result, true);
+    // Validate results
+    if (strpos($res, 'euro_ok.png') === false) {
+      $this->markTestIncomplete('Invalid XML Format');
+    } elseif (strpos($res, '>Nivel de Firma Válido<') === false) {
+      $this->markTestIncomplete('Invalid Signature');
+    } elseif (strpos($res, '>XAdES_T<') === false) {
+      $this->markTestIncomplete('Invalid Timestamp');
+    }
+    $this->assertNotEmpty($res);
   }
 
 }
