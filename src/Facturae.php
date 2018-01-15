@@ -530,7 +530,9 @@ class Facturae {
     curl_close($ch);
 
     // Validate TSR
-    if (strlen($tsr) < 1000) throw new \Exception('The returned TSR is invalid');
+    if (strlen($tsr) < 1000) {
+      throw new \Exception("The returned TSR is invalid:\n" . base64_encode($tsr));
+    }
 
     // Inject timestamp
     $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $this->random() . '">' .
