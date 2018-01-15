@@ -502,6 +502,9 @@ class Facturae {
     shell_exec($cmd);
     $tsq = file_get_contents($tmpTsqPath);
 
+    // Debug in case of Travis
+    if (getenv('CI')) echo "TRAVIS DEBUG\n" . base64_encode($tsq);
+
     // Clean up temporal files
     unlink($tmpPayloadPath);
     unlink($tmpTsqPath);
@@ -515,7 +518,7 @@ class Facturae {
       CURLOPT_SSL_VERIFYPEER => 0,
       CURLOPT_FOLLOWLOCATION => 1,
       CURLOPT_CONNECTTIMEOUT => 0,
-      CURLOPT_TIMEOUT => 5, // 5 seconds timeout
+      CURLOPT_TIMEOUT => 10, // 10 seconds timeout
       CURLOPT_POST => 1,
       CURLOPT_POSTFIELDS => $tsq,
       CURLOPT_HTTPHEADER => array("Content-Type: application/timestamp-query"),
@@ -529,10 +532,11 @@ class Facturae {
     $tsr = curl_exec($ch);
     curl_close($ch);
 
+    // Debug in case of Travis
+    if (getenv('CI')) echo "TRAVIS DEBUG\n" . base64_encode($tsr);
+
     // Validate TSR
-    if (strlen($tsr) < 1000) {
-      throw new \Exception("The returned TSR is invalid:\n" . base64_encode($tsr));
-    }
+    if (strlen($tsr) < 1000) throw new \Exception('The returned TSR is invalid');
 
     // Inject timestamp
     $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $this->random() . '">' .
