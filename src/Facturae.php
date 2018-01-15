@@ -537,8 +537,7 @@ class Facturae {
 
     // Debug in case of Travis
     if (getenv('CI')) {
-      var_dump($tsr);
-      echo "TRAVIS DEBUG (TSR):\n" . base64_encode($tsr) . "\n";
+      echo "TRAVIS DEBUG (TSR):\n" . gettype($tsr) . "\n" . base64_encode($tsr) . "\n";
     }
 
     // Validate TSR
