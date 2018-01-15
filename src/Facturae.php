@@ -530,7 +530,7 @@ class Facturae {
     $ch = curl_init();
     curl_setopt_array($ch, $chOpts);
     $tsr = curl_exec($ch);
-    if (($str === false) && getenv('CI')) {
+    if (($tsr === false) && getenv('CI')) {
       echo "TRAVIS DEBUG (cURL error):\n" . curl_error($ch) . "\n";
     }
     curl_close($ch);
