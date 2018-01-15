@@ -514,8 +514,8 @@ class Facturae {
       CURLOPT_BINARYTRANSFER => 1,
       CURLOPT_SSL_VERIFYPEER => 0,
       CURLOPT_FOLLOWLOCATION => 1,
-	    CURLOPT_CONNECTTIMEOUT => 0,
-	    CURLOPT_TIMEOUT => 5, // 5 seconds timeout
+      CURLOPT_CONNECTTIMEOUT => 0,
+      CURLOPT_TIMEOUT => 5, // 5 seconds timeout
       CURLOPT_POST => 1,
       CURLOPT_POSTFIELDS => $tsq,
       CURLOPT_HTTPHEADER => array("Content-Type: application/timestamp-query"),
