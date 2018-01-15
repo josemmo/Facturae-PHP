@@ -75,7 +75,7 @@ $fac = new Facturae();
 $fac->setNumber('EMP201712', '0003');
 
 // Asignamos el 01/12/2017 como fecha de la factura
-$fac->setIssueNumber('2017-12-01');
+$fac->setIssueDate('2017-12-01');
 
 // Incluimos los datos del vendedor
 $fac->setSeller(new FacturaeParty([
