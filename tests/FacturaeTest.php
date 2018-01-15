@@ -213,14 +213,10 @@ final class FacturaeTest extends TestCase {
     curl_close($ch);
 
     // Validate results
-    if (strpos($res, 'euro_ok.png') === false) {
-      $this->markTestIncomplete('Invalid XML Format');
-    } elseif (strpos($res, '>Nivel de Firma Válido<') === false) {
-      $this->markTestIncomplete('Invalid Signature');
-    } elseif (strpos($res, '>XAdES_T<') === false) {
-      $this->markTestIncomplete('Invalid Timestamp');
-    }
     $this->assertNotEmpty($res);
+    $this->assertContains('euro_ok.png', $res, 'Invalid XML Format');
+    $this->assertContains('>Nivel de Firma Válido<', $res, 'Invalid Signature');
+    $this->assertContains('>XAdES_T<', $res, 'Invalid Timestamp');
   }
 
 }
