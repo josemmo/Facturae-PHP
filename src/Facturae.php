@@ -502,9 +502,6 @@ class Facturae {
     shell_exec($cmd);
     $tsq = file_get_contents($tmpTsqPath);
 
-    // Debug in case of Travis
-    if (getenv('CI')) echo "TRAVIS DEBUG (TSQ):\n" . base64_encode($tsq) . "\n";
-
     // Clean up temporal files
     unlink($tmpPayloadPath);
     unlink($tmpTsqPath);
@@ -530,16 +527,8 @@ class Facturae {
     $ch = curl_init();
     curl_setopt_array($ch, $chOpts);
     $tsr = curl_exec($ch);
-    if (($str === false) && getenv('CI')) {
-      echo "TRAVIS DEBUG (cURL error):\n" . curl_error($ch) . "\n";
-    }
+    if ($tsr === false) throw new \Exception('cURL error: ' . curl_error($ch));
     curl_close($ch);
-
-    // Debug in case of Travis
-    if (getenv('CI')) {
-      var_dump($tsr);
-      echo "TRAVIS DEBUG (TSR):\n" . base64_encode($tsr) . "\n";
-    }
 
     // Validate TSR
     if (strlen($tsr) < 1000) throw new \Exception('The returned TSR is invalid');
