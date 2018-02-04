@@ -10,7 +10,6 @@ final class FacturaeTest extends TestCase {
   const FILE_PATH = __DIR__ . "/salida-*.xsig";
   const COOKIES_PATH = __DIR__ . "/cookies.txt";
 
-
   /**
    * Test Create Invoice
    *
@@ -138,7 +137,7 @@ final class FacturaeTest extends TestCase {
     } else {
       $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
     }
-    $fac->setTimestampServer("https://freetsa.org/tsr");
+    $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
 
     // ... exportarlo a un archivo ...
     $isPfxStr = $isPfx ? "PKCS12" : "X509";
