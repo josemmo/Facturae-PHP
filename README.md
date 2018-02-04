@@ -3,7 +3,6 @@
 - [Qué es](#qu%C3%A9-es)
 	- [Requisitos](#requisitos)
 	- [Características](#caracter%C3%ADsticas)
-	- [Funciones previstas](#funciones-previstas)
 - [Documentación](#documentaci%C3%B3n)
 	- [Instalación](#instalaci%C3%B3n)
 	- [Ejemplo básico usando Composer](#ejemplo-b%C3%A1sico-usando-composer)
@@ -33,15 +32,13 @@ Facturae-PHP es una clase escrita puramente en PHP que permite generar facturas 
 ### Requisitos
  - PHP 5.6 o superior
  - OpenSSL (solo para firmar facturas)
+ - [vakata/asn1](https://github.com/vakata/asn1) (solo para el sellado de tiempo)
 
 ### Características
 - [x] Generación de facturas 100% conformes con la [Ley 25/2013 del 27 de diciembre](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-13722) listas para enviar a FACe
 - [x] Exportación según las versiones [3.2, 3.2.1 y 3.2.2](http://www.facturae.gob.es/formato/Paginas/version-3-2.aspx) de Facturae
 - [x] Firmado de acuerdo a la [política de firma de Facturae 3.1](http://www.facturae.gob.es/formato/Paginas/politicas-firma-electronica.aspx) basada en XAdES
-
-### Funciones previstas
-- [ ] Firma con sellado de tiempo (TSA)
-- [ ] Envío de facturas a FACe directamente desde la clase
+- [x] Sellado de tiempo (TSA)
 
 ---
 
@@ -370,8 +367,6 @@ En caso de necesitar autenticarse con el servidor TSA se deben pasar el usuario 
 ```php
 $fac->setTimestampServer("https://www.safestamper.com/tsa", "usuario", "contraseña");
 ```
-
-> NOTA: Para poder hacer uso de esta funcionalidad es necesario tener instalado OpenSSL (la librería, no la extensión de PHP).
 
 ### Otros métodos
 

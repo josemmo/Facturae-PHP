@@ -4,8 +4,56 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "7b509fbf167fcfaffeea5722556bf9ba",
-    "packages": [],
+    "content-hash": "15724e8785a71ea4db41d7e6177f8f7a",
+    "packages": [
+        {
+            "name": "vakata/asn1",
+            "version": "1.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vakata/asn1.git",
+                "reference": "8e84946922fd8197ad70fbe55117835f3abee028"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vakata/asn1/zipball/8e84946922fd8197ad70fbe55117835f3abee028",
+                "reference": "8e84946922fd8197ad70fbe55117835f3abee028",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "dev-master",
+                "phpunit/phpunit": "4.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "vakata\\asn1\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "vakata",
+                    "email": "github@vakata.com",
+                    "homepage": "http://www.vakata.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "An ASN1 encoder / decoder",
+            "homepage": "https://github.com/vakata/asn1",
+            "keywords": [
+                "asn1",
+                "vakata"
+            ],
+            "time": "2017-11-03T08:52:57+00:00"
+        }
+    ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",

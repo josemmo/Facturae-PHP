@@ -1,5 +1,4 @@
 <?php
-
 namespace josemmo\Facturae;
 
 /**
@@ -8,7 +7,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.2.0
+ * @version 1.2.1
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -62,7 +61,7 @@ class Facturae {
     self::SCHEMA_3_2_1 => "http://www.facturae.es/Facturae/2014/v3.2.1/Facturae",
     self::SCHEMA_3_2_2 => "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
   );
-  private static $USER_AGENT = "FacturaePHP/1.2.0";
+  private static $USER_AGENT = "FacturaePHP/1.2.1";
 
 
   /* ATTRIBUTES */
@@ -489,23 +488,7 @@ class Facturae {
     $payload = '<ds:SignatureValue ' . $this->getNamespaces() . $payload . '</ds:SignatureValue>';
 
     // Create TimeStamp Query
-    $tmpPayloadPath = tempnam(sys_get_temp_dir(), 'facturaephp');
-    $tmpTsqPath = tempnam(sys_get_temp_dir(), 'facturaephp');
-    file_put_contents($tmpPayloadPath, $payload);
-    $cmd = "openssl ts -query -data " . escapeshellarg($tmpPayloadPath) .
-      " -cert -no_nonce -sha512 -out " . escapeshellarg($tmpTsqPath);
-    if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
-      $cmd .= " >nul 2>&1";
-    } else {
-      $cmd .= " &>/dev/null";
-    }
-    shell_exec($cmd);
-    $tsq = file_get_contents($tmpTsqPath);
-
-    // Clean up temporal files
-    unlink($tmpPayloadPath);
-    unlink($tmpTsqPath);
-    if (empty($tsq)) throw new \Exception('Malformed TSQ. Is OpenSSL installed?');
+    $tsq = \vakata\asn1\Timestamp::generateRequestFromData($payload, false, true);
 
     // Await TimeStamp Request
     $chOpts = array(
