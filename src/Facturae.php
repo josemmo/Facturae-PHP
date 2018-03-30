@@ -487,10 +487,10 @@ class Facturae {
     $payload = explode('</ds:SignatureValue>', $payload)[0];
     $payload = '<ds:SignatureValue ' . $this->getNamespaces() . $payload . '</ds:SignatureValue>';
 
-    // Create TimeStamp Query
-    $tsq = \vakata\asn1\Timestamp::generateRequestFromData($payload, false, true);
+    // Create TimeStampQuery
+    $tsq = \vakata\asn1\Timestamp::generateRequestFromData($payload, true, true);
 
-    // Await TimeStamp Request
+    // Await TimeStampRequest
     $chOpts = array(
       CURLOPT_URL => $this->timestampServer,
       CURLOPT_RETURNTRANSFER => 1,
@@ -513,18 +513,21 @@ class Facturae {
     if ($tsr === false) throw new \Exception('cURL error: ' . curl_error($ch));
     curl_close($ch);
 
-    // Validate TSR
-    if (strlen($tsr) < 1000) throw new \Exception('The returned TSR is invalid');
+    // Validate TimeStampRequest
+    $responseCode = substr($tsr, 6, 3);
+    if ($responseCode !== "\02\01\00") { // Bytes for INTEGER 0 in ASN1
+      throw new \Exception('Invalid TSR response code');
+    }
 
-    // Inject timestamp
+    // Extract TimeStamp from TimeStampRequest and inject into XML document
+    $timeStamp = substr($tsr, 9);
     $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $this->random() . '">' .
                '<xades:UnsignedSignatureProperties>' .
                  '<xades:SignatureTimeStamp Id="Timestamp-' . $this->random() . '">' .
-                   '<xades:Include URI="#SignatureValue' . $this->signatureValueID . '"></xades:Include>' .
                    '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
                    '</ds:CanonicalizationMethod>' .
                    '<xades:EncapsulatedTimeStamp>' . "\n" .
-                     str_replace("\r", "", chunk_split(base64_encode($tsr), 76)) .
+                     str_replace("\r", "", chunk_split(base64_encode($timeStamp), 76)) .
                    '</xades:EncapsulatedTimeStamp>' .
                  '</xades:SignatureTimeStamp>' .
                '</xades:UnsignedSignatureProperties>' .
