@@ -7,6 +7,10 @@ php:
   - 7.0
   - nightly
 
+# This triggers builds to run on the new TravisCI infrastructure
+# http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+sudo: false
+
 # Install Composer package before testing
 install:
   - composer install --no-interaction
