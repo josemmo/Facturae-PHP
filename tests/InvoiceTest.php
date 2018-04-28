@@ -53,31 +53,31 @@ final class FacturaeTest extends TestCase {
       "province"  => "Madrid",
       "centres"   => [
         new FacturaeCentre([
-            "role"     => FacturaeCentre::ROLE_GESTOR,
-            "code"     => "L01281343",
-            "name"     => "Intervención Municipal",
-            "address"  => "Plaza de la Constitución, 1",
-            "postCode" => "28701",
-            "town"     => "San Sebastián de los Reyes",
-            "province" => "Madrid"
+          "role"     => FacturaeCentre::ROLE_GESTOR,
+          "code"     => "L01281343",
+          "name"     => "Intervención Municipal",
+          "address"  => "Plaza de la Constitución, 1",
+          "postCode" => "28701",
+          "town"     => "San Sebastián de los Reyes",
+          "province" => "Madrid"
         ]),
         new FacturaeCentre([
-            "role"     => FacturaeCentre::ROLE_TRAMITADOR,
-            "code"     => "L01281343",
-            "name"     => "Intervención Municipal",
-            "address"  => "Plaza de la Constitución, 1",
-            "postCode" => "28701",
-            "town"     => "San Sebastián de los Reyes",
-            "province" => "Madrid"
+          "role"     => FacturaeCentre::ROLE_TRAMITADOR,
+          "code"     => "L01281343",
+          "name"     => "Intervención Municipal",
+          "address"  => "Plaza de la Constitución, 1",
+          "postCode" => "28701",
+          "town"     => "San Sebastián de los Reyes",
+          "province" => "Madrid"
         ]),
         new FacturaeCentre([
-            "role"     => FacturaeCentre::ROLE_CONTABLE,
-            "code"     => "L01281343",
-            "name"     => "Intervención Municipal",
-            "address"  => "Plaza de la Constitución, 1",
-            "postCode" => "28701",
-            "town"     => "San Sebastián de los Reyes",
-            "province" => "Madrid"
+          "role"     => FacturaeCentre::ROLE_CONTABLE,
+          "code"     => "L01281343",
+          "name"     => "Intervención Municipal",
+          "address"  => "Plaza de la Constitución, 1",
+          "postCode" => "28701",
+          "town"     => "San Sebastián de los Reyes",
+          "province" => "Madrid"
         ])
       ]
     ]));
