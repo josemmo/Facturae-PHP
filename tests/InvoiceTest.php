@@ -2,13 +2,13 @@
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
+use josemmo\Facturae\FacturaeCentre;
 use PHPUnit\Framework\TestCase;
 
 final class FacturaeTest extends TestCase {
 
   const FILE_PATH = __DIR__ . "/salida-*.xsig";
   const COOKIES_PATH = __DIR__ . "/cookies.txt";
-
 
   /**
    * Test Create Invoice
@@ -39,23 +39,47 @@ final class FacturaeTest extends TestCase {
       "town"      => "Madrid",
       "province"  => "Madrid",
       "book"      => "0",
-      "merchantRegister" => "RG",
-      "sheet"     => "1"
+      "sheet"     => "1",
+      "merchantRegister" => "RG"
     ]));
 
     // Incluimos los datos del comprador
-    // Con finos demostrativos el comprador será
-    // una persona física en vez de una empresa
     $fac->setBuyer(new FacturaeParty([
-      "isLegalEntity" => false,       // Importante!
-      "taxNumber"     => "00000000A",
-      "name"          => "Antonio",
-      "firstSurname"  => "García",
-      "lastSurname"   => "Pérez",
-      "address"       => "Avda. Mayor, 7",
-      "postCode"      => "65432",
-      "town"          => "Madrid",
-      "province"      => "Madrid"
+      "taxNumber" => "P2813400E",
+      "name"      => "Ayuntamiento de San Sebastián de los Reyes",
+      "address"   => "Plaza de la Constitución, 1",
+      "postCode"  => "28701",
+      "town"      => "San Sebastián de los Reyes",
+      "province"  => "Madrid",
+      "centres"   => [
+        new FacturaeCentre([
+          "role"     => FacturaeCentre::ROLE_GESTOR,
+          "code"     => "L01281343",
+          "name"     => "Intervención Municipal",
+          "address"  => "Plaza de la Constitución, 1",
+          "postCode" => "28701",
+          "town"     => "San Sebastián de los Reyes",
+          "province" => "Madrid"
+        ]),
+        new FacturaeCentre([
+          "role"     => FacturaeCentre::ROLE_TRAMITADOR,
+          "code"     => "L01281343",
+          "name"     => "Intervención Municipal",
+          "address"  => "Plaza de la Constitución, 1",
+          "postCode" => "28701",
+          "town"     => "San Sebastián de los Reyes",
+          "province" => "Madrid"
+        ]),
+        new FacturaeCentre([
+          "role"     => FacturaeCentre::ROLE_CONTABLE,
+          "code"     => "L01281343",
+          "name"     => "Intervención Municipal",
+          "address"  => "Plaza de la Constitución, 1",
+          "postCode" => "28701",
+          "town"     => "San Sebastián de los Reyes",
+          "province" => "Madrid"
+        ])
+      ]
     ]));
 
     // Añadimos los productos a incluir en la factura
@@ -113,6 +137,7 @@ final class FacturaeTest extends TestCase {
     } else {
       $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
     }
+    $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
 
     // ... exportarlo a un archivo ...
     $isPfxStr = $isPfx ? "PKCS12" : "X509";
@@ -158,15 +183,20 @@ final class FacturaeTest extends TestCase {
     curl_setopt_array($ch, array(
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_SSL_VERIFYPEER => false,
-      CURLOPT_URL => "https://viewer.facturadirecta.com/dp/viewer/upload.void",
+      CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/index2.jsp",
       CURLOPT_POST => 1,
-      CURLOPT_POSTFIELDS => array("xmlFile" => $postFile),
+      CURLOPT_POSTFIELDS => array(
+        "referencia" => $postFile,
+        "valContable" => "on",
+        "valFirma" => "on",
+        "aceptarCondiciones" => "on",
+        "submit" => "Siguiente"
+      ),
       CURLOPT_COOKIEJAR => self::COOKIES_PATH
     ));
     $res = curl_exec($ch);
     curl_close($ch);
-    if (strpos($res, "<h1>Ok</h1>") === false) {
+    if (strpos($res, "window.open('facturae.jsp'") === false) {
       $this->expectException(UnexpectedValueException::class);
     }
 
@@ -175,19 +205,17 @@ final class FacturaeTest extends TestCase {
     curl_setopt_array($ch, array(
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_SSL_VERIFYPEER => false,
-      CURLOPT_URL => "https://viewer.facturadirecta.com/dp/viewer/viewer.void",
-      CURLOPT_POST => 1,
+      CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/facturae.jsp",
       CURLOPT_COOKIEFILE => self::COOKIES_PATH
     ));
     $res = curl_exec($ch);
     curl_close($ch);
 
-    // Parse results
-    $res = explode('<json><![CDATA[', $res);
-    $res = explode(']]></json>', $res[1]);
-    $res = json_decode(trim($res[0]));
-    $this->assertEquals($res->result, true);
+    // Validate results
+    $this->assertNotEmpty($res);
+    $this->assertContains('euro_ok.png', $res, 'Invalid XML Format');
+    $this->assertContains('>Nivel de Firma Válido<', $res, 'Invalid Signature');
+    $this->assertContains('>XAdES_T<', $res, 'Invalid Timestamp');
   }
 
 }

@@ -14,12 +14,12 @@ class FacturaeParty {
   public $name = NULL;
 
   // This block is only used for legal entities
-  public $book = NULL;             // "Libro"
-  public $merchantRegister = NULL; // "Registro mercantil"
-  public $sheet = NULL;            // "Hoja"
-  public $folio = NULL;            // "Folio"
-  public $section = NULL;          // "Sección"
-  public $volume = NULL;           // "Tomo"
+  public $book = NULL;                        // "Libro"
+  public $registerOfCompaniesLocation = NULL; // "Registro mercantil"
+  public $sheet = NULL;                       // "Hoja"
+  public $folio = NULL;                       // "Folio"
+  public $section = NULL;                     // "Sección"
+  public $volume = NULL;                      // "Tomo"
 
   // This block is only required for individuals
   public $firstSurname = NULL;
@@ -49,6 +49,9 @@ class FacturaeParty {
    */
   public function __construct($properties=array()) {
     foreach ($properties as $key=>$value) $this->{$key} = $value;
+    if (isset($this->merchantRegister)) {
+      $this->registerOfCompaniesLocation = $this->merchantRegister;
+    }
   }
 
 
@@ -101,7 +104,7 @@ class FacturaeParty {
     // Add data exclusive to `LegalEntity`
     if ($this->isLegalEntity) {
       $xml .= '<CorporateName>' . $this->name . '</CorporateName>';
-      $fields = array("book", "merchantRegister", "sheet", "folio",
+      $fields = array("book", "registerOfCompaniesLocation", "sheet", "folio",
         "section", "volume");
 
       $nonEmptyFields = array();
