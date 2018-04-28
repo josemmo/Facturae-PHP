@@ -1,4 +1,11 @@
-# Facturae-PHP [![Build Status](https://travis-ci.org/josemmo/Facturae-PHP.svg?branch=master)](https://travis-ci.org/josemmo/Facturae-PHP)
+# Facturae-PHP
+[![Travis](https://img.shields.io/travis/josemmo/Facturae-PHP/master.svg?style=flat-square)](https://travis-ci.org/josemmo/Facturae-PHP)
+[![Última versión](https://img.shields.io/packagist/v/josemmo/facturae-php.svg?style=flat-square)](https://packagist.org/packages/josemmo/facturae-php)
+![Version de PHP](https://img.shields.io/packagist/php-v/josemmo/facturae-php.svg?style=flat-square)
+![Tamaño](https://img.shields.io/github/languages/code-size/josemmo/Facturae-PHP.svg?style=flat-square)
+![Licencia](https://img.shields.io/github/license/josemmo/Facturae-PHP.svg?style=flat-square)
+
+<p>&nbsp;</p>
 
 - [Qué es](#qu%C3%A9-es)
 	- [Requisitos](#requisitos)
