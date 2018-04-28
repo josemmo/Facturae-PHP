@@ -487,8 +487,11 @@ class Facturae {
     $payload = explode('</ds:SignatureValue>', $payload)[0];
     $payload = '<ds:SignatureValue ' . $this->getNamespaces() . $payload . '</ds:SignatureValue>';
 
-    // Create TimeStampQuery
-    $tsq = \vakata\asn1\Timestamp::generateRequestFromData($payload, true, true);
+    // Create TimeStampQuery in ASN1 using SHA-1
+    $tsq = "302c0201013021300906052b0e03021a05000414";
+    $tsq .= hash('sha1', $payload);
+    $tsq .= "0201000101ff";
+    $tsq = hex2bin($tsq);
 
     // Await TimeStampRequest
     $chOpts = array(

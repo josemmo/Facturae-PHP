@@ -32,7 +32,6 @@ Facturae-PHP es una clase escrita puramente en PHP que permite generar facturas 
 ### Requisitos
  - PHP 5.6 o superior
  - OpenSSL (solo para firmar facturas)
- - [vakata/asn1](https://github.com/vakata/asn1) (solo para el sellado de tiempo)
 
 ### Características
 - [x] Generación de facturas 100% conformes con la [Ley 25/2013 del 27 de diciembre](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-13722) listas para enviar a FACe
