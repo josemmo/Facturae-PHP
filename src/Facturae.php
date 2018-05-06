@@ -7,7 +7,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.2.3
+ * @version 1.2.4
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -72,7 +72,7 @@ class Facturae {
       "GrossAmount" => ["min"=>6, "max"=>6]
     ]
   );
-  private static $USER_AGENT = "FacturaePHP/1.2.3";
+  private static $USER_AGENT = "FacturaePHP/1.2.4";
 
 
   /* ATTRIBUTES */
