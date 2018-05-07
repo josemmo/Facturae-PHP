@@ -1,6 +1,7 @@
 # Anexo
 
 ## Constantes
+
 |Constante|Descripción|
 |--------:|:----------|
 |`Facturae::SCHEMA_3_2`|Formato de Facturae 3.2|

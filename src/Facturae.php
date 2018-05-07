@@ -850,7 +850,7 @@ class Facturae {
       $xml .= '<InvoiceLine>' .
                 '<ItemDescription>' . $item['name'] . '</ItemDescription>' .
                 '<Quantity>' . $this->pad($item['quantity']) . '</Quantity>' .
-                '<UnitOfMeasure>01</UnitOfMeasure>' .
+                '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
                 '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
                 '<TotalCost>' . $this->pad($item['totalAmountWithoutTax'], 'TotalCost') . '</TotalCost>' .
                 '<GrossAmount>' . $this->pad($item['grossAmount'], 'GrossAmount') . '</GrossAmount>';

@@ -23,7 +23,7 @@ $fac->addItem("Llevo IVA al 0%", 100, 1, Facturae::TAX_IVA, 0);
 
 Nótese que Facturae-PHP no limita este tipo de comportamientos, es responsabilidad del usuario crear la factura de acuerdo a la legislación aplicable.
 
-## Uso avanzado
+## Múltiples impuestos por línea
 Supongamos que se quieren añadir varios impuestos a una misma línea de producto. En este caso se deberá hacer uso de la API avanzada de productos de Facturae-PHP a través de la clase `FacturaeItem`:
 ```php
 // Vamos a añadir un producto utilizando la API avanzada
@@ -52,7 +52,7 @@ $fac->addItem(new FacturaeItem([
 ]));
 ```
 
-Como último apunte sobre la API avanzada de productos, por defecto Facturae-PHP interprenta al IRPF como un impuesto retenido (aquellos que se restan a la base imponible) y al resto de impuestos como repercutidos (se suman a la base imponible).
+Debe tenerse en cuenta que, por defecto, Facturae-PHP interprenta al IRPF como un impuesto retenido (aquellos que se restan a la base imponible) y al resto de impuestos como repercutidos (se suman a la base imponible).
 
 Si necesitas crear una factura "especial" es posible sobreescribir el comportamiento por defecto a través de la propiedad `isWithheld`:
 ```php
@@ -68,3 +68,18 @@ $fac->addItem(new FacturaeItem([
   )
 ]));
 ```
+
+## Unidad de medida
+Para especificar en qué unidad se encuentra la cantidad de una línea de producto se utiliza la propiedad `unitOfMeasure`:
+```php
+// Añadimos 20 litros de leche a 38 céntimos el litro
+$fac->addItem(new FacturaeItem([
+  "name" => "Leche entera",
+  "quantity" => 20,
+  "unitPrice" => 0.38,
+  "unitOfMeasure" => Facturae::UNIT_LITERS,
+  "taxes" => [Facturae::TAX_IVA => 10]
+]));
+```
+
+Su valor por defecto (si no se indica) es `Facturae::UNIT_DEFAULT`, que es la unidad adimensional.

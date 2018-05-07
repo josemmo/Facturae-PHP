@@ -11,6 +11,7 @@ class FacturaeItem {
   private $name = NULL;
   private $description = NULL;
   private $quantity = 1;
+  private $unitOfMeasure = Facturae::UNIT_DEFAULT;
   private $unitPrice = NULL;
   private $unitPriceWithoutTax = NULL;
   private $taxesOutputs = array();
