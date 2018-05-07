@@ -34,6 +34,55 @@
 |`Facturae::TAX_REIVA`|Régimen especial de IVA para agencias de viajes|
 |`Facturae::TAX_REIGIC`|Régimen especial de IGIC: para agencias de viajes|
 |`Facturae::TAX_REIPSI`|Régimen especial de IPSI para agencias de viajes|
+|`Facturae::TAX_IPS`|Impuestos sobre las primas de seguros|
+|`Facturae::TAX_RLEA`|Recargo destinado a financiar las funciones de liquidación de entidades aseguradoras|
+|`Facturae::TAX_IVPEE`|Impuesto sobre el valor de la producción de la energía eléctrica|
+|`Facturae::TAX_IPCNG`|Impuesto sobre la producción de combustible nuclear gastado y residuos radiactivos resultantes de la generación de energía nucleoeléctrica|
+|`Facturae::TAX_IACNG`|Impuesto sobre el almacenamiento de combustible nuclear gastado y residuos radioactivos en instalaciones centralizadas|
+|`Facturae::TAX_IDEC`|Impuesto sobre los Depósitos en las Entidades de Crédito|
+|`Facturae::TAX_ILTCAC`|Impuesto sobre las labores del tabaco en la Comunidad Autónoma de Canarias|
+|`Facturae::TAX_IGFEI`|Impuesto sobre los Gases Fluorados de Efecto Invernadero|
+|`Facturae::TAX_IRNR`|Impuesto sobre la Renta de No Residentes|
+|`Facturae::TAX_ISS`|Impuesto sobre Sociedades|
+
+|Constante|Descripción|
+|--------:|:----------|
+|`Facturae::UNIT_DEFAULT`|Unidades (por defecto)|
+|`Facturae::UNIT_HOURS`|Horas|
+|`Facturae::UNIT_KILOGRAMS`|Kilogramos|
+|`Facturae::UNIT_LITERS`|Litros|
+|`Facturae::UNIT_OTHER`|Otros|
+|`Facturae::UNIT_BOXES`|Cajas|
+|`Facturae::UNIT_TRAYS`|Bandejas|
+|`Facturae::UNIT_BARRELS`|Barriles|
+|`Facturae::UNIT_JERRICANS`|Bidones|
+|`Facturae::UNIT_BAGS`|Bolsas|
+|`Facturae::UNIT_CARBOYS`|Bombonas|
+|`Facturae::UNIT_BOTTLES`|Botellas|
+|`Facturae::UNIT_CANISTERS`|Botes|
+|`Facturae::UNIT_TETRABRIKS`|Tetra Briks|
+|`Facturae::UNIT_CENTILITERS`|Centilitros|
+|`Facturae::UNIT_CENTIMITERS`|Centímetros|
+|`Facturae::UNIT_BINS`|Cubos|
+|`Facturae::UNIT_DOZENS`|Docenas|
+|`Facturae::UNIT_CASES`|Estuches|
+|`Facturae::UNIT_DEMIJOHNS`|Garrafas|
+|`Facturae::UNIT_GRAMS`|Gramos|
+|`Facturae::UNIT_KILOMETERS`|Kilómetros|
+|`Facturae::UNIT_CANS`|Latas|
+|`Facturae::UNIT_BUNCHES`|Manojos|
+|`Facturae::UNIT_METERS`|Metros|
+|`Facturae::UNIT_MILIMETERS`|Milímetros|
+|`Facturae::UNIT_6PACKS`|6-Packs|
+|`Facturae::UNIT_PACKAGES`|Paquetes|
+|`Facturae::UNIT_PORTIONS`|Raciones|
+|`Facturae::UNIT_ROLLS`|Rollos|
+|`Facturae::UNIT_ENVELOPES`|Sobres|
+|`Facturae::UNIT_TUBS`|Tarrinas|
+|`Facturae::UNIT_CUBICMETERS`|Metros cúbicos|
+|`Facturae::UNIT_SECONDS`|Segundos|
+|`Facturae::UNIT_WATTS`|Vatios|
+|`Facturae::UNIT_KWH`|Kilovatios por hora (KWh)|
 
 |Constante|Descripción|
 |--------:|:----------|

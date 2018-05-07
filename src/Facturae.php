@@ -53,6 +53,53 @@ class Facturae {
   const TAX_REIVA = "17";
   const TAX_REIGIC = "18";
   const TAX_REIPSI = "19";
+  const TAX_IPS = "20";
+  const TAX_RLEA = "21";
+  const TAX_IVPEE = "22";
+  const TAX_IPCNG = "23";
+  const TAX_IACNG = "24";
+  const TAX_IDEC = "25";
+  const TAX_ILTCAC = "26";
+  const TAX_IGFEI = "27";
+  const TAX_IRNR = "28";
+  const TAX_ISS = "29";
+
+  const UNIT_DEFAULT = "01";
+  const UNIT_HOURS = "02";
+  const UNIT_KILOGRAMS = "03";
+  const UNIT_LITERS = "04";
+  const UNIT_OTHER = "05";
+  const UNIT_BOXES = "06";
+  const UNIT_TRAYS = "07";
+  const UNIT_BARRELS = "08";
+  const UNIT_JERRICANS = "09";
+  const UNIT_BAGS = "10";
+  const UNIT_CARBOYS = "11";
+  const UNIT_BOTTLES = "12";
+  const UNIT_CANISTERS = "13";
+  const UNIT_TETRABRIKS = "14";
+  const UNIT_CENTILITERS = "15";
+  const UNIT_CENTIMITERS = "16";
+  const UNIT_BINS = "17";
+  const UNIT_DOZENS = "18";
+  const UNIT_CASES = "19";
+  const UNIT_DEMIJOHNS = "20";
+  const UNIT_GRAMS = "21";
+  const UNIT_KILOMETERS = "22";
+  const UNIT_CANS = "23";
+  const UNIT_BUNCHES = "24";
+  const UNIT_METERS = "25";
+  const UNIT_MILIMETERS = "26";
+  const UNIT_6PACKS = "27";
+  const UNIT_PACKAGES = "28";
+  const UNIT_PORTIONS = "29";
+  const UNIT_ROLLS = "30";
+  const UNIT_ENVELOPES = "31";
+  const UNIT_TUBS = "32";
+  const UNIT_CUBICMETERS = "33";
+  const UNIT_SECONDS = "34";
+  const UNIT_WATTS = "35";
+  const UNIT_KWH = "36";
 
 
   /* PRIVATE CONSTANTS */
@@ -134,6 +181,7 @@ class Facturae {
 
   /**
    * Pad
+   *
    * @param  float       $val   Input value
    * @param  string|null $field Field
    * @return string             Padded value
