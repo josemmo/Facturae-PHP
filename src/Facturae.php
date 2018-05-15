@@ -110,7 +110,8 @@ class Facturae {
   );
   private static $DECIMALS = array(
     null => [
-      null => ["min"=>2, "max"=>2]
+      null => ["min"=>2, "max"=>2],
+      "UnitPriceWithoutTax" => ["min"=>2, "max"=>8]
     ],
     self::SCHEMA_3_2 => [
       null => ["min"=>2, "max"=>2],
@@ -119,7 +120,7 @@ class Facturae {
       "GrossAmount" => ["min"=>6, "max"=>6]
     ]
   );
-  private static $USER_AGENT = "FacturaePHP/1.2.4";
+  private static $USER_AGENT = "FacturaePHP/1.2.5";
 
 
   /* ATTRIBUTES */
@@ -194,7 +195,12 @@ class Facturae {
     $decimals = $decimals[$field];
 
     // Pad value
-    return number_format(round($val, $decimals['max']), $decimals['min'], ".", "");
+    $res = number_format(round($val, $decimals['max']), $decimals['max'], ".", "");
+    for ($i=0; $i<$decimals['max']-$decimals['min']; $i++) {
+      if (substr($res, -1) !== "0") break;
+      $res = substr($res, 0, -1);
+    }
+    return $res;
   }
 
 
