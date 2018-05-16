@@ -7,7 +7,7 @@ namespace josemmo\Facturae;
  * This file contains everything you need to create invoices.
  *
  * @package josemmo\Facturae
- * @version 1.2.3
+ * @version 1.2.4
  * @license http://www.opensource.org/licenses/mit-license.php  MIT License
  * @author  josemmo
  */
@@ -53,6 +53,53 @@ class Facturae {
   const TAX_REIVA = "17";
   const TAX_REIGIC = "18";
   const TAX_REIPSI = "19";
+  const TAX_IPS = "20";
+  const TAX_RLEA = "21";
+  const TAX_IVPEE = "22";
+  const TAX_IPCNG = "23";
+  const TAX_IACNG = "24";
+  const TAX_IDEC = "25";
+  const TAX_ILTCAC = "26";
+  const TAX_IGFEI = "27";
+  const TAX_IRNR = "28";
+  const TAX_ISS = "29";
+
+  const UNIT_DEFAULT = "01";
+  const UNIT_HOURS = "02";
+  const UNIT_KILOGRAMS = "03";
+  const UNIT_LITERS = "04";
+  const UNIT_OTHER = "05";
+  const UNIT_BOXES = "06";
+  const UNIT_TRAYS = "07";
+  const UNIT_BARRELS = "08";
+  const UNIT_JERRICANS = "09";
+  const UNIT_BAGS = "10";
+  const UNIT_CARBOYS = "11";
+  const UNIT_BOTTLES = "12";
+  const UNIT_CANISTERS = "13";
+  const UNIT_TETRABRIKS = "14";
+  const UNIT_CENTILITERS = "15";
+  const UNIT_CENTIMITERS = "16";
+  const UNIT_BINS = "17";
+  const UNIT_DOZENS = "18";
+  const UNIT_CASES = "19";
+  const UNIT_DEMIJOHNS = "20";
+  const UNIT_GRAMS = "21";
+  const UNIT_KILOMETERS = "22";
+  const UNIT_CANS = "23";
+  const UNIT_BUNCHES = "24";
+  const UNIT_METERS = "25";
+  const UNIT_MILIMETERS = "26";
+  const UNIT_6PACKS = "27";
+  const UNIT_PACKAGES = "28";
+  const UNIT_PORTIONS = "29";
+  const UNIT_ROLLS = "30";
+  const UNIT_ENVELOPES = "31";
+  const UNIT_TUBS = "32";
+  const UNIT_CUBICMETERS = "33";
+  const UNIT_SECONDS = "34";
+  const UNIT_WATTS = "35";
+  const UNIT_KWH = "36";
 
 
   /* PRIVATE CONSTANTS */
@@ -61,41 +108,49 @@ class Facturae {
     self::SCHEMA_3_2_1 => "http://www.facturae.es/Facturae/2014/v3.2.1/Facturae",
     self::SCHEMA_3_2_2 => "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
   );
-  private static $USER_AGENT = "FacturaePHP/1.2.3";
+  private static $DECIMALS = array(
+    null => [
+      null => ["min"=>2, "max"=>2],
+      "UnitPriceWithoutTax" => ["min"=>2, "max"=>8]
+    ],
+    self::SCHEMA_3_2 => [
+      null => ["min"=>2, "max"=>2],
+      "UnitPriceWithoutTax" => ["min"=>6, "max"=>6],
+      "TotalCost" => ["min"=>6, "max"=>6],
+      "GrossAmount" => ["min"=>6, "max"=>6]
+    ]
+  );
+  private static $USER_AGENT = "FacturaePHP/1.2.5";
 
 
   /* ATTRIBUTES */
   private $currency = "EUR";
-  private $itemsPrecision = 6;
-  private $itemsPadding = 6;
-  private $totalsPrecision = 2;
-  private $totalsPadding = 2;
 
-  private $version = NULL;
+  private $version = null;
   private $header = array(
-    "serie" => NULL,
-    "number" => NULL,
-    "issueDate" => NULL,
-    "dueDate" => NULL,
-    "startDate" => NULL,
-    "endDate" => NULL,
-    "paymentMethod" => NULL,
-    "paymentIBAN" => NULL
+    "serie" => null,
+    "number" => null,
+    "issueDate" => null,
+    "dueDate" => null,
+    "startDate" => null,
+    "endDate" => null,
+    "paymentMethod" => null,
+    "paymentIBAN" => null
   );
   private $parties = array(
-    "seller" => NULL,
-    "buyer" => NULL
+    "seller" => null,
+    "buyer" => null
   );
   private $items = array();
   private $legalLiterals = array();
 
-  private $signTime = NULL;
-  private $timestampServer = NULL;
-  private $timestampUser = NULL;
-  private $timestampPass = NULL;
-  private $signPolicy = NULL;
-  private $publicKey = NULL;
-  private $privateKey = NULL;
+  private $signTime = null;
+  private $timestampServer = null;
+  private $timestampUser = null;
+  private $timestampPass = null;
+  private $signPolicy = null;
+  private $publicKey = null;
+  private $privateKey = null;
 
 
   /**
@@ -128,35 +183,24 @@ class Facturae {
   /**
    * Pad
    *
-   * @param  float  $val       Input
-   * @param  int    $precision Decimals to round
-   * @param  int    $padding   Decimals to pad
-   * @return string            Padded value
+   * @param  float       $val   Input value
+   * @param  string|null $field Field
+   * @return string             Padded value
    */
-  private function pad($val, $precision, $padding) {
-    return number_format(round($val, $precision), $padding, ".", "");
-  }
+  private function pad($val, $field=null) {
+    // Get decimals
+    $vKey = isset(self::$DECIMALS[$this->version]) ? $this->version : null;
+    $decimals = self::$DECIMALS[$vKey];
+    if (!isset($decimals[$field])) $field = null;
+    $decimals = $decimals[$field];
 
-
-  /**
-   * Pad total value
-   *
-   * @param  float $val Input
-   * @return string     Padded value
-   */
-  private function padTotal($val) {
-    return $this->pad($val, $this->totalsPrecision, $this->totalsPadding);
-  }
-
-
-  /**
-   * Pad item value
-   *
-   * @param  float  $val Input
-   * @return string      Padded value
-   */
-  private function padItem($val) {
-    return $this->pad($val, $this->itemsPrecision, $this->itemsPadding);
+    // Pad value
+    $res = number_format(round($val, $decimals['max']), $decimals['max'], ".", "");
+    for ($i=0; $i<$decimals['max']-$decimals['min']; $i++) {
+      if (substr($res, -1) !== "0") break;
+      $res = substr($res, 0, -1);
+    }
+    return $res;
   }
 
 
@@ -241,7 +285,7 @@ class Facturae {
    * @param int|string $date Start date
    * @param int|string $date End date
    */
-  public function setBillingPeriod($startDate=NULL, $endDate=NULL) {
+  public function setBillingPeriod($startDate=null, $endDate=null) {
     $d_start = is_string($startDate) ? strtotime($startDate) : $startDate;
     $d_end = is_string($endDate) ? strtotime($endDate) : $endDate;
     $this->header['startDate'] = $d_start;
@@ -257,7 +301,7 @@ class Facturae {
    * @param int|string $issueDate Issue date
    * @param int|string $dueDate Due date
    */
-  public function setDates($issueDate, $dueDate=NULL) {
+  public function setDates($issueDate, $dueDate=null) {
     $this->setIssueDate($issueDate);
     $this->setDueDate($dueDate);
   }
@@ -269,7 +313,7 @@ class Facturae {
    * @param string $method Payment method
    * @param string $iban   Bank account in case of bank transfer
    */
-  public function setPaymentMethod($method=self::PAYMENT_CASH, $iban=NULL) {
+  public function setPaymentMethod($method=self::PAYMENT_CASH, $iban=null) {
     $this->header['paymentMethod'] = $method;
     if (!is_null($iban)) $iban = str_replace(" ", "", $iban);
     $this->header['paymentIBAN'] = $iban;
@@ -289,13 +333,13 @@ class Facturae {
    * @param int                       $taxType   Tax type
    * @param float                     $taxRate   Tax rate
    */
-  public function addItem($desc, $unitPrice=NULL, $quantity=1, $taxType=NULL, $taxRate=NULL) {
+  public function addItem($desc, $unitPrice=null, $quantity=1, $taxType=null, $taxRate=null) {
     if ($desc instanceOf FacturaeItem) {
       $item = $desc;
     } else {
       $item = new FacturaeItem([
         "name" => is_array($desc) ? $desc[0] : $desc,
-        "description" => is_array($desc) ? $desc[1] : NULL,
+        "description" => is_array($desc) ? $desc[1] : null,
         "quantity" => $quantity,
         "unitPrice" => $unitPrice,
         "taxes" => array($taxType => $taxRate)
@@ -378,7 +422,7 @@ class Facturae {
    * @param string $user   TSA User
    * @param string $pass   TSA Password
    */
-  public function setTimestampServer($server, $user=NULL, $pass=NULL) {
+  public function setTimestampServer($server, $user=null, $pass=null) {
     $this->timestampServer = $server;
     $this->timestampUser = $user;
     $this->timestampPass = $pass;
@@ -429,14 +473,14 @@ class Facturae {
    * Sign
    *
    * @param  string  $publicPath  Path to public key PEM file or PKCS#12 certificate store
-   * @param  string  $privatePath Path to private key PEM file (should be NULL in case of PKCS#12)
+   * @param  string  $privatePath Path to private key PEM file (should be null in case of PKCS#12)
    * @param  string  $passphrase  Private key passphrase
    * @param  array   $policy      Facturae sign policy
    * @return boolean              Success
    */
-  public function sign($publicPath, $privatePath=NULL, $passphrase="", $policy=self::SIGN_POLICY_3_1) {
-    $this->publicKey = NULL;
-    $this->privateKey = NULL;
+  public function sign($publicPath, $privatePath=null, $passphrase="", $policy=self::SIGN_POLICY_3_1) {
+    $this->publicKey = null;
+    $this->privateKey = null;
     $this->signPolicy = $policy;
 
     // Generate random IDs
@@ -713,7 +757,7 @@ class Facturae {
    * @param  string     $filePath Path to save invoice
    * @return string|int           XML data|Written file bytes
    */
-  public function export($filePath=NULL) {
+  public function export($filePath=null) {
     // Prepare document
     $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
            'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
@@ -730,13 +774,13 @@ class Facturae {
                 '<BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
                 '<InvoicesCount>1</InvoicesCount>' .
                 '<TotalInvoicesAmount>' .
-                  '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalAmount>' .
                 '</TotalInvoicesAmount>' .
                 '<TotalOutstandingAmount>' .
-                  '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalAmount>' .
                 '</TotalOutstandingAmount>' .
                 '<TotalExecutableAmount>' .
-                  '<TotalAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalAmount>' .
                 '</TotalExecutableAmount>' .
                 '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
               '</Batch>' .
@@ -779,12 +823,12 @@ class Facturae {
         foreach ($taxRows as $rate=>$tax) {
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
-                    '<TaxRate>' . $rate . '</TaxRate>' .
+                    '<TaxRate>' . $this->pad($rate) . '</TaxRate>' .
                     '<TaxableBase>' .
-                      '<TotalAmount>' . $this->padTotal($tax['base']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['base']) . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
-                      '<TotalAmount>' . $this->padTotal($tax['amount']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['amount']) . '</TotalAmount>' .
                     '</TaxAmount>' .
                   '</Tax>';
         }
@@ -794,15 +838,15 @@ class Facturae {
 
     // Add invoice totals
     $xml .= '<InvoiceTotals>' .
-              '<TotalGrossAmount>' . $this->padTotal($totals['grossAmount']) . '</TotalGrossAmount>' .
+              '<TotalGrossAmount>' . $this->pad($totals['grossAmount']) . '</TotalGrossAmount>' .
               '<TotalGeneralDiscounts>0.00</TotalGeneralDiscounts>' .
               '<TotalGeneralSurcharges>0.00</TotalGeneralSurcharges>' .
-              '<TotalGrossAmountBeforeTaxes>' . $this->padTotal($totals['grossAmountBeforeTaxes']) . '</TotalGrossAmountBeforeTaxes>' .
-              '<TotalTaxOutputs>' . $this->padTotal($totals['totalTaxesOutputs']) . '</TotalTaxOutputs>' .
-              '<TotalTaxesWithheld>' . $this->padTotal($totals['totalTaxesWithheld']) . '</TotalTaxesWithheld>' .
-              '<InvoiceTotal>' . $this->padTotal($totals['invoiceAmount']) . '</InvoiceTotal>' .
-              '<TotalOutstandingAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalOutstandingAmount>' .
-              '<TotalExecutableAmount>' . $this->padTotal($totals['invoiceAmount']) . '</TotalExecutableAmount>' .
+              '<TotalGrossAmountBeforeTaxes>' . $this->pad($totals['grossAmountBeforeTaxes']) . '</TotalGrossAmountBeforeTaxes>' .
+              '<TotalTaxOutputs>' . $this->pad($totals['totalTaxesOutputs']) . '</TotalTaxOutputs>' .
+              '<TotalTaxesWithheld>' . $this->pad($totals['totalTaxesWithheld']) . '</TotalTaxesWithheld>' .
+              '<InvoiceTotal>' . $this->pad($totals['invoiceAmount']) . '</InvoiceTotal>' .
+              '<TotalOutstandingAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalOutstandingAmount>' .
+              '<TotalExecutableAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalExecutableAmount>' .
             '</InvoiceTotals>';
 
     // Add invoice items
@@ -811,11 +855,11 @@ class Facturae {
       $item = $itemObj->getData();
       $xml .= '<InvoiceLine>' .
                 '<ItemDescription>' . $item['name'] . '</ItemDescription>' .
-                '<Quantity>' . $this->padTotal($item['quantity']) . '</Quantity>' .
-                '<UnitOfMeasure>01</UnitOfMeasure>' .
-                '<UnitPriceWithoutTax>' . $this->padItem($item['unitPriceWithoutTax']) . '</UnitPriceWithoutTax>' .
-                '<TotalCost>' . $this->padTotal($item['totalAmountWithoutTax']) . '</TotalCost>' .
-                '<GrossAmount>' . $this->padTotal($item['grossAmount']) . '</GrossAmount>';
+                '<Quantity>' . $this->pad($item['quantity']) . '</Quantity>' .
+                '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
+                '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
+                '<TotalCost>' . $this->pad($item['totalAmountWithoutTax'], 'TotalCost') . '</TotalCost>' .
+                '<GrossAmount>' . $this->pad($item['grossAmount'], 'GrossAmount') . '</GrossAmount>';
 
       // Add item taxes
       // NOTE: As you can see here, taxesWithheld is before taxesOutputs.
@@ -828,12 +872,12 @@ class Facturae {
         foreach ($item[$taxesGroup] as $type=>$tax) {
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
-                    '<TaxRate>' . $tax['rate'] . '</TaxRate>' .
+                    '<TaxRate>' . $this->pad($tax['rate']) . '</TaxRate>' .
                     '<TaxableBase>' .
-                      '<TotalAmount>' . $this->padTotal($item['totalAmountWithoutTax']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($item['totalAmountWithoutTax']) . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
-                      '<TotalAmount>' . $this->padTotal($tax['amount']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['amount']) . '</TotalAmount>' .
                     '</TaxAmount>' .
                   '</Tax>';
         }
@@ -856,7 +900,7 @@ class Facturae {
       $xml .= '<PaymentDetails>' .
                 '<Installment>' .
                   '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>' .
-                  '<InstallmentAmount>' . $this->padTotal($totals['invoiceAmount']) . '</InstallmentAmount>' .
+                  '<InstallmentAmount>' . $this->pad($totals['invoiceAmount']) . '</InstallmentAmount>' .
                   '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
       if ($this->header['paymentMethod'] == self::PAYMENT_TRANSFER) {
         $xml .=   '<AccountToBeCredited>' .
