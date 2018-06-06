@@ -18,5 +18,5 @@ install:
 script:
   - php vendor/bin/phpunit --coverage-clover build/coverage/xml
 
-after_script:
+after_success:
   - php vendor/bin/codacycoverage clover build/coverage/xml
