@@ -16,7 +16,8 @@
         "ext-openssl": "*"
     },
     "require-dev": {
-        "codacy/coverage": "dev-master"
+        "codacy/coverage": "dev-master",
+        "phpunit/phpunit": "^7.2"
     },
     "autoload": {
         "psr-4": {
