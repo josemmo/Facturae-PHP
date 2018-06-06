@@ -16,8 +16,8 @@ namespace josemmo\Facturae;
 /**
  * Facturae
  *
- * Standalone class designed to create full compliance Facturae files from
- * scratch, without the need of any other tools for signing.
+ * Class designed to create full compliance Facturae files from scratch,
+ * without the need of any other tools for signing.
  */
 class Facturae {
 

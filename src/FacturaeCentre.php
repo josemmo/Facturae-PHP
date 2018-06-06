@@ -17,24 +17,24 @@ class FacturaeCentre {
   const ROLE_PAGADOR = "03";
   const ROLE_PROPONENTE = "04";
 
-  public $code = NULL;
-  public $role = NULL;
+  public $code = null;
+  public $role = null;
 
-  public $name = NULL;
-  public $firstSurname = NULL;
-  public $lastSurname = NULL;
-  public $description = NULL;
+  public $name = null;
+  public $firstSurname = null;
+  public $lastSurname = null;
+  public $description = null;
 
-  public $address = NULL;
-  public $postCode = NULL;
-  public $town = NULL;
-  public $province = NULL;
+  public $address = null;
+  public $postCode = null;
+  public $town = null;
+  public $province = null;
   public $countryCode = "ESP";
 
 
   /**
    * Construct
-   * 
+   *
    * @param array $properties Party properties as an array
    */
   public function __construct($properties=array()) {

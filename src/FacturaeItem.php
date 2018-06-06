@@ -8,20 +8,21 @@ namespace josemmo\Facturae;
  * Represents an invoice item
  */
 class FacturaeItem {
-  private $name = NULL;
-  private $description = NULL;
+
+  private $name = null;
+  private $description = null;
   private $quantity = 1;
   private $unitOfMeasure = Facturae::UNIT_DEFAULT;
-  private $unitPrice = NULL;
-  private $unitPriceWithoutTax = NULL;
+  private $unitPrice = null;
+  private $unitPriceWithoutTax = null;
   private $taxesOutputs = array();
   private $taxesWithheld = array();
 
-  private $totalAmountWithoutTax = NULL;   // $quantity * $unitPriceWithoutTax
-  private $grossAmount = NULL; // For now, $grossAmount = $totalAmountWithoutTax
-  private $totalTaxesOutputs = NULL;
-  private $totalTaxesWithheld = NULL;
-  private $totalAmount = NULL; // $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld
+  private $totalAmountWithoutTax = null; // $quantity * $unitPriceWithoutTax
+  private $grossAmount = null; // For now, $grossAmount = $totalAmountWithoutTax
+  private $totalTaxesOutputs = null;
+  private $totalTaxesWithheld = null;
+  private $totalAmount = null; // $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld
 
 
   /**

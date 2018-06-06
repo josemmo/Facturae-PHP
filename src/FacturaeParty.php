@@ -1,5 +1,4 @@
 <?php
-
 namespace josemmo\Facturae;
 
 /**
@@ -9,36 +8,37 @@ namespace josemmo\Facturae;
  * the seller or the buyer of an invoice.
  */
 class FacturaeParty {
-  public $isLegalEntity = true;    // By default is a company and not a person
-  public $taxNumber = NULL;
-  public $name = NULL;
+
+  public $isLegalEntity = true; // By default is a company and not a person
+  public $taxNumber = null;
+  public $name = null;
 
   // This block is only used for legal entities
-  public $book = NULL;                        // "Libro"
-  public $registerOfCompaniesLocation = NULL; // "Registro mercantil"
-  public $sheet = NULL;                       // "Hoja"
-  public $folio = NULL;                       // "Folio"
-  public $section = NULL;                     // "Sección"
-  public $volume = NULL;                      // "Tomo"
+  public $book = null;                        // "Libro"
+  public $registerOfCompaniesLocation = null; // "Registro mercantil"
+  public $sheet = null;                       // "Hoja"
+  public $folio = null;                       // "Folio"
+  public $section = null;                     // "Sección"
+  public $volume = null;                      // "Tomo"
 
   // This block is only required for individuals
-  public $firstSurname = NULL;
-  public $lastSurname = NULL;
+  public $firstSurname = null;
+  public $lastSurname = null;
 
-  public $address = NULL;
-  public $postCode = NULL;
-  public $town = NULL;
-  public $province = NULL;
+  public $address = null;
+  public $postCode = null;
+  public $town = null;
+  public $province = null;
   public $countryCode = "ESP";
 
-  public $email = NULL;
-  public $phone = NULL;
-  public $fax = NULL;
-  public $website = NULL;
+  public $email = null;
+  public $phone = null;
+  public $fax = null;
+  public $website = null;
 
-  public $contactPeople = NULL;
-  public $cnoCnae = NULL;
-  public $ineTownCode = NULL;
+  public $contactPeople = null;
+  public $cnoCnae = null;
+  public $ineTownCode = null;
   public $centres = array();
 
 

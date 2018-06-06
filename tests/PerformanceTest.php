@@ -55,4 +55,5 @@ final class PerformanceTest extends TestCase {
     echo "\n└─────────────────────────────────────┘";
     $this->assertTrue($avg < 5);
   }
+
 }
