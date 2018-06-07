@@ -16,11 +16,8 @@ abstract class FacturaeUtils extends FacturaeProperties {
    * @return int Random number
    */
   protected function random() {
-    if (function_exists('random_int')) {
-      return random_int(0x10000000, 0x7FFFFFFF);
-    } else {
-      return rand(100000, 999999);
-    }
+    if (function_exists('random_int')) return random_int(0x10000000, 0x7FFFFFFF);
+    return rand(100000, 999999);
   }
 
 

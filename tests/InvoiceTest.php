@@ -30,6 +30,9 @@ final class FacturaeTest extends TestCase {
     // Asignamos el 01/12/2017 como fecha de la factura
     $fac->setIssueDate('2017-12-01');
 
+    // Y un periodo de facturación del mes anterior
+    $fac->setBillingPeriod("2017-11-01", "2017-11-30");
+
     // Incluimos los datos del vendedor
     $fac->setSeller(new FacturaeParty([
       "taxNumber" => "A00000000",
@@ -59,7 +62,10 @@ final class FacturaeTest extends TestCase {
           "address"  => "Plaza de la Constitución, 1",
           "postCode" => "28701",
           "town"     => "San Sebastián de los Reyes",
-          "province" => "Madrid"
+          "province" => "Madrid",
+          "firstSurname" => "Nombre del Responsable",
+          "lastSurname"  => "Apellidos del Responsable",
+          "description"  => "Esta es una descripción de prueba"
         ]),
         new FacturaeCentre([
           "role"     => FacturaeCentre::ROLE_TRAMITADOR,
@@ -130,6 +136,12 @@ final class FacturaeTest extends TestCase {
     $fac->addLegalLiteral("Este es un mensaje de prueba que se incluirá " .
       "dentro del campo LegalLiterals del XML de la factura");
     $fac->addLegalLiteral("Y este, otro (se pueden añadir varios)");
+
+    // Establecemos un método de pago (por coverage, solo en algunos casos)
+    if (!$isPfx) {
+      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766");
+      $fac->setDueDate("2017-12-31");
+    }
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
