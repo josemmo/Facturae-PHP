@@ -9,6 +9,7 @@ abstract class FacturaeConstants {
 
   /* PUBLIC CONSTANTS */
   const VERSION = "1.3.0"; // Library version
+  const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
   const SCHEMA_3_2 = "3.2";
   const SCHEMA_3_2_1 = "3.2.1";
@@ -108,7 +109,6 @@ abstract class FacturaeConstants {
       "GrossAmount" => ["min"=>6, "max"=>6]
     ]
   );
-  protected static $USER_AGENT = "FacturaePHP/" . self::VERSION;
 
 
   /**

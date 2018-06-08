@@ -1,6 +1,9 @@
 <?php
 namespace josemmo\Facturae\Controller;
 
+use josemmo\Facturae\Common\KeyPairReader;
+use josemmo\Facturae\Common\XmlsigTools;
+
 /**
  * Implements all properties and methods needed for an instantiable
  * @link{josemmo\Facturae\Facturae} to be signed and time stamped.
@@ -14,46 +17,6 @@ abstract class FacturaeSignable extends FacturaeUtils {
   private $timestampPass = null;
   private $publicKey = null;
   private $privateKey = null;
-
-
-  /**
-   * Load a PKCS#12 Certificate Store
-   *
-   * @param  string  $pkcs12File The certificate store file name
-   * @param  string  $pkcs12Pass Password for unlocking the PKCS#12 file
-   * @return boolean             Success
-   */
-  private function loadPkcs12($pkcs12File, $pkcs12Pass="") {
-    if (!is_file($pkcs12File)) return false;
-
-    // Extract public and private keys from store
-    if (openssl_pkcs12_read(file_get_contents($pkcs12File), $certs, $pkcs12Pass)) {
-      $this->publicKey = openssl_x509_read($certs['cert']);
-      $this->privateKey = openssl_pkey_get_private($certs['pkey']);
-    }
-
-    return (!empty($this->publicKey) && !empty($this->privateKey));
-  }
-
-
-  /**
-   * Load a X.509 certificate and PEM encoded private key
-   *
-   * @param  string  $publicPath  Path to public key PEM file
-   * @param  string  $privatePath Path to private key PEM file
-   * @param  string  $passphrase  Private key passphrase
-   * @return boolean              Success
-   */
-  private function loadX509($publicPath, $privatePath, $passphrase="") {
-    if (is_file($publicPath) && is_file($privatePath)) {
-      $this->publicKey = openssl_x509_read(file_get_contents($publicPath));
-      $this->privateKey = openssl_pkey_get_private(
-        file_get_contents($privatePath),
-        $passphrase
-      );
-    }
-    return (!empty($this->publicKey) && !empty($this->privateKey));
-  }
 
 
   /**
@@ -93,10 +56,6 @@ abstract class FacturaeSignable extends FacturaeUtils {
    */
   public function sign($publicPath, $privatePath=null, $passphrase="",
                        $policy=self::SIGN_POLICY_3_1) {
-    $this->publicKey = null;
-    $this->privateKey = null;
-    $this->signPolicy = $policy;
-
     // Generate random IDs
     $this->signatureID = $this->random();
     $this->signedInfoID = $this->random();
@@ -108,11 +67,14 @@ abstract class FacturaeSignable extends FacturaeUtils {
     $this->signatureObjectID = $this->random();
 
     // Load public and private keys
-    if (empty($privatePath)) {
-      return $this->loadPkcs12($publicPath, $passphrase);
-    } else {
-      return $this->loadX509($publicPath, $privatePath, $passphrase);
-    }
+    $reader = new KeyPairReader($publicPath, $privatePath, $passphrase);
+    $this->publicKey = $reader->getPublicKey();
+    $this->privateKey = $reader->getPrivateKey();
+    $this->signPolicy = $policy;
+    unset($reader);
+
+    // Return success
+    return (!empty($this->publicKey) && !empty($this->privateKey));
   }
 
 
@@ -134,9 +96,8 @@ abstract class FacturaeSignable extends FacturaeUtils {
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
+    $tools = new XmlsigTools();
     $certData = openssl_x509_parse($this->publicKey);
-    $certDigest = openssl_x509_fingerprint($this->publicKey, "sha1", true);
-    $certDigest = base64_encode($certDigest);
     $certIssuer = array();
     foreach ($certData['issuer'] as $item=>$value) {
       $certIssuer[] = $item . '=' . $value;
@@ -152,7 +113,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
                   '<xades:Cert>' .
                     '<xades:CertDigest>' .
                       '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>' .
-                      '<ds:DigestValue>' . $certDigest . '</ds:DigestValue>' .
+                      '<ds:DigestValue>' . $tools->getCertDigest($this->publicKey) . '</ds:DigestValue>' .
                     '</xades:CertDigest>' .
                     '<xades:IssuerSerial>' .
                       '<ds:X509IssuerName>' . $certIssuer . '</ds:X509IssuerName>' .
@@ -186,14 +147,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
               '</xades:SignedDataObjectProperties>' .
             '</xades:SignedProperties>';
 
-    // Prepare key info
-    $publicPEM = "";
-    openssl_x509_export($this->publicKey, $publicPEM);
-    $publicPEM = str_replace("-----BEGIN CERTIFICATE-----", "", $publicPEM);
-    $publicPEM = str_replace("-----END CERTIFICATE-----", "", $publicPEM);
-    $publicPEM = str_replace("\n", "", $publicPEM);
-    $publicPEM = str_replace("\r", "", chunk_split($publicPEM, 76));
-
+    // Extract public exponent (e) and modulus (n)
     $privateData = openssl_pkey_get_details($this->privateKey);
     $modulus = chunk_split(base64_encode($privateData['rsa']['n']), 76);
     $modulus = str_replace("\r", "", $modulus);
@@ -202,7 +156,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
     // Generate KeyInfo
     $kInfo = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' . "\n" .
                '<ds:X509Data>' . "\n" .
-                 '<ds:X509Certificate>' . "\n" . $publicPEM . '</ds:X509Certificate>' . "\n" .
+                 '<ds:X509Certificate>' . "\n" . $tools->getCert($this->publicKey) . '</ds:X509Certificate>' . "\n" .
                '</ds:X509Data>' . "\n" .
                '<ds:KeyValue>' . "\n" .
                  '<ds:RSAKeyValue>' . "\n" .
@@ -251,9 +205,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
 
     // Calculate signature
     $signaturePayload = str_replace('<ds:SignedInfo', '<ds:SignedInfo ' . $xmlns, $sInfo);
-    openssl_sign($signaturePayload, $signatureResult, $this->privateKey);
-    $signatureResult = chunk_split(base64_encode($signatureResult), 76);
-    $signatureResult = str_replace("\r", "", $signatureResult);
+    $signatureResult = $tools->getSignature($signaturePayload, $this->privateKey);
 
     // Make signature
     $sig = '<ds:Signature xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="Signature' . $this->signatureID . '">' . "\n" .
@@ -309,7 +261,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
       CURLOPT_POST => 1,
       CURLOPT_POSTFIELDS => $tsq,
       CURLOPT_HTTPHEADER => array("Content-Type: application/timestamp-query"),
-      CURLOPT_USERAGENT => self::$USER_AGENT
+      CURLOPT_USERAGENT => self::USER_AGENT
     );
     if (!empty($this->timestampUser) && !empty($this->timestampPass)) {
       $chOpts[CURLOPT_USERPWD] = $this->timestampUser . ":" . $this->timestampPass;
@@ -327,15 +279,15 @@ abstract class FacturaeSignable extends FacturaeUtils {
     }
 
     // Extract TimeStamp from TimeStampRequest and inject into XML document
+    $tools = new XmlsigTools();
     $timeStamp = substr($tsr, 9);
+    $timeStamp = $tools->toBase64($timeStamp, true);
     $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $this->random() . '">' .
                '<xades:UnsignedSignatureProperties>' .
                  '<xades:SignatureTimeStamp Id="Timestamp-' . $this->random() . '">' .
                    '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
                    '</ds:CanonicalizationMethod>' .
-                   '<xades:EncapsulatedTimeStamp>' . "\n" .
-                     str_replace("\r", "", chunk_split(base64_encode($timeStamp), 76)) .
-                   '</xades:EncapsulatedTimeStamp>' .
+                   '<xades:EncapsulatedTimeStamp>' . "\n" . $timeStamp . '</xades:EncapsulatedTimeStamp>' .
                  '</xades:SignatureTimeStamp>' .
                '</xades:UnsignedSignatureProperties>' .
              '</xades:UnsignedProperties>';
