@@ -7,6 +7,9 @@ namespace josemmo\Facturae\Controller;
  */
 abstract class FacturaeUtils extends FacturaeProperties {
 
+  protected $extensions = array();
+
+
   /**
    * Generate random ID
    *
@@ -46,19 +49,35 @@ abstract class FacturaeUtils extends FacturaeProperties {
 
 
   /**
-   * Get XML NameSpaces
-   *
-   * NOTE: Should be defined in alphabetical order
-   *
-   * @return string XML NameSpaces
+   * Get XML Namespaces
+   * @return string XML Namespaces
    */
   protected function getNamespaces() {
-    $xmlns = array();
-    $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
-    $xmlns[] = 'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"';
-    $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
+    $xmlns = array(
+      'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"',
+      'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"',
+      'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"'
+    );
+    foreach ($this->extensions as $ext) {
+      $xmlns = array_merge($xmlns, $ext->__getNamespaces());
+    }
+    sort($xmlns);
     $xmlns = implode(' ', $xmlns);
     return $xmlns;
+  }
+
+
+  /**
+   * Get extension
+   * @param  string    $name Extension name
+   * @return Extension       Extension instance
+   */
+  public function getExtension($name) {
+    if (!isset($this->extensions[$name])) {
+      $namespace = __NAMESPACE__ . "\\Extensions\\{$name}Extension";
+      $this->extensions[$name] = new $namespace($this);
+    }
+    return $this->extensions[$name];
   }
 
 }

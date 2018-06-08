@@ -180,8 +180,14 @@ abstract class FacturaeExportable extends FacturaeSignable {
     // Close invoice and document
     $xml .= '</Invoice></Invoices></fe:Facturae>';
 
+    // Call extensions
+    foreach ($this->extensions as $ext) $xml = $ext->__onBeforeSign($xml);
+
     // Add signature
     $xml = $this->injectSignature($xml);
+
+    // Call extensions again
+    foreach ($this->extensions as $ext) $xml = $ext->__onAfterSign($xml);
 
     // Prepend content type
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $xml;
