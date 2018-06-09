@@ -1,5 +1,5 @@
 # Extensión de FACeB2B
-Igual que es posible generar facturas listas para enviar a [FACe](https://face.gob.es/) añadiendo los objetos `FacturaeCentre` correspondientes dentro de la propiedad `centres` de un `FacturaeParty` (véase apartado de [entidades](03-entidades.md) para más información), existe su equivalente para el sector privado.
+Igual que es posible generar facturas listas para enviar a [FACe](https://face.gob.es/) añadiendo los objetos `FacturaeCentre` correspondientes dentro de la propiedad `centres` de un `FacturaeParty` (véase apartado de [entidades](02-entidades.md) para más información), existe su equivalente para el sector privado.
 
 ## Introducción a FACeB2B
 FACeB2B es una plataforma casi idéntica a FACe para que empresas dadas de alta en [DIRe](https://dire.gob.es/) puedan enviarse facturas electrónicas unas a otras.
