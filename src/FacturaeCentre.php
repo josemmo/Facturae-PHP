@@ -16,6 +16,15 @@ class FacturaeCentre {
   const ROLE_PAGADOR = "03";
   const ROLE_PROPONENTE = "04";
 
+  const ROLE_B2B_FISCAL = "Fiscal";
+  const ROLE_B2B_PAYER = "Payer";
+  const ROLE_B2B_BUYER = "Buyer";
+  const ROLE_B2B_COLLECTOR = "Collector";
+  const ROLE_B2B_SELLER = "Seller";
+  const ROLE_B2B_PAYMENT_RECEIVER = "Payment receiver";
+  const ROLE_B2B_COLLECTION_RECEIVER = "Collection receiver";
+  const ROLE_B2B_ISSUER = "Issuer";
+
   public $code = null;
   public $role = null;
 

@@ -145,7 +145,7 @@ final class FacturaeTest extends TestCase {
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
-      $fac->sign(__DIR__ . "/test.pfx", NULL, "12345");
+      $fac->sign(__DIR__ . "/test.pfx", null, "12345");
     } else {
       $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
     }

@@ -58,6 +58,7 @@ $fac->export("mi-factura.xsig");
 - [3. Líneas de producto](doc/03-lineas-de-producto.md)
 - [4. Propiedades de una factura](doc/04-propiedades.md)
 - [5. Firma electrónica y sellado de tiempo](doc/05-firma-electronica.md)
+- [6. Extensión de FACeB2B](doc/06-faceb2b.md)
 - [Otros métodos](doc/otros-metodos.md)
 - [Anexo: tabla de constantes y validadores](doc/anexo.md)
 

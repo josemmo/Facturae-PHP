@@ -22,7 +22,7 @@ final class PerformanceTest extends TestCase {
         "taxNumber" => "A00000000",
         "name"      => "Perico de los Palotes S.A.",
         "address"   => "C/ Falsa, 123",
-        "postCode"  => "123456",
+        "postCode"  => "12345",
         "town"      => "Madrid",
         "province"  => "Madrid"
       ]));
@@ -33,12 +33,12 @@ final class PerformanceTest extends TestCase {
         "firstSurname"  => "García",
         "lastSurname"   => "Pérez",
         "address"       => "Avda. Mayor, 7",
-        "postCode"      => "654321",
+        "postCode"      => "54321",
         "town"          => "Madrid",
         "province"      => "Madrid"
       ]));
       $fac->addItem("Producto #$i", 20.14, 3, Facturae::TAX_IVA, 21);
-      $fac->sign(__DIR__ . "/test.pfx", NULL, "12345");
+      $fac->sign(__DIR__ . "/test.pfx", null, "12345");
       $fac->export();
     }
 

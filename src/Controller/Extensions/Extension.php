@@ -25,11 +25,12 @@ abstract class Extension {
 
 
   /**
-   * Get additional namespaces
-   * @return string[] Additional Namespaces
+   * Get additional data
+   * This data goes inside Facturae/Invoices/Invoice/AdditionalData/Extensions
+   * @return string|null Additional XML data
    */
-  public function __getNamespaces() {
-    return array();
+  public function __getAdditionalData() {
+    return null;
   }
 
 
