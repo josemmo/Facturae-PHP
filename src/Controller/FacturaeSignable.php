@@ -57,14 +57,15 @@ abstract class FacturaeSignable extends FacturaeUtils {
   public function sign($publicPath, $privatePath=null, $passphrase="",
                        $policy=self::SIGN_POLICY_3_1) {
     // Generate random IDs
-    $this->signatureID = $this->random();
-    $this->signedInfoID = $this->random();
-    $this->signedPropertiesID = $this->random();
-    $this->signatureValueID = $this->random();
-    $this->certificateID = $this->random();
-    $this->referenceID = $this->random();
-    $this->signatureSignedPropertiesID = $this->random();
-    $this->signatureObjectID = $this->random();
+    $tools = new XmlsigTools();
+    $this->signatureID = $tools->randomId();
+    $this->signedInfoID = $tools->randomId();
+    $this->signedPropertiesID = $tools->randomId();
+    $this->signatureValueID = $tools->randomId();
+    $this->certificateID = $tools->randomId();
+    $this->referenceID = $tools->randomId();
+    $this->signatureSignedPropertiesID = $tools->randomId();
+    $this->signatureObjectID = $tools->randomId();
 
     // Load public and private keys
     $reader = new KeyPairReader($publicPath, $privatePath, $passphrase);
@@ -87,16 +88,13 @@ abstract class FacturaeSignable extends FacturaeUtils {
   protected function injectSignature($xml) {
     // Make sure we have all we need to sign the document
     if (empty($this->publicKey) || empty($this->privateKey)) return $xml;
+    $tools = new XmlsigTools();
 
     // Normalize document
     $xml = str_replace("\r", "", $xml);
 
-    // Define namespace
-    $xmlns = $this->getNamespaces();
-
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
-    $tools = new XmlsigTools();
     $certData = openssl_x509_parse($this->publicKey);
     $certIssuer = array();
     foreach ($certData['issuer'] as $item=>$value) {
@@ -167,11 +165,10 @@ abstract class FacturaeSignable extends FacturaeUtils {
              '</ds:KeyInfo>';
 
     // Calculate digests
-    $propDigest = base64_encode(sha1(str_replace('<xades:SignedProperties',
-      '<xades:SignedProperties ' . $xmlns, $prop), true));
-    $kInfoDigest = base64_encode(sha1(str_replace('<ds:KeyInfo',
-      '<ds:KeyInfo ' . $xmlns, $kInfo), true));
-    $documentDigest = base64_encode(sha1($xml, true));
+    $xmlns = $this->getNamespaces();
+    $propDigest = $tools->getDigest($tools->injectNamespaces($prop, $xmlns));
+    $kInfoDigest = $tools->getDigest($tools->injectNamespaces($kInfo, $xmlns));
+    $documentDigest = $tools->getDigest($xml);
 
     // Generate SignedInfo
     $sInfo = '<ds:SignedInfo Id="Signature-SignedInfo' . $this->signedInfoID . '">' . "\n" .
@@ -204,7 +201,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
              '</ds:SignedInfo>';
 
     // Calculate signature
-    $signaturePayload = str_replace('<ds:SignedInfo', '<ds:SignedInfo ' . $xmlns, $sInfo);
+    $signaturePayload = $tools->injectNamespaces($sInfo, $xmlns);
     $signatureResult = $tools->getSignature($signaturePayload, $this->privateKey);
 
     // Make signature
@@ -238,10 +235,13 @@ abstract class FacturaeSignable extends FacturaeUtils {
    * @return string            Signed and timestamped XML document
    */
   private function injectTimestamp($signedXml) {
+    $tools = new XmlsigTools();
+
     // Prepare data to timestamp
-    $payload = explode('<ds:SignatureValue', $signedXml)[1];
-    $payload = explode('</ds:SignatureValue>', $payload)[0];
-    $payload = '<ds:SignatureValue ' . $this->getNamespaces() . $payload . '</ds:SignatureValue>';
+    $payload = explode('<ds:SignatureValue', $signedXml, 2)[1];
+    $payload = explode('</ds:SignatureValue>', $payload, 2)[0];
+    $payload = '<ds:SignatureValue' . $payload . '</ds:SignatureValue>';
+    $payload = $tools->injectNamespaces($payload, $this->getNamespaces());
 
     // Create TimeStampQuery in ASN1 using SHA-1
     $tsq = "302c0201013021300906052b0e03021a05000414";
@@ -282,9 +282,9 @@ abstract class FacturaeSignable extends FacturaeUtils {
     $tools = new XmlsigTools();
     $timeStamp = substr($tsr, 9);
     $timeStamp = $tools->toBase64($timeStamp, true);
-    $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $this->random() . '">' .
+    $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $tools->randomId() . '">' .
                '<xades:UnsignedSignatureProperties>' .
-                 '<xades:SignatureTimeStamp Id="Timestamp-' . $this->random() . '">' .
+                 '<xades:SignatureTimeStamp Id="Timestamp-' . $tools->randomId() . '">' .
                    '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
                    '</ds:CanonicalizationMethod>' .
                    '<xades:EncapsulatedTimeStamp>' . "\n" . $timeStamp . '</xades:EncapsulatedTimeStamp>' .

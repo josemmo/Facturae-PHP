@@ -4,6 +4,52 @@ namespace josemmo\Facturae\Common;
 class XmlsigTools {
 
   /**
+   * Generate random ID
+   *
+   * This method is used for generating random IDs required when signing the
+   * document.
+   *
+   * @return int Random number
+   */
+  public function randomId() {
+    if (function_exists('random_int')) return random_int(0x10000000, 0x7FFFFFFF);
+    return rand(100000, 999999);
+  }
+
+
+  /**
+   * Inject namespaces
+   * @param  string          $xml    Input XML
+   * @param  string|string[] $newNs  Namespaces
+   * @return string                  Canonicalized XML with new namespaces
+   */
+  public function injectNamespaces($xml, $newNs) {
+    if (!is_array($newNs)) $newNs = array($newNs);
+    $xml = explode(">", $xml, 2);
+    $oldNs = explode(" ", $xml[0]);
+    $elementName = array_shift($oldNs);
+
+    // Combine and sort namespaces
+    $xmlns = array();
+    $attributes = array();
+    foreach (array_merge($oldNs, $newNs) as $name) {
+      if (strpos($name, 'xmlns:') === 0) {
+        $xmlns[] = $name;
+      } else {
+        $attributes[] = $name;
+      }
+    }
+    sort($xmlns);
+    sort($attributes);
+    $ns = array_merge($xmlns, $attributes);
+
+    // Generate new XML element
+    $xml = $elementName . " " . implode($ns, " ") . ">" . $xml[1];
+    return $xml;
+  }
+
+
+  /**
    * To Base64
    * @param  string  $bytes  Input
    * @param  boolean $pretty Pretty Base64 response
@@ -22,6 +68,17 @@ class XmlsigTools {
    */
   private function prettify($input) {
     return chunk_split($input, 76, "\n");
+  }
+
+
+  /**
+   * Get digest
+   * @param  string  $input  Input string
+   * @param  boolean $pretty Pretty Base64 response
+   * @return string          Digest
+   */
+  public function getDigest($input, $pretty=false) {
+    return $this->toBase64(sha1($input, true), $pretty);
   }
 
 

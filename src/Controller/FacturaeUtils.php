@@ -11,20 +11,6 @@ abstract class FacturaeUtils extends FacturaeProperties {
 
 
   /**
-   * Generate random ID
-   *
-   * This method is used for generating random IDs required when signing the
-   * document.
-   *
-   * @return int Random number
-   */
-  protected function random() {
-    if (function_exists('random_int')) return random_int(0x10000000, 0x7FFFFFFF);
-    return rand(100000, 999999);
-  }
-
-
-  /**
    * Pad
    *
    * @param  float       $val   Input value
@@ -49,18 +35,14 @@ abstract class FacturaeUtils extends FacturaeProperties {
 
 
   /**
-   * Get XML NameSpaces
-   *
-   * NOTE: Should be defined in alphabetical order
-   *
-   * @return string XML NameSpaces
+   * Get XML Namespaces
+   * @return string[] XML Namespaces
    */
   protected function getNamespaces() {
     $xmlns = array();
     $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
     $xmlns[] = 'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"';
     $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
-    $xmlns = implode(' ', $xmlns);
     return $xmlns;
   }
 

@@ -20,7 +20,7 @@ $fac->setSeller(new FacturaeParty([
   "taxNumber" => "A00000000",
   "name"      => "Perico de los Palotes S.A.",
   "address"   => "C/ Falsa, 123",
-  "postCode"  => "123456",
+  "postCode"  => "12345",
   "town"      => "Madrid",
   "province"  => "Madrid"
 ]));
@@ -31,7 +31,7 @@ $fac->setBuyer(new FacturaeParty([
   "firstSurname"  => "García",
   "lastSurname"   => "Pérez",
   "address"       => "Avda. Mayor, 7",
-  "postCode"      => "654321",
+  "postCode"      => "54321",
   "town"          => "Madrid",
   "province"      => "Madrid"
 ]));
