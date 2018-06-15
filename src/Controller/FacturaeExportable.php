@@ -7,6 +7,25 @@ namespace josemmo\Facturae\Controller;
 abstract class FacturaeExportable extends FacturaeSignable {
 
   /**
+   * Add optional fields
+   * @param  object   $item   Subject item
+   * @param  string[] $fields Optional fields
+   * @return string           Output XML
+   */
+  private function addOptionalFields($item, $fields) {
+    $res = "";
+    foreach ($fields as $key=>$name) {
+      if (is_int($key)) $key = $name; // Allow $item to have a different property name
+      if (!empty($item[$key])) {
+        $xmlTag = ucfirst($name);
+        $res .= "<$xmlTag>" . $item[$key] . "</$xmlTag>";
+      }
+    }
+    return $res;
+  }
+
+
+  /**
    * Export
    *
    * Get Facturae XML data
@@ -50,26 +69,31 @@ abstract class FacturaeExportable extends FacturaeSignable {
             '</Parties>';
 
     // Add invoice data
-    $xml .= '<Invoices>' .
-              '<Invoice>' .
-                '<InvoiceHeader>' .
-                  '<InvoiceNumber>' . $this->header['number'] . '</InvoiceNumber>' .
-                  '<InvoiceSeriesCode>' . $this->header['serie'] . '</InvoiceSeriesCode>' .
-                  '<InvoiceDocumentType>FC</InvoiceDocumentType>' .
-                  '<InvoiceClass>OO</InvoiceClass>' .
-                '</InvoiceHeader>' .
-                '<InvoiceIssueData>' .
-                  '<IssueDate>' . date('Y-m-d', $this->header['issueDate']) . '</IssueDate>';
+    $xml .= '<Invoices><Invoice>';
+    $xml .= '<InvoiceHeader>' .
+        '<InvoiceNumber>' . $this->header['number'] . '</InvoiceNumber>' .
+        '<InvoiceSeriesCode>' . $this->header['serie'] . '</InvoiceSeriesCode>' .
+        '<InvoiceDocumentType>FC</InvoiceDocumentType>' .
+        '<InvoiceClass>OO</InvoiceClass>' .
+      '</InvoiceHeader>';
+    $xml .= '<InvoiceIssueData>';
+    $xml .= '<IssueDate>' . date('Y-m-d', $this->header['issueDate']) . '</IssueDate>';
     if (!is_null($this->header['startDate'])) {
-      $xml .=     '<InvoicingPeriod>' .
-                    '<StartDate>' . date('Y-m-d', $this->header['startDate']) . '</StartDate>' .
-                    '<EndDate>' . date('Y-m-d', $this->header['endDate']) . '</EndDate>' .
-                  '</InvoicingPeriod>';
+      $xml .= '<InvoicingPeriod>' .
+          '<StartDate>' . date('Y-m-d', $this->header['startDate']) . '</StartDate>' .
+          '<EndDate>' . date('Y-m-d', $this->header['endDate']) . '</EndDate>' .
+        '</InvoicingPeriod>';
     }
-    $xml .=       '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
-                  '<TaxCurrencyCode>' . $this->currency . '</TaxCurrencyCode>' .
-                  '<LanguageName>es</LanguageName>' .
-                '</InvoiceIssueData>';
+    $xml .= '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>';
+    $xml .= '<TaxCurrencyCode>' . $this->currency . '</TaxCurrencyCode>';
+    $xml .= '<LanguageName>' . $this->language . '</LanguageName>';
+    $xml .= $this->addOptionalFields($this->header, [
+      "description" => "InvoiceDescription",
+      "receiverTransactionReference",
+      "fileReference",
+      "receiverContractReference"
+    ]);
+    $xml .= '</InvoiceIssueData>';
 
     // Add invoice taxes
     foreach (["taxesOutputs", "taxesWithheld"] as $i=>$taxesGroup) {
@@ -110,13 +134,24 @@ abstract class FacturaeExportable extends FacturaeSignable {
     $xml .= '<Items>';
     foreach ($this->items as $itemObj) {
       $item = $itemObj->getData();
-      $xml .= '<InvoiceLine>' .
-                '<ItemDescription>' . $item['name'] . '</ItemDescription>' .
-                '<Quantity>' . $this->pad($item['quantity']) . '</Quantity>' .
-                '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
-                '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
-                '<TotalCost>' . $this->pad($item['totalAmountWithoutTax'], 'TotalCost') . '</TotalCost>' .
-                '<GrossAmount>' . $this->pad($item['grossAmount'], 'GrossAmount') . '</GrossAmount>';
+      $xml .= '<InvoiceLine>';
+
+      // Add optional fields
+      $xml .= $this->addOptionalFields($item, [
+        "issuerContractReference", "issuerContractDate",
+        "issuerTransactionReference", "issuerTransactionDate",
+        "receiverContractReference", "receiverContractDate",
+        "receiverTransactionReference", "receiverTransactionDate",
+        "fileReference", "fileDate", "sequenceNumber"
+      ]);
+
+      // Add required fields
+      $xml .= '<ItemDescription>' . $item['name'] . '</ItemDescription>' .
+        '<Quantity>' . $this->pad($item['quantity']) . '</Quantity>' .
+        '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
+        '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
+        '<TotalCost>' . $this->pad($item['totalAmountWithoutTax'], 'TotalCost') . '</TotalCost>' .
+        '<GrossAmount>' . $this->pad($item['grossAmount'], 'GrossAmount') . '</GrossAmount>';
 
       // Add item taxes
       // NOTE: As you can see here, taxesWithheld is before taxesOutputs.
@@ -141,10 +176,13 @@ abstract class FacturaeExportable extends FacturaeSignable {
         $xml .= "</$xmlTag>";
       }
 
-      // Add item additional information
-      if (!is_null($item['description'])) {
-        $xml .= '<AdditionalLineItemInformation>' . $item['description'] . '</AdditionalLineItemInformation>';
-      }
+      // Add more optional fields
+      $xml .= $this->addOptionalFields($item, [
+        "description" => "AdditionalLineItemInformation",
+        "articleCode"
+      ]);
+
+      // Close invoice line
       $xml .= '</InvoiceLine>';
     }
     $xml .= '</Items>';

@@ -8,6 +8,7 @@ namespace josemmo\Facturae;
  */
 class FacturaeItem {
 
+  private $articleCode = null;
   private $name = null;
   private $description = null;
   private $quantity = 1;
@@ -22,6 +23,18 @@ class FacturaeItem {
   private $totalTaxesOutputs = null;
   private $totalTaxesWithheld = null;
   private $totalAmount = null; // $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld
+
+  private $issuerContractReference = null;
+  private $issuerContractDate = null;
+  private $issuerTransactionReference = null;
+  private $issuerTransactionDate = null;
+  private $receiverContractReference = null;
+  private $receiverContractDate = null;
+  private $receiverTransactionReference = null;
+  private $receiverTransactionDate = null;
+  private $fileReference = null;
+  private $fileDate = null;
+  private $sequenceNumber = null;
 
 
   /**

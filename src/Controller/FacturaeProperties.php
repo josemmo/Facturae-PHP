@@ -14,6 +14,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
 
   /* ATTRIBUTES */
   protected $currency = "EUR";
+  protected $language = "es";
   protected $version = null;
   protected $header = array(
     "serie" => null,
@@ -23,7 +24,11 @@ abstract class FacturaeProperties extends FacturaeConstants {
     "startDate" => null,
     "endDate" => null,
     "paymentMethod" => null,
-    "paymentIBAN" => null
+    "paymentIBAN" => null,
+    "description" => null,
+    "receiverTransactionReference" => null,
+    "fileReference" => null,
+    "receiverContractReference" => null
   );
   protected $parties = array(
     "seller" => null,
@@ -142,6 +147,28 @@ abstract class FacturaeProperties extends FacturaeConstants {
     $this->header['paymentMethod'] = $method;
     if (!is_null($iban)) $iban = str_replace(" ", "", $iban);
     $this->header['paymentIBAN'] = $iban;
+  }
+
+
+  /**
+   * Set description
+   * @param string $desc Invoice description
+   */
+  public function setDescription($desc) {
+    $this->header['description'] = $desc;
+  }
+
+
+  /**
+   * Set references
+   * @param string $file        File reference
+   * @param string $transaction Transaction reference
+   * @param string $contract    Contract reference
+   */
+  public function setReferences($file, $transaction=null, $contract=null) {
+    $this->header['fileReference'] = $file;
+    $this->header['receiverTransactionReference'] = $transaction;
+    $this->header['receiverContractReference'] = $contract;
   }
 
 

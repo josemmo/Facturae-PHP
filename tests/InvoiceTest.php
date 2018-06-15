@@ -100,13 +100,25 @@ final class FacturaeTest extends TestCase {
     // que tenga IVA al 10% e IRPF al 15%
     $fac->addItem(new FacturaeItem([
       "name" => "Una línea con varios impuestos",
+      "articleCode" => 4012,
       "description" => "Esta línea es solo para probar Facturae-PHP",
       "quantity" => 1, // Esto es opcional, es el valor por defecto si se omite
       "unitPrice" => 43.64,
       "taxes" => array(
         Facturae::TAX_IVA  => 10,
         Facturae::TAX_IRPF => 15
-      )
+      ),
+      "issuerContractReference" => "A9938281",
+      "issuerContractDate" => "2010-03-10",
+      "issuerTransactionReference" => "A9938282",
+      "issuerTransactionDate" => "2010-03-10",
+      "receiverContractReference" => "BBBH-38271",
+      "receiverContractDate" => "2010-03-10",
+      "receiverTransactionReference" => "BBBH-38272",
+      "receiverTransactionDate" => "2010-03-10",
+      "fileReference" => "000298172",
+      "fileDate" => "2010-03-10",
+      "sequenceNumber" => "1.0"
     ]));
 
     // Por defecto, Facturae-PHP asume que el IRPF es un impuesto retenido y el
@@ -115,6 +127,7 @@ final class FacturaeTest extends TestCase {
     // retenidos al 4%:
     $fac->addItem(new FacturaeItem([
       "name" => "Llevo impuestos retenidos",
+      "fileReference" => "AH6227001",
       "quantity" => 1,
       "unitPrice" => 10,
       "taxes" => array(
