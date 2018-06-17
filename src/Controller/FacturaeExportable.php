@@ -96,7 +96,7 @@ abstract class FacturaeExportable extends FacturaeSignable {
     $xml .= '</InvoiceIssueData>';
 
     // Add invoice taxes
-    foreach (["taxesOutputs", "taxesWithheld"] as $i=>$taxesGroup) {
+    foreach (["taxesOutputs", "taxesWithheld"] as $taxesGroup) {
       if (count($totals[$taxesGroup]) == 0) continue;
       $xmlTag = ucfirst($taxesGroup); // Just capitalize variable name
       $xml .= "<$xmlTag>";

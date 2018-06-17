@@ -42,7 +42,7 @@ class FacturaeFile {
 
     // Load MIME type
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $this->mime = finfo_file($finfo, $file);
+    $this->mime = finfo_file($finfo, $path);
     finfo_close($finfo);
   }
 
