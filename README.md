@@ -7,7 +7,7 @@
 ![Tamaño](https://img.shields.io/github/languages/code-size/josemmo/Facturae-PHP.svg?style=flat-square)
 ![Licencia](https://img.shields.io/github/license/josemmo/Facturae-PHP.svg?style=flat-square)
 
-Facturae-PHP es un paquete escrito puramente en PHP que permite generar facturas electrónicas siguiendo el formato estructurado [Facturae](http://www.facturae.gob.es/) e incluso añadirlas firma electrónica XAdES y sellado de tiempo sin necesidad de ninguna librería o clase adicional.
+Facturae-PHP es un paquete escrito puramente en PHP que permite generar facturas electrónicas siguiendo el formato estructurado [Facturae](http://www.facturae.gob.es/), **añadirlas firma electrónica** XAdES y sellado de tiempo, e incluso **enviarlas a FACe o FACeB2B** sin necesidad de ninguna librería o clase adicional.
 
 En apenas 25 líneas de código y con un tiempo de ejecución inferior a 0,4 µs es posible generar, firmar y exportar una factura electrónica totalmente válida:
 
@@ -45,12 +45,15 @@ $fac->export("mi-factura.xsig");
 ## Requisitos
  - PHP 5.6 o superior
  - OpenSSL (solo para firmar facturas)
+ - cURL (solo para *timestamping* y FACe / FACeB2B)
+ - libXML (solo para FACe y FACeB2B)
 
 ## Características
-- Generación de facturas 100% conformes con la [Ley 25/2013 del 27 de diciembre](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-13722) listas para enviar a FACe
-- Exportación según las versiones [3.2, 3.2.1 y 3.2.2](http://www.facturae.gob.es/formato/Paginas/version-3-2.aspx) de Facturae
+- Generación de facturas 100% conformes con la [Ley 25/2013 del 27 de diciembre](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-13722)
+- Exportación según las versiones de formato [3.2, 3.2.1 y 3.2.2](http://www.facturae.gob.es/formato/Paginas/version-3-2.aspx) de Facturae
 - Firmado de acuerdo a la [política de firma de Facturae 3.1](http://www.facturae.gob.es/formato/Paginas/politicas-firma-electronica.aspx) basada en XAdES
-- Sellado de tiempo (TSA)
+- Sellado de tiempo según el [RFC3161](https://www.ietf.org/rfc/rfc3161.txt)
+- Envío automatizado de facturas a **FACe y FACeB2B** 🔥
 
 ## Documentación
 - [1. Introducción: instalación y uso básico](doc/01-introduccion.md)
@@ -58,7 +61,9 @@ $fac->export("mi-factura.xsig");
 - [3. Líneas de producto](doc/03-lineas-de-producto.md)
 - [4. Propiedades de una factura](doc/04-propiedades.md)
 - [5. Firma electrónica y sellado de tiempo](doc/05-firma-electronica.md)
-- [6. Extensión de FACeB2B](doc/06-faceb2b.md)
+- [6. Extensión de FACeB2B](doc/06-extension-faceb2b.md)
+- [7. Envío de facturas a administraciones públicas (FACe)](doc/07-face.md)
+- [8. Envío y recepción de facturas entre empresas privadas (FACeB2B)](doc/08-faceb2b.md)
 - [Otros métodos](doc/otros-metodos.md)
 - [Anexo: tabla de constantes y validadores](doc/anexo.md)
 

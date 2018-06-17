@@ -19,7 +19,7 @@ $fac->sign("clave_publica.pem", "clave_privada.pem", "passphrase");
 ## Firmado con PKCS#12
 Desde la versión 1.0.5 de Facturae-PHP ya es posible cargar un banco de certificados desde un archivo `.pfx` o `.p12` sin necesidad de convertirlo previamente a X.509:
 ```php
-$fac->sign("certificado.pfx", NULL, "passphrase");
+$fac->sign("certificado.pfx", null, "passphrase");
 ```
 
 ## Fecha de la firma
