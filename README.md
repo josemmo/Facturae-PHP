@@ -38,7 +38,7 @@ $fac->setBuyer(new FacturaeParty([
 
 $fac->addItem("Lámpara de pie", 20.14, 3, Facturae::TAX_IVA, 21);
 
-$fac->sign("certificado.pfx", NULL, "passphrase");
+$fac->sign("certificado.pfx", null, "passphrase");
 $fac->export("mi-factura.xsig");
 ```
 

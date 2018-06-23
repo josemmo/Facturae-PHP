@@ -1,6 +1,8 @@
 <?php
 namespace josemmo\Facturae;
 
+use josemmo\Facturae\Common\XmlTools;
+
 /**
  * Facturae Party
  *
@@ -62,11 +64,13 @@ class FacturaeParty {
    * @return string         Entity as Facturae XML
    */
   public function getXML($schema) {
+    $tools = new XmlTools();
+
     // Add tax identification
     $xml = '<TaxIdentification>' .
              '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>' .
              '<ResidenceTypeCode>R</ResidenceTypeCode>' .
-             '<TaxIdentificationNumber>' . $this->taxNumber . '</TaxIdentificationNumber>' .
+             '<TaxIdentificationNumber>' . $tools->escape($this->taxNumber) . '</TaxIdentificationNumber>' .
            '</TaxIdentification>';
 
     // Add administrative centres
@@ -76,22 +80,22 @@ class FacturaeParty {
         $xml .= '<AdministrativeCentre>';
         $xml .= '<CentreCode>' . $centre->code . '</CentreCode>';
         $xml .= '<RoleTypeCode>' . $centre->role . '</RoleTypeCode>';
-        $xml .= '<Name>' . $centre->name . '</Name>';
+        $xml .= '<Name>' . $tools->escape($centre->name) . '</Name>';
         if (!is_null($centre->firstSurname)) {
-          $xml .= '<FirstSurname>' . $centre->firstSurname . '</FirstSurname>';
+          $xml .= '<FirstSurname>' . $tools->escape($centre->firstSurname) . '</FirstSurname>';
         }
         if (!is_null($centre->lastSurname)) {
-          $xml .= '<SecondSurname>' . $centre->lastSurname . '</SecondSurname>';
+          $xml .= '<SecondSurname>' . $tools->escape($centre->lastSurname) . '</SecondSurname>';
         }
         $xml .= '<AddressInSpain>' .
-                  '<Address>' . $this->address . '</Address>' .
+                  '<Address>' . $tools->escape($this->address) . '</Address>' .
                   '<PostCode>' . $this->postCode . '</PostCode>' .
-                  '<Town>' . $this->town .'</Town>' .
-                  '<Province>' . $this->province . '</Province>' .
+                  '<Town>' . $tools->escape($this->town) .'</Town>' .
+                  '<Province>' . $tools->escape($this->province) . '</Province>' .
                   '<CountryCode>' . $this->countryCode . '</CountryCode>' .
                 '</AddressInSpain>';
         if (!is_null($centre->description)) {
-          $xml .= '<CentreDescription>' . $centre->description . '</CentreDescription>';
+          $xml .= '<CentreDescription>' . $tools->escape($centre->description) . '</CentreDescription>';
         }
         $xml .= '</AdministrativeCentre>';
       }
@@ -99,11 +103,11 @@ class FacturaeParty {
     }
 
     // Add custom block (either `LegalEntity` or `Individual`)
-    $xml .= ($this->isLegalEntity) ? '<LegalEntity>' : '<Individual>';
+    $xml .= $this->isLegalEntity ? '<LegalEntity>' : '<Individual>';
 
     // Add data exclusive to `LegalEntity`
     if ($this->isLegalEntity) {
-      $xml .= '<CorporateName>' . $this->name . '</CorporateName>';
+      $xml .= '<CorporateName>' . $tools->escape($this->name) . '</CorporateName>';
       $fields = array("book", "registerOfCompaniesLocation", "sheet", "folio",
         "section", "volume");
 
@@ -124,17 +128,17 @@ class FacturaeParty {
 
     // Add data exclusive to `Individual`
     if (!$this->isLegalEntity) {
-      $xml .= '<Name>' . $this->name . '</Name>';
-      $xml .= '<FirstSurname>' . $this->firstSurname . '</FirstSurname>';
-      $xml .= '<SecondSurname>' . $this->lastSurname . '</SecondSurname>';
+      $xml .= '<Name>' . $tools->escape($this->name) . '</Name>';
+      $xml .= '<FirstSurname>' . $tools->escape($this->firstSurname) . '</FirstSurname>';
+      $xml .= '<SecondSurname>' . $tools->escape($this->lastSurname) . '</SecondSurname>';
     }
 
     // Add address
     $xml .= '<AddressInSpain>' .
-              '<Address>' . $this->address . '</Address>' .
+              '<Address>' . $tools->escape($this->address) . '</Address>' .
               '<PostCode>' . $this->postCode . '</PostCode>' .
-              '<Town>' . $this->town . '</Town>' .
-              '<Province>' . $this->province . '</Province>' .
+              '<Town>' . $tools->escape($this->town) . '</Town>' .
+              '<Province>' . $tools->escape($this->province) . '</Province>' .
               '<CountryCode>' . $this->countryCode . '</CountryCode>' .
             '</AddressInSpain>';
 

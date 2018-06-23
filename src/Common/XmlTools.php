@@ -1,7 +1,17 @@
 <?php
 namespace josemmo\Facturae\Common;
 
-class XmlsigTools {
+class XmlTools {
+
+  /**
+   * Escape XML value
+   * @param  string $value Input value
+   * @return string        Escaped input
+   */
+  public function escape($value) {
+    return htmlspecialchars($value, ENT_XML1, 'UTF-8');
+  }
+
 
   /**
    * Generate random ID
@@ -19,9 +29,9 @@ class XmlsigTools {
 
   /**
    * Inject namespaces
-   * @param  string          $xml    Input XML
-   * @param  string|string[] $newNs  Namespaces
-   * @return string                  Canonicalized XML with new namespaces
+   * @param  string          $xml   Input XML
+   * @param  string|string[] $newNs Namespaces
+   * @return string                 Canonicalized XML with new namespaces
    */
   public function injectNamespaces($xml, $newNs) {
     if (!is_array($newNs)) $newNs = array($newNs);

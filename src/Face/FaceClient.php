@@ -1,7 +1,7 @@
 <?php
 namespace josemmo\Facturae\Face;
 
-use josemmo\Facturae\Common\XmlsigTools;
+use josemmo\Facturae\Common\XmlTools;
 
 class FaceClient extends SoapClient {
 
@@ -91,7 +91,7 @@ class FaceClient extends SoapClient {
    * @return SimpleXMLElement              Response
    */
   public function sendInvoice($email, $invoice, $attachments=array()) {
-    $tools = new XmlsigTools();
+    $tools = new XmlTools();
     $req = '<web:enviarFactura><request>';
     $req .= '<correo>' . $email . '</correo>';
     $req .= '<factura>' .

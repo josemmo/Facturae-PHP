@@ -148,7 +148,7 @@ final class FacturaeTest extends TestCase {
     // Añadimos una declaración responsable
     $fac->addLegalLiteral("Este es un mensaje de prueba que se incluirá " .
       "dentro del campo LegalLiterals del XML de la factura");
-    $fac->addLegalLiteral("Y este, otro (se pueden añadir varios)");
+    $fac->addLegalLiteral("Y este, \"otro\" con 'caracteres' a <escapar>");
 
     // Establecemos un método de pago (por coverage, solo en algunos casos)
     if (!$isPfx) {

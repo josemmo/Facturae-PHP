@@ -1,6 +1,8 @@
 <?php
 namespace josemmo\Facturae\Controller;
 
+use josemmo\Facturae\Common\XmlTools;
+
 /**
  * Allows a @link{josemmo\Facturae\Facturae} instance to be exported to XML.
  */
@@ -13,12 +15,14 @@ abstract class FacturaeExportable extends FacturaeSignable {
    * @return string           Output XML
    */
   private function addOptionalFields($item, $fields) {
+    $tools = new XmlTools();
+
     $res = "";
     foreach ($fields as $key=>$name) {
       if (is_int($key)) $key = $name; // Allow $item to have a different property name
       if (!empty($item[$key])) {
         $xmlTag = ucfirst($name);
-        $res .= "<$xmlTag>" . $item[$key] . "</$xmlTag>";
+        $res .= "<$xmlTag>" . $tools->escape($item[$key]) . "</$xmlTag>";
       }
     }
     return $res;
@@ -34,6 +38,8 @@ abstract class FacturaeExportable extends FacturaeSignable {
    * @return string|int           XML data|Written file bytes
    */
   public function export($filePath=null) {
+    $tools = new XmlTools();
+
     // Prepare document
     $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
            'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
@@ -146,7 +152,7 @@ abstract class FacturaeExportable extends FacturaeSignable {
       ]);
 
       // Add required fields
-      $xml .= '<ItemDescription>' . $item['name'] . '</ItemDescription>' .
+      $xml .= '<ItemDescription>' . $tools->escape($item['name']) . '</ItemDescription>' .
         '<Quantity>' . $this->pad($item['quantity']) . '</Quantity>' .
         '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
         '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
@@ -210,7 +216,7 @@ abstract class FacturaeExportable extends FacturaeSignable {
     if (count($this->legalLiterals) > 0) {
       $xml .= '<LegalLiterals>';
       foreach ($this->legalLiterals as $reference) {
-        $xml .= '<LegalReference>' . $reference . '</LegalReference>';
+        $xml .= '<LegalReference>' . $tools->escape($reference) . '</LegalReference>';
       }
       $xml .= '</LegalLiterals>';
     }

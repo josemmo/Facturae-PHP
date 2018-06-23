@@ -3,7 +3,7 @@ namespace josemmo\Facturae\Face;
 
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\Common\KeyPairReader;
-use josemmo\Facturae\Common\XmlsigTools;
+use josemmo\Facturae\Common\XmlTools;
 
 abstract class SoapClient {
 
@@ -60,7 +60,7 @@ abstract class SoapClient {
    * @return SimpleXMLElement       Response
    */
   protected function request($body) {
-    $tools = new XmlsigTools();
+    $tools = new XmlTools();
 
     // Generate random IDs for this request
     $bodyId = "BodyId-" . $tools->randomId();

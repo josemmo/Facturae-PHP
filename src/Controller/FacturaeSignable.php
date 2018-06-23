@@ -2,7 +2,7 @@
 namespace josemmo\Facturae\Controller;
 
 use josemmo\Facturae\Common\KeyPairReader;
-use josemmo\Facturae\Common\XmlsigTools;
+use josemmo\Facturae\Common\XmlTools;
 
 /**
  * Implements all properties and methods needed for an instantiable
@@ -57,7 +57,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
   public function sign($publicPath, $privatePath=null, $passphrase="",
                        $policy=self::SIGN_POLICY_3_1) {
     // Generate random IDs
-    $tools = new XmlsigTools();
+    $tools = new XmlTools();
     $this->signatureID = $tools->randomId();
     $this->signedInfoID = $tools->randomId();
     $this->signedPropertiesID = $tools->randomId();
@@ -88,7 +88,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
   protected function injectSignature($xml) {
     // Make sure we have all we need to sign the document
     if (empty($this->publicKey) || empty($this->privateKey)) return $xml;
-    $tools = new XmlsigTools();
+    $tools = new XmlTools();
 
     // Normalize document
     $xml = str_replace("\r", "", $xml);
@@ -235,7 +235,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
    * @return string            Signed and timestamped XML document
    */
   private function injectTimestamp($signedXml) {
-    $tools = new XmlsigTools();
+    $tools = new XmlTools();
 
     // Prepare data to timestamp
     $payload = explode('<ds:SignatureValue', $signedXml, 2)[1];
@@ -279,7 +279,7 @@ abstract class FacturaeSignable extends FacturaeUtils {
     }
 
     // Extract TimeStamp from TimeStampRequest and inject into XML document
-    $tools = new XmlsigTools();
+    $tools = new XmlTools();
     $timeStamp = substr($tsr, 9);
     $timeStamp = $tools->toBase64($timeStamp, true);
     $tsXml = '<xades:UnsignedProperties Id="Signature' . $this->signatureID . '-UnsignedProperties' . $tools->randomId() . '">' .
