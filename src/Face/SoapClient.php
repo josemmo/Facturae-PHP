@@ -5,6 +5,12 @@ use josemmo\Facturae\Facturae;
 use josemmo\Facturae\Common\KeyPairReader;
 use josemmo\Facturae\Common\XmlTools;
 
+/**
+ * This class is the base for all SOAP-based Web Service clients.
+ * It provides basic communication functionalities, such as making requests,
+ * handeling public and private keys, and keeping track of the deployment
+ * environment (production or staging).
+ */
 abstract class SoapClient {
 
   const REQUEST_EXPIRATION = 60; // In seconds
@@ -30,13 +36,6 @@ abstract class SoapClient {
 
 
   /**
-   * Get endpoint URL
-   * @return string Endpoint URL
-   */
-  protected abstract function getEndpointUrl();
-
-
-  /**
    * Set production environment
    * @param boolean $production Is production
    */
@@ -56,10 +55,12 @@ abstract class SoapClient {
 
   /**
    * Send SOAP request
-   * @param  string           $body Request body
-   * @return SimpleXMLElement       Response
+   * @param  string           $body         Request body
+   * @param  string           $endpointUrl  Endpoint URL
+   * @param  string           $webNamespace Web Namespace
+   * @return SimpleXMLElement               Response
    */
-  protected function request($body) {
+  protected function sendRequest($body, $endpointUrl, $webNamespace) {
     $tools = new XmlTools();
 
     // Generate random IDs for this request
@@ -73,7 +74,7 @@ abstract class SoapClient {
     // Define namespaces array
     $ns = array(
       "soapenv" => 'xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"',
-      "web" => 'xmlns:web="https://webservice.face.gob.es"',
+      "web" => 'xmlns:web="' . $webNamespace . '"',
       "ds" => 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"',
       "wsu" => 'xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"',
       "wsse" => 'xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"'
@@ -148,7 +149,7 @@ abstract class SoapClient {
     // Send request
     $ch = curl_init();
     curl_setopt_array($ch, array(
-      CURLOPT_URL => $this->getEndpointUrl(),
+      CURLOPT_URL => $endpointUrl,
       CURLOPT_RETURNTRANSFER => 1,
       CURLOPT_SSL_VERIFYPEER => 0,
       CURLOPT_TIMEOUT => 30,
