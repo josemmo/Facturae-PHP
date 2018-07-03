@@ -8,7 +8,7 @@ namespace josemmo\Facturae\Controller;
 abstract class FacturaeConstants {
 
   /* PUBLIC CONSTANTS */
-  const VERSION = "1.3.0"; // Library version
+  const VERSION = "1.3.2"; // Library version
   const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
   const SCHEMA_3_2 = "3.2";

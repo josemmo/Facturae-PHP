@@ -25,7 +25,7 @@ Por defecto, `FaceClient` se comunica con el entorno de producción de FACe. Par
 $face->setProduction(false);
 ```
 
-Todas las llamadas a FACe devuelven un objeto `SimpleXMLElement` en `FaceClient`. Consulta el [manual de PHP](http://php.net/manual/simplexml.examples-basic.php) para más información.
+Todas las llamadas a FACe desde `FaceClient` devuelven un objeto `SimpleXMLElement`. Consulta el [manual de PHP](http://php.net/manual/simplexml.examples-basic.php) para más información.
 
 ## Listado de métodos
 A continuación se incluyen los métodos de `FaceClient` para llamar al servicio web FACe junto a una vista previa en JSON de la respuesta que devuelven.

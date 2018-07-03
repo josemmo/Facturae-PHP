@@ -7,6 +7,7 @@ class FaceClient extends SoapClient {
 
   private static $PROD_URL = "https://webservice.face.gob.es/facturasspp2";
   private static $STAGING_URL = "https://se-face-webservice.redsara.es/facturasspp2";
+  private static $WEB_NS = "https://webservice.face.gob.es";
 
 
   /**
@@ -15,6 +16,15 @@ class FaceClient extends SoapClient {
    */
   protected function getEndpointUrl() {
     return $this->production ? self::$PROD_URL : self::$STAGING_URL;
+  }
+
+
+  /**
+   * Get web namespace
+   * @return string Web namespace
+   */
+  protected function getWebNamespace() {
+    return self::$WEB_NS;
   }
 
 

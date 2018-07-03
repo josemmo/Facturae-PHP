@@ -37,6 +37,13 @@ abstract class SoapClient {
 
 
   /**
+   * Get web namespace
+   * @return string Web namespace
+   */
+  protected abstract function getWebNamespace();
+
+
+  /**
    * Set production environment
    * @param boolean $production Is production
    */
@@ -73,7 +80,7 @@ abstract class SoapClient {
     // Define namespaces array
     $ns = array(
       "soapenv" => 'xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"',
-      "web" => 'xmlns:web="https://webservice.face.gob.es"',
+      "web" => 'xmlns:web="' . $this->getWebNamespace() . '"',
       "ds" => 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"',
       "wsu" => 'xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"',
       "wsse" => 'xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"'
