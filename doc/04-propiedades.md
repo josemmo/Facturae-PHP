@@ -34,3 +34,18 @@ $fac->addLegalLiteral("Y este, otro más");
 
 > #### NOTA
 > El uso de `LegalLiterals` es obligatorio en determinadas facturas. Consulta la legislación vigente para más información.
+
+## Otras propiedades
+```php
+// NOTA: Solo para facturas según el schema 3.2.2 o superior
+$fac->setDescription("Una descripción de la factura de hasta 2500 caracteres");
+```
+
+```php
+// NOTA: Solo para facturas según el schema 3.2.2 o superior
+$fac->setReferences(
+  "000298172",  // Código del expediente de contratación
+  "BBBH-38272", // Referencia de pedido (ID de transacción)
+  "BBBH-38271"  // Referencia del contrato del receptor
+);
+```

@@ -1,5 +1,4 @@
 <?php
-
 namespace josemmo\Facturae;
 
 /**
@@ -17,24 +16,33 @@ class FacturaeCentre {
   const ROLE_PAGADOR = "03";
   const ROLE_PROPONENTE = "04";
 
-  public $code = NULL;
-  public $role = NULL;
+  const ROLE_B2B_FISCAL = "Fiscal";
+  const ROLE_B2B_PAYER = "Payer";
+  const ROLE_B2B_BUYER = "Buyer";
+  const ROLE_B2B_COLLECTOR = "Collector";
+  const ROLE_B2B_SELLER = "Seller";
+  const ROLE_B2B_PAYMENT_RECEIVER = "Payment receiver";
+  const ROLE_B2B_COLLECTION_RECEIVER = "Collection receiver";
+  const ROLE_B2B_ISSUER = "Issuer";
 
-  public $name = NULL;
-  public $firstSurname = NULL;
-  public $lastSurname = NULL;
-  public $description = NULL;
+  public $code = null;
+  public $role = null;
 
-  public $address = NULL;
-  public $postCode = NULL;
-  public $town = NULL;
-  public $province = NULL;
+  public $name = null;
+  public $firstSurname = null;
+  public $lastSurname = null;
+  public $description = null;
+
+  public $address = null;
+  public $postCode = null;
+  public $town = null;
+  public $province = null;
   public $countryCode = "ESP";
 
 
   /**
    * Construct
-   * 
+   *
    * @param array $properties Party properties as an array
    */
   public function __construct($properties=array()) {

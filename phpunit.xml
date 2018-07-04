@@ -4,4 +4,13 @@
       <directory>tests</directory>
     </testsuite>
   </testsuites>
+  <logging>
+    <log type="coverage-xml" target="build/coverage-xml" />
+    <log type="coverage-clover" target="build/logs/clover.xml" />
+  </logging>
+  <filter>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
 </phpunit>

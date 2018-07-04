@@ -14,3 +14,9 @@ sudo: false
 # Install Composer package before testing
 install:
   - composer install --no-interaction
+
+script:
+  - php vendor/bin/phpunit --coverage-clover build/coverage/xml
+
+after_success:
+  - php vendor/bin/codacycoverage clover build/coverage/xml

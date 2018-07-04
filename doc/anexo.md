@@ -91,6 +91,14 @@
 |`FacturaeCentre::ROLE_GESTOR`<br>o `FacturaeCentre::ROLE_RECEPTOR`|Órgano gestor|
 |`FacturaeCentre::ROLE_TRAMITADOR`<br>o `FacturaeCentre::ROLE_PAGADOR`|Unidad tramitadora|
 |`FacturaeCentre::ROLE_PROPONENTE`|Órgano proponente|
+|`FacturaeCentre::ROLE_B2B_FISCAL`|Receptor fiscal en FACeB2B|
+|`FacturaeCentre::ROLE_B2B_PAYER`|Pagador en FACeB2B|
+|`FacturaeCentre::ROLE_B2B_BUYER`|Comprador en FACeB2B|
+|`FacturaeCentre::ROLE_B2B_COLLECTOR`|Collector en FACeB2B|
+|`FacturaeCentre::ROLE_B2B_SELLER`|Vendedor en FACeB2B|
+|`FacturaeCentre::ROLE_B2B_PAYMENT_RECEIVER`|Receptor del pago en FACeB2B|
+|`FacturaeCentre::ROLE_B2B_COLLECTION_RECEIVER`|Collection receiver en FACeB2B|
+|`FacturaeCentre::ROLE_B2B_ISSUER`|Emisor en FACeB2B|
 
 ## Herramientas de validación
 Todas las facturas generadas y firmadas con Facturae-PHP son probadas con las siguientes herramientas online para garantizar el cumplimiento del estándar:

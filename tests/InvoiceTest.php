@@ -30,6 +30,9 @@ final class FacturaeTest extends TestCase {
     // Asignamos el 01/12/2017 como fecha de la factura
     $fac->setIssueDate('2017-12-01');
 
+    // Y un periodo de facturación del mes anterior
+    $fac->setBillingPeriod("2017-11-01", "2017-11-30");
+
     // Incluimos los datos del vendedor
     $fac->setSeller(new FacturaeParty([
       "taxNumber" => "A00000000",
@@ -59,7 +62,10 @@ final class FacturaeTest extends TestCase {
           "address"  => "Plaza de la Constitución, 1",
           "postCode" => "28701",
           "town"     => "San Sebastián de los Reyes",
-          "province" => "Madrid"
+          "province" => "Madrid",
+          "firstSurname" => "Nombre del Responsable",
+          "lastSurname"  => "Apellidos del Responsable",
+          "description"  => "Esta es una descripción de prueba"
         ]),
         new FacturaeCentre([
           "role"     => FacturaeCentre::ROLE_TRAMITADOR,
@@ -94,13 +100,25 @@ final class FacturaeTest extends TestCase {
     // que tenga IVA al 10% e IRPF al 15%
     $fac->addItem(new FacturaeItem([
       "name" => "Una línea con varios impuestos",
+      "articleCode" => 4012,
       "description" => "Esta línea es solo para probar Facturae-PHP",
       "quantity" => 1, // Esto es opcional, es el valor por defecto si se omite
       "unitPrice" => 43.64,
       "taxes" => array(
         Facturae::TAX_IVA  => 10,
         Facturae::TAX_IRPF => 15
-      )
+      ),
+      "issuerContractReference" => "A9938281",
+      "issuerContractDate" => "2010-03-10",
+      "issuerTransactionReference" => "A9938282",
+      "issuerTransactionDate" => "2010-03-10",
+      "receiverContractReference" => "BBBH-38271",
+      "receiverContractDate" => "2010-03-10",
+      "receiverTransactionReference" => "BBBH-38272",
+      "receiverTransactionDate" => "2010-03-10",
+      "fileReference" => "000298172",
+      "fileDate" => "2010-03-10",
+      "sequenceNumber" => "1.0"
     ]));
 
     // Por defecto, Facturae-PHP asume que el IRPF es un impuesto retenido y el
@@ -109,6 +127,7 @@ final class FacturaeTest extends TestCase {
     // retenidos al 4%:
     $fac->addItem(new FacturaeItem([
       "name" => "Llevo impuestos retenidos",
+      "fileReference" => "AH6227001",
       "quantity" => 1,
       "unitPrice" => 10,
       "taxes" => array(
@@ -129,11 +148,17 @@ final class FacturaeTest extends TestCase {
     // Añadimos una declaración responsable
     $fac->addLegalLiteral("Este es un mensaje de prueba que se incluirá " .
       "dentro del campo LegalLiterals del XML de la factura");
-    $fac->addLegalLiteral("Y este, otro (se pueden añadir varios)");
+    $fac->addLegalLiteral("Y este, \"otro\" con 'caracteres' a <escapar>");
+
+    // Establecemos un método de pago (por coverage, solo en algunos casos)
+    if (!$isPfx) {
+      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766");
+      $fac->setDueDate("2017-12-31");
+    }
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
-      $fac->sign(__DIR__ . "/test.pfx", NULL, "12345");
+      $fac->sign(__DIR__ . "/test.pfx", null, "12345");
     } else {
       $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
     }
