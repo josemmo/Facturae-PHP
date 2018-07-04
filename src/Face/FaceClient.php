@@ -107,7 +107,7 @@ class FaceClient extends SoapClient {
     $req .= '<factura>' .
         '<factura>' . $tools->toBase64($invoice->getData()) . '</factura>' .
         '<nombre>' . $invoice->getFilename() . '</nombre>' .
-        '<mime>' . $invoice->getMimeType() . '</mime>' .
+        '<mime>application/xml</mime>' . // Mandatory MIME type
       '</factura>';
     $req .= '<anexos>';
     foreach ($attachments as $file) {

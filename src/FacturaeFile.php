@@ -79,7 +79,6 @@ class FacturaeFile {
    * @return string MIME type
    */
   public function getMimeType() {
-    if ($this->mime == "text/xml") $this->mime = "application/xml";
     return $this->mime;
   }
 
