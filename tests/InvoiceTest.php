@@ -59,10 +59,10 @@ final class FacturaeTest extends TestCase {
           "role"     => FacturaeCentre::ROLE_GESTOR,
           "code"     => "L01281343",
           "name"     => "Intervención Municipal",
-          "address"  => "Plaza de la Constitución, 1",
-          "postCode" => "28701",
-          "town"     => "San Sebastián de los Reyes",
-          "province" => "Madrid",
+          "address"  => "Calle Falsa, 123",
+          "postCode" => "12345",
+          "town"     => "Springfield",
+          "province" => "Springfield",
           "firstSurname" => "Nombre del Responsable",
           "lastSurname"  => "Apellidos del Responsable",
           "description"  => "Esta es una descripción de prueba"
@@ -71,19 +71,13 @@ final class FacturaeTest extends TestCase {
           "role"     => FacturaeCentre::ROLE_TRAMITADOR,
           "code"     => "L01281343",
           "name"     => "Intervención Municipal",
-          "address"  => "Plaza de la Constitución, 1",
-          "postCode" => "28701",
-          "town"     => "San Sebastián de los Reyes",
-          "province" => "Madrid"
+          "address"  => "Calle Falsa, 123" // No debería usarse esta calle, pues
+                                           // faltan datos de la dirección
         ]),
         new FacturaeCentre([
           "role"     => FacturaeCentre::ROLE_CONTABLE,
           "code"     => "L01281343",
-          "name"     => "Intervención Municipal",
-          "address"  => "Plaza de la Constitución, 1",
-          "postCode" => "28701",
-          "town"     => "San Sebastián de los Reyes",
-          "province" => "Madrid"
+          "name"     => "Intervención Municipal"
         ])
       ]
     ]));
