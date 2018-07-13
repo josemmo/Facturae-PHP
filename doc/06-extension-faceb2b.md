@@ -40,3 +40,6 @@ $b2b->addCentre(new FacturaeCentre([
   "role" => FacturaeCentre::ROLE_B2B_COLLECTOR
 ]));
 ```
+
+## Enviar facturas a FACeB2B
+Esta extensión solo sirve para generar facturas electrónicas que puedan ser enviadas a FACeB2B. Para el proceso de envío programático consulta el apartado de [comunicación con FACeB2B](08-faceb2b.md).

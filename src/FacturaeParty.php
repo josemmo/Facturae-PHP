@@ -87,13 +87,23 @@ class FacturaeParty {
         if (!is_null($centre->lastSurname)) {
           $xml .= '<SecondSurname>' . $tools->escape($centre->lastSurname) . '</SecondSurname>';
         }
+
+        // Get centre address, else use fallback
+        $addressTarget = $centre;
+        foreach (['address', 'postCode', 'town', 'province', 'countryCode'] as $field) {
+          if (empty($centre->{$field})) {
+            $addressTarget = $this;
+            break;
+          }
+        }
         $xml .= '<AddressInSpain>' .
-                  '<Address>' . $tools->escape($this->address) . '</Address>' .
-                  '<PostCode>' . $this->postCode . '</PostCode>' .
-                  '<Town>' . $tools->escape($this->town) .'</Town>' .
-                  '<Province>' . $tools->escape($this->province) . '</Province>' .
-                  '<CountryCode>' . $this->countryCode . '</CountryCode>' .
+                  '<Address>' . $tools->escape($addressTarget->address) . '</Address>' .
+                  '<PostCode>' . $addressTarget->postCode . '</PostCode>' .
+                  '<Town>' . $tools->escape($addressTarget->town) .'</Town>' .
+                  '<Province>' . $tools->escape($addressTarget->province) . '</Province>' .
+                  '<CountryCode>' . $addressTarget->countryCode . '</CountryCode>' .
                 '</AddressInSpain>';
+
         if (!is_null($centre->description)) {
           $xml .= '<CentreDescription>' . $tools->escape($centre->description) . '</CentreDescription>';
         }

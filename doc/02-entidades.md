@@ -91,3 +91,5 @@ $ayto = new FacturaeParty([
   ]
 ]);
 ```
+
+> NOTA: los campos de dirección (`address`, `postCode`, `town`, `province` y `countryCode`) son opcionales en `FacturaeCentre` y si se omiten se utilizarán los introducidos en su entidad padre de `FacturaeParty`.
