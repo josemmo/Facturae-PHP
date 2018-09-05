@@ -18,12 +18,6 @@ class FacturaeItem {
   private $taxesOutputs = array();
   private $taxesWithheld = array();
 
-  private $totalAmountWithoutTax = null; // $quantity * $unitPriceWithoutTax
-  private $grossAmount = null; // For now, $grossAmount = $totalAmountWithoutTax
-  private $totalTaxesOutputs = null;
-  private $totalTaxesWithheld = null;
-  private $totalAmount = null; // $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld
-
   private $issuerContractReference = null;
   private $issuerContractDate = null;
   private $issuerTransactionReference = null;
@@ -75,37 +69,47 @@ class FacturaeItem {
       }
       $this->unitPriceWithoutTax = $this->unitPrice / $percent;
     }
-    $this->totalAmountWithoutTax = $this->unitPriceWithoutTax * $this->quantity;
-
-    // Calculate tax amount
-    $this->totalTaxesOutputs = 0;
-    $this->totalTaxesWithheld = 0;
-    foreach (["taxesOutputs", "taxesWithheld"] as $i=>$taxesGroup) {
-      foreach ($this->{$taxesGroup} as $type=>$tax) {
-        $this->{$taxesGroup}[$type]['amount'] = $this->totalAmountWithoutTax *
-          ($tax['rate'] / 100);
-        if ($i == 1) { // In case of $taxesWithheld (2nd iteration)
-          $this->totalTaxesWithheld += $this->{$taxesGroup}[$type]['amount'];
-        } else {
-          $this->totalTaxesOutputs += $this->{$taxesGroup}[$type]['amount'];
-        }
-      }
-    }
-
-    // Calculate rest of values
-    $this->grossAmount = $this->totalAmountWithoutTax;
-    $this->totalAmount = $this->totalAmountWithoutTax +
-      $this->totalTaxesOutputs - $this->totalTaxesWithheld;
   }
 
 
   /**
-   * Get data
+   * Get data for this item fixing decimals to match invoice settings
    *
-   * @return array Item data
+   * @param  Facturae $fac Invoice instance
+   * @return array         Item data
    */
-  public function getData() {
-    return get_object_vars($this);
+  public function getData($fac) {
+    $quantity = $fac->pad($this->quantity, 'Item/Quantity');
+    $unitPriceWithoutTax = $fac->pad($this->unitPriceWithoutTax, 'Item/UnitPriceWithoutTax');
+    $totalAmountWithoutTax = $fac->pad($quantity * $unitPriceWithoutTax, 'Item/TotalAmountWithoutTax');
+
+    // Get taxes
+    $totalTaxesOutputs = 0;
+    $totalTaxesWithheld = 0;
+    foreach (["taxesOutputs", "taxesWithheld"] as $i=>$taxesGroup) {
+      foreach ($this->{$taxesGroup} as $type=>$tax) {
+        $taxRate = $fac->pad($tax['rate'], 'Tax/Rate');
+        $taxAmount = $totalAmountWithoutTax * ($taxRate / 100);
+        $taxAmount = $fac->pad($taxAmount, 'Tax/Amount');
+        $this->{$taxesGroup}[$type]['base'] = $fac->pad($totalAmountWithoutTax, 'Tax/Base');
+        $this->{$taxesGroup}[$type]['rate'] = $taxRate;
+        $this->{$taxesGroup}[$type]['amount'] = $taxAmount;
+        if ($i == 1) { // In case of $taxesWithheld (2nd iteration)
+          $totalTaxesWithheld += $taxAmount;
+        } else {
+          $totalTaxesOutputs += $taxAmount;
+        }
+      }
+    }
+
+    // Get rest of properties
+    return array_merge(get_object_vars($this), [
+      "quantity" => $quantity,
+      "unitPriceWithoutTax" => $unitPriceWithoutTax,
+      "totalAmountWithoutTax" => $totalAmountWithoutTax,
+      "totalTaxesOutputs" => $totalTaxesOutputs,
+      "totalTaxesWithheld" => $totalTaxesWithheld
+    ]);
   }
 
 }
