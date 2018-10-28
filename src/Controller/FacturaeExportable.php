@@ -56,13 +56,13 @@ abstract class FacturaeExportable extends FacturaeSignable {
                 '<BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
                 '<InvoicesCount>1</InvoicesCount>' .
                 '<TotalInvoicesAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalAmount>' .
+                  '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
                 '</TotalInvoicesAmount>' .
                 '<TotalOutstandingAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalAmount>' .
+                  '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
                 '</TotalOutstandingAmount>' .
                 '<TotalExecutableAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalAmount>' .
+                  '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
                 '</TotalExecutableAmount>' .
                 '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
               '</Batch>' .
@@ -110,12 +110,12 @@ abstract class FacturaeExportable extends FacturaeSignable {
         foreach ($taxRows as $rate=>$tax) {
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
-                    '<TaxRate>' . $this->pad($rate) . '</TaxRate>' .
+                    '<TaxRate>' . $this->pad($rate, 'Tax/Rate') . '</TaxRate>' .
                     '<TaxableBase>' .
-                      '<TotalAmount>' . $this->pad($tax['base']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['base'], 'Tax/Base') . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['amount']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/Amount') . '</TotalAmount>' .
                     '</TaxAmount>' .
                   '</Tax>';
         }
@@ -125,21 +125,21 @@ abstract class FacturaeExportable extends FacturaeSignable {
 
     // Add invoice totals
     $xml .= '<InvoiceTotals>' .
-              '<TotalGrossAmount>' . $this->pad($totals['grossAmount']) . '</TotalGrossAmount>' .
+              '<TotalGrossAmount>' . $totals['grossAmount'] . '</TotalGrossAmount>' .
               '<TotalGeneralDiscounts>0.00</TotalGeneralDiscounts>' .
               '<TotalGeneralSurcharges>0.00</TotalGeneralSurcharges>' .
-              '<TotalGrossAmountBeforeTaxes>' . $this->pad($totals['grossAmountBeforeTaxes']) . '</TotalGrossAmountBeforeTaxes>' .
-              '<TotalTaxOutputs>' . $this->pad($totals['totalTaxesOutputs']) . '</TotalTaxOutputs>' .
-              '<TotalTaxesWithheld>' . $this->pad($totals['totalTaxesWithheld']) . '</TotalTaxesWithheld>' .
-              '<InvoiceTotal>' . $this->pad($totals['invoiceAmount']) . '</InvoiceTotal>' .
-              '<TotalOutstandingAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalOutstandingAmount>' .
-              '<TotalExecutableAmount>' . $this->pad($totals['invoiceAmount']) . '</TotalExecutableAmount>' .
+              '<TotalGrossAmountBeforeTaxes>' . $totals['grossAmountBeforeTaxes'] . '</TotalGrossAmountBeforeTaxes>' .
+              '<TotalTaxOutputs>' . $totals['totalTaxesOutputs'] . '</TotalTaxOutputs>' .
+              '<TotalTaxesWithheld>' . $totals['totalTaxesWithheld'] . '</TotalTaxesWithheld>' .
+              '<InvoiceTotal>' . $totals['invoiceAmount'] . '</InvoiceTotal>' .
+              '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>' .
+              '<TotalExecutableAmount>' . $totals['invoiceAmount'] . '</TotalExecutableAmount>' .
             '</InvoiceTotals>';
 
     // Add invoice items
     $xml .= '<Items>';
     foreach ($this->items as $itemObj) {
-      $item = $itemObj->getData();
+      $item = $itemObj->getData($this);
       $xml .= '<InvoiceLine>';
 
       // Add optional fields
@@ -153,11 +153,11 @@ abstract class FacturaeExportable extends FacturaeSignable {
 
       // Add required fields
       $xml .= '<ItemDescription>' . $tools->escape($item['name']) . '</ItemDescription>' .
-        '<Quantity>' . $this->pad($item['quantity']) . '</Quantity>' .
+        '<Quantity>' . $item['quantity'] . '</Quantity>' .
         '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
-        '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
-        '<TotalCost>' . $this->pad($item['totalAmountWithoutTax'], 'TotalCost') . '</TotalCost>' .
-        '<GrossAmount>' . $this->pad($item['grossAmount'], 'GrossAmount') . '</GrossAmount>';
+        '<UnitPriceWithoutTax>' . $item['unitPriceWithoutTax'] . '</UnitPriceWithoutTax>' .
+        '<TotalCost>' . $item['totalAmountWithoutTax'] . '</TotalCost>' .
+        '<GrossAmount>' . $item['totalAmountWithoutTax'] . '</GrossAmount>'; // TODO: implement discounts
 
       // Add item taxes
       // NOTE: As you can see here, taxesWithheld is before taxesOutputs.
@@ -170,12 +170,12 @@ abstract class FacturaeExportable extends FacturaeSignable {
         foreach ($item[$taxesGroup] as $type=>$tax) {
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
-                    '<TaxRate>' . $this->pad($tax['rate']) . '</TaxRate>' .
+                    '<TaxRate>' . $this->pad($tax['rate'], 'Tax/Rate') . '</TaxRate>' .
                     '<TaxableBase>' .
-                      '<TotalAmount>' . $this->pad($item['totalAmountWithoutTax']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['base'], 'Tax/Base') . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['amount']) . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/Amount') . '</TotalAmount>' .
                     '</TaxAmount>' .
                   '</Tax>';
         }
@@ -201,7 +201,7 @@ abstract class FacturaeExportable extends FacturaeSignable {
       $xml .= '<PaymentDetails>' .
                 '<Installment>' .
                   '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>' .
-                  '<InstallmentAmount>' . $this->pad($totals['invoiceAmount']) . '</InstallmentAmount>' .
+                  '<InstallmentAmount>' . $totals['invoiceAmount'] . '</InstallmentAmount>' .
                   '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
       if ($this->header['paymentMethod'] == self::PAYMENT_TRANSFER) {
         $xml .=   '<AccountToBeCredited>' .

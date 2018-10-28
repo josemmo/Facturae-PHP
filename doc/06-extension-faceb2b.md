@@ -23,22 +23,42 @@ $b2b->setReceiver(new FacturaeCentre([
 ]));
 ```
 
-Si existieran más partes implicadas en la transacción se añadirían con `addCentre`, debiendo indicar el rol de cada una:
+Si se quisieran añadir más partes implicadas en la transacción **por parte del receptor** (comprador), se utilizaría el método `addCentre`:
 ```php
 $b2b->addCentre(new FacturaeCentre([
-  "code" => "51558103JES0002",
+  "code" => "ESB123456740002",
   "name" => "Unidad DIRe Compradora 0002",
   "role" => FacturaeCentre::ROLE_B2B_BUYER
 ]));
 $b2b->addCentre(new FacturaeCentre([
-  "code" => "51558103JES0003",
+  "code" => "ESB123456740003",
   "name" => "Unidad DIRe Fiscal 0003",
   "role" => FacturaeCentre::ROLE_B2B_FISCAL
 ]));
 $b2b->addCentre(new FacturaeCentre([
-  "code" => "51558103JES0004",
+  "code" => "ESB123456740004",
   "role" => FacturaeCentre::ROLE_B2B_COLLECTOR
 ]));
+```
+
+Para añadir partes del **emisor** (vendedor), se utilizaría el mismo método con un segundo parámetro `$isBuyer=false`:
+```php
+$b2b->addCentre(new FacturaeCentre([
+  "code" => "ES12345678Z0002",
+  "name" => "Unidad DIRe Vendedora 0002",
+  "role" => FacturaeCentre::ROLE_B2B_SELLER
+]), false);
+$b2b->addCentre(new FacturaeCentre([
+  "code" => "ES12345678Z0003",
+  "name" => "Unidad DIRe Fiscal 0003",
+  "role" => FacturaeCentre::ROLE_B2B_FISCAL
+]), false);
+```
+
+Por último, si la factura está relacionada con las Administraciones Públicas o necesitamos cumplir con la Ley 9/2017 es necesario indicar los datos de la entidad pública y la referencia del contrato:
+```php
+$b2b->setPublicOrganismCode('E00003301');
+$b2b->setContractReference('333000');
 ```
 
 ## Enviar facturas a FACeB2B

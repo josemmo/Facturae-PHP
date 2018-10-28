@@ -1,11 +1,9 @@
 # Facturae-PHP
-[![Travis](https://img.shields.io/travis/josemmo/Facturae-PHP/master.svg?style=flat-square)](https://travis-ci.org/josemmo/Facturae-PHP)
-[![Codacy](https://img.shields.io/codacy/grade/cc00c08d95b247ae9e6f8f8366e87a04.svg?style=flat-square)](https://www.codacy.com/app/josemmo/Facturae-PHP)
-[![Coverage](https://img.shields.io/codacy/coverage/cc00c08d95b247ae9e6f8f8366e87a04.svg?style=flat-square)](https://www.codacy.com/app/josemmo/Facturae-PHP)
-[![Última versión](https://img.shields.io/packagist/v/josemmo/facturae-php.svg?style=flat-square)](https://packagist.org/packages/josemmo/facturae-php)
-![Version de PHP](https://img.shields.io/packagist/php-v/josemmo/facturae-php.svg?style=flat-square)
-![Tamaño](https://img.shields.io/github/languages/code-size/josemmo/Facturae-PHP.svg?style=flat-square)
-![Licencia](https://img.shields.io/github/license/josemmo/Facturae-PHP.svg?style=flat-square)
+[![Travis](https://travis-ci.org/josemmo/Facturae-PHP.svg?branch=master)](https://travis-ci.org/josemmo/Facturae-PHP)
+[![Codacy](https://api.codacy.com/project/badge/Grade/cc00c08d95b247ae9e6f8f8366e87a04)](https://www.codacy.com/app/josemmo/Facturae-PHP)
+[![Coverage](https://api.codacy.com/project/badge/Coverage/cc00c08d95b247ae9e6f8f8366e87a04)](https://www.codacy.com/app/josemmo/Facturae-PHP)
+[![Última versión estable](https://poser.pugx.org/josemmo/facturae-php/v/stable)](https://packagist.org/packages/josemmo/facturae-php)
+[![Licencia](https://poser.pugx.org/josemmo/facturae-php/license)](https://packagist.org/packages/josemmo/facturae-php)
 
 Facturae-PHP es un paquete escrito puramente en PHP que permite generar facturas electrónicas siguiendo el formato estructurado [Facturae](http://www.facturae.gob.es/), **añadirlas firma electrónica** XAdES y sellado de tiempo, e incluso **enviarlas a FACe o FACeB2B** sin necesidad de ninguna librería o clase adicional.
 

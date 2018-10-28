@@ -231,9 +231,8 @@ abstract class FacturaeProperties extends FacturaeConstants {
 
     // Run through every item
     foreach ($this->items as $itemObj) {
-      $item = $itemObj->getData();
-      $totals['invoiceAmount'] += $item['totalAmount'];
-      $totals['grossAmount'] += $item['grossAmount'];
+      $item = $itemObj->getData($this);
+      $totals['grossAmount'] += $item['totalAmountWithoutTax'];
       $totals['totalTaxesOutputs'] += $item['totalTaxesOutputs'];
       $totals['totalTaxesWithheld'] += $item['totalTaxesWithheld'];
 
@@ -249,14 +248,21 @@ abstract class FacturaeProperties extends FacturaeConstants {
               "amount" => 0
             );
           }
-          $totals[$taxGroup][$type][$tax['rate']]['base'] += $item['totalAmountWithoutTax'];
+          $totals[$taxGroup][$type][$tax['rate']]['base'] += $tax['base'];
           $totals[$taxGroup][$type][$tax['rate']]['amount'] += $tax['amount'];
         }
       }
     }
 
+    // Normalize values
+    $totals['grossAmount'] = $this->pad($totals['grossAmount']);
+    $totals['totalTaxesOutputs'] = $this->pad($totals['totalTaxesOutputs']);
+    $totals['totalTaxesWithheld'] = $this->pad($totals['totalTaxesWithheld']);
+
     // Fill rest of values
     $totals['grossAmountBeforeTaxes'] = $totals['grossAmount'];
+    $totals['invoiceAmount'] = $this->pad($totals['grossAmount'] +
+      $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld']);
 
     return $totals;
   }

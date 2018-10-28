@@ -17,7 +17,7 @@ abstract class FacturaeUtils extends FacturaeProperties {
    * @param  string|null $field Field
    * @return string             Padded value
    */
-  protected function pad($val, $field=null) {
+  public function pad($val, $field=null) {
     // Get decimals
     $vKey = isset(self::$DECIMALS[$this->version]) ? $this->version : null;
     $decimals = self::$DECIMALS[$vKey];
