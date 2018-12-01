@@ -4,6 +4,7 @@
 [![Coverage](https://api.codacy.com/project/badge/Coverage/cc00c08d95b247ae9e6f8f8366e87a04)](https://www.codacy.com/app/josemmo/Facturae-PHP)
 [![Última versión estable](https://poser.pugx.org/josemmo/facturae-php/v/stable)](https://packagist.org/packages/josemmo/facturae-php)
 [![Licencia](https://poser.pugx.org/josemmo/facturae-php/license)](https://packagist.org/packages/josemmo/facturae-php)
+[![Documentación](https://img.shields.io/badge/docs-online-blue.svg?longCache=true)](https://josemmo.github.io/Facturae-PHP/)
 
 Facturae-PHP es un paquete escrito puramente en PHP que permite generar facturas electrónicas siguiendo el formato estructurado [Facturae](http://www.facturae.gob.es/), **añadirlas firma electrónica** XAdES y sellado de tiempo, e incluso **enviarlas a FACe o FACeB2B** sin necesidad de ninguna librería o clase adicional.
 
@@ -52,18 +53,6 @@ $fac->export("mi-factura.xsig");
 - Firmado de acuerdo a la [política de firma de Facturae 3.1](http://www.facturae.gob.es/formato/Paginas/politicas-firma-electronica.aspx) basada en XAdES
 - Sellado de tiempo según el [RFC3161](https://www.ietf.org/rfc/rfc3161.txt)
 - Envío automatizado de facturas a **FACe y FACeB2B** 🔥
-
-## Documentación
-- [1. Introducción: instalación y uso básico](doc/01-introduccion.md)
-- [2. Entidades: compradores, vendedores y centros](doc/02-entidades.md)
-- [3. Líneas de producto](doc/03-lineas-de-producto.md)
-- [4. Propiedades de una factura](doc/04-propiedades.md)
-- [5. Firma electrónica y sellado de tiempo](doc/05-firma-electronica.md)
-- [6. Extensión de FACeB2B](doc/06-extension-faceb2b.md)
-- [7. Envío de facturas a administraciones públicas (FACe)](doc/07-face.md)
-- [8. Envío y recepción de facturas entre empresas privadas (FACeB2B)](doc/08-faceb2b.md)
-- [Otros métodos](doc/otros-metodos.md)
-- [Anexo: tabla de constantes y validadores](doc/anexo.md)
 
 ## Licencia
 Facturae-PHP se encuentra bajo [licencia MIT](LICENSE). Eso implica que puedes utilizar este paquete en cualquier proyecto (incluso con fines comerciales), siempre y cuando hagas referencia al uso y autoría de la misma.

@@ -1,3 +1,10 @@
+---
+title: Comunicación con FACe
+parent: Envío y recepción
+nav_order: 1
+permalink: /envio-y-recepcion/face.html
+---
+
 # Comunicación con FACe
 Facturae-PHP permite establecer comunicación directa sin salir de la librería con los servicios web de [FACe](https://face.gob.es/) para, entre otros, remitir facturas electrónicas a la administración pública.
 
@@ -5,6 +12,8 @@ Facturae-PHP permite establecer comunicación directa sin salir de la librería 
 Para poder usar los servicios web de FACe debes dar de alta el certificado expedido por la FNMT para tu persona física en [esta página web](https://face.gob.es/es/proveedores).
 
 Una vez rellenados los datos de la empresa podrás empezar a usar FACe Web Services y deberás firmar toda comunicación al servicio **con la clave privada asociada al certificado que has dado de alta** (esta parte la hace Facturae-PHP automáticamente, solo hay que indicarle la ruta del banco de certificados).
+
+---
 
 ## Cliente de FACe
 El uso de FACe desde Facturae-PHP es extremadamente sencillo:
@@ -26,6 +35,8 @@ $face->setProduction(false);
 ```
 
 Todas las llamadas a FACe desde `FaceClient` devuelven un objeto `SimpleXMLElement`. Consulta el [manual de PHP](http://php.net/manual/simplexml.examples-basic.php) para más información.
+
+---
 
 ## Listado de métodos
 A continuación se incluyen los métodos de `FaceClient` para llamar al servicio web FACe junto a una vista previa en JSON de la respuesta que devuelven.

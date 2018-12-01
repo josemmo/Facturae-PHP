@@ -1,17 +1,13 @@
-# Introducción
-Facturae-PHP pretende ser una clase extremadamente rápida y sencilla de usar. A continuación se incluyen varios ejemplos sobre su utilización.
-Para más información sobre todos los métodos de Facturae-PHP, la clase se encuentra comentada según bloques de código de [phpDocumentor](https://www.phpdoc.org/).
+---
+title: Factura simple
+parent: Ejemplos
+nav_order: 1
+permalink: /ejemplos/factura-simple.html
+---
 
-## Instalación
-Facturae-PHP se instala como cualquier otro paquete de Composer, ya sea modificando las dependencias del archivo `composer.json` de tu proyecto o mediante línea de comandos:
-
-```
-composer require josemmo/facturae-php
-```
-
-## Ejemplo básico usando Composer
+# Factura simple
 ```php
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once 'ruta/hacia/vendor/autoload.php';
 
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeParty;
@@ -66,23 +62,4 @@ $fac->sign(
 
 // ... y exportarlo a un archivo
 $fac->export("ruta/de/salida.xsig");
-```
-
-> #### NOTA
-> En caso de no utilizar Composer, se deberá sustituir en el ejemplo anterior la línea de código:
-> ```php
-> require_once __DIR__ . '/../vendor/autoload.php';
-> ```
-> Por las siguientes:
-> ```php
-> require_once "ruta/hacia/Facturae-PHP/src/Facturae.php";
-> require_once "ruta/hacia/Facturae-PHP/src/FacturaeCentre.php";
-> require_once "ruta/hacia/Facturae-PHP/src/FacturaeItem.php";
-> require_once "ruta/hacia/Facturae-PHP/src/FacturaeParty.php";
-> ```
-
-## Versión de Facturae
-Por defecto el paquete creará la factura siguiendo el formato Facturae 3.2.1 al ser actualmente el más extendido. Si se quisiera utilizar otra versión se deberá indicar al instanciar el objeto de la factura:
-```php
-$fac = new Facturae(Facturae::SCHEMA_3_2_2);
 ```

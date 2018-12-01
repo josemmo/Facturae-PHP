@@ -1,0 +1,11 @@
+title: Facturae-PHP
+remote_theme: pmarsceill/just-the-docs
+search_enabled: true
+source: doc/
+
+# Aux links for the upper right navigation
+aux_links:
+  "GitHub":
+    - "https://github.com/josemmo/Facturae-PHP"
+  "Packagist":
+    - "https://packagist.org/packages/josemmo/facturae-php"
