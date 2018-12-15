@@ -15,6 +15,8 @@ class FacturaeItem {
   private $unitOfMeasure = Facturae::UNIT_DEFAULT;
   private $unitPrice = null;
   private $unitPriceWithoutTax = null;
+  private $discounts = array();
+  private $charges = array();
   private $taxesOutputs = array();
   private $taxesWithheld = array();
 
@@ -59,15 +61,35 @@ class FacturaeItem {
 
     // Calculate unit and total amount without tax
     if (is_null($this->unitPriceWithoutTax)) {
-      $percent = 1;
-      foreach ([$this->taxesOutputs, $this->taxesWithheld] as $i=>$taxesGroup) {
-        foreach ($taxesGroup as $type=>$taxData) {
+      // Get taxes effective percent
+      $taxesPercent = 1;
+      foreach (['taxesOutputs', 'taxesWithheld'] as $i=>$taxesGroupTag) {
+        foreach ($this->{$taxesGroupTag} as $taxData) {
           $rate = $taxData['rate'] / 100;
           if ($i == 1) $rate *= -1; // In case of $taxesWithheld (2nd iteration)
-          $percent += $rate;
+          $taxesPercent += $rate;
         }
       }
-      $this->unitPriceWithoutTax = $this->unitPrice / $percent;
+
+      // Remove discounts and charges
+      $unitPriceWithoutTax = $this->unitPrice;
+      foreach (['discounts', 'charges'] as $i=>$groupTag) {
+        $factor = ($i == 0) ? -1 : 1;
+        foreach ($this->{$groupTag} as &$group) {
+          $hasTaxes = isset($group['hasTaxes']) ? $group['hasTaxes'] : true;
+          if (isset($group['rate'])) {
+            if ($hasTaxes) $group['rate'] /= $taxesPercent;
+            $amount = $this->unitPrice * ($group['rate'] / 100);
+          } else {
+            if ($hasTaxes) $group['amount'] /= $taxesPercent;
+            $amount = $group['amount'];
+          }
+          $unitPriceWithoutTax += $amount * $factor;
+        }
+      }
+
+      // Apply taxes
+      $this->unitPriceWithoutTax = $unitPriceWithoutTax / $taxesPercent;
     }
   }
 
@@ -79,21 +101,31 @@ class FacturaeItem {
    * @return array         Item data
    */
   public function getData($fac) {
+    $addProps = [
+      'taxesOutputs' => [],
+      'taxesWithheld' => [],
+      'discounts' => [],
+      'charges' => []
+    ];
+
     $quantity = $fac->pad($this->quantity, 'Item/Quantity');
     $unitPriceWithoutTax = $fac->pad($this->unitPriceWithoutTax, 'Item/UnitPriceWithoutTax');
     $totalAmountWithoutTax = $fac->pad($quantity * $unitPriceWithoutTax, 'Item/TotalAmountWithoutTax');
+    $grossAmount = $totalAmountWithoutTax;
 
     // Get taxes
     $totalTaxesOutputs = 0;
     $totalTaxesWithheld = 0;
-    foreach (["taxesOutputs", "taxesWithheld"] as $i=>$taxesGroup) {
+    foreach (['taxesOutputs', 'taxesWithheld'] as $i=>$taxesGroup) {
       foreach ($this->{$taxesGroup} as $type=>$tax) {
         $taxRate = $fac->pad($tax['rate'], 'Tax/Rate');
         $taxAmount = $totalAmountWithoutTax * ($taxRate / 100);
         $taxAmount = $fac->pad($taxAmount, 'Tax/Amount');
-        $this->{$taxesGroup}[$type]['base'] = $fac->pad($totalAmountWithoutTax, 'Tax/Base');
-        $this->{$taxesGroup}[$type]['rate'] = $taxRate;
-        $this->{$taxesGroup}[$type]['amount'] = $taxAmount;
+        $addProps[$taxesGroup][$type] = array(
+          "base" => $fac->pad($totalAmountWithoutTax, 'Tax/Base'),
+          "rate" => $taxRate,
+          "amount" => $taxAmount
+        );
         if ($i == 1) { // In case of $taxesWithheld (2nd iteration)
           $totalTaxesWithheld += $taxAmount;
         } else {
@@ -102,14 +134,35 @@ class FacturaeItem {
       }
     }
 
-    // Get rest of properties
-    return array_merge(get_object_vars($this), [
-      "quantity" => $quantity,
-      "unitPriceWithoutTax" => $unitPriceWithoutTax,
-      "totalAmountWithoutTax" => $totalAmountWithoutTax,
-      "totalTaxesOutputs" => $totalTaxesOutputs,
-      "totalTaxesWithheld" => $totalTaxesWithheld
-    ]);
+    // Process charges and discounts
+    foreach (['discounts', 'charges'] as $i=>$groupTag) {
+      $factor = ($i == 0) ? -1 : 1;
+      foreach ($this->{$groupTag} as $group) {
+        if (isset($group['rate'])) {
+          $rate = $fac->pad($group['rate'], 'Discount/Rate');
+          $amount = $totalAmountWithoutTax * ($rate / 100);
+        } else {
+          $rate = null;
+          $amount = $group['amount'];
+        }
+        $amount = $fac->pad($amount, 'Discount/Amount');
+        $addProps[$groupTag][] = array(
+          "reason" => $group['reason'],
+          "rate" => $rate,
+          "amount" => $amount
+        );
+        $grossAmount += $amount * $factor;
+      }
+    }
+
+    // Add rest of properties
+    $addProps['quantity'] = $quantity;
+    $addProps['unitPriceWithoutTax'] = $unitPriceWithoutTax;
+    $addProps['totalAmountWithoutTax'] = $totalAmountWithoutTax;
+    $addProps['grossAmount'] = $fac->pad($grossAmount, 'Item/GrossAmount');
+    $addProps['totalTaxesOutputs'] = $totalTaxesOutputs;
+    $addProps['totalTaxesWithheld'] = $totalTaxesWithheld;
+    return array_merge(get_object_vars($this), $addProps);
   }
 
 }

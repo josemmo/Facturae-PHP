@@ -91,13 +91,20 @@ final class FacturaeTest extends TestCase {
     $fac->addItem("Algo exento de IVA", 100, 1, Facturae::TAX_IVA, 0);
 
     // Vamos a añadir un producto utilizando la API avanzada
-    // que tenga IVA al 10% e IRPF al 15%
+    // que tenga IVA al 10%, IRPF al 15%, descuento del 10% y recargo del 5%
     $fac->addItem(new FacturaeItem([
       "name" => "Una línea con varios impuestos",
       "articleCode" => 4012,
       "description" => "Esta línea es solo para probar Facturae-PHP",
       "quantity" => 1, // Esto es opcional, es el valor por defecto si se omite
       "unitPrice" => 43.64,
+      "discounts" => array(
+        ["reason"=>"Descuento del 10%", "rate"=>10],
+        ["reason"=>"5€ de descuento", "amount"=>5]
+      ),
+      "charges" => array(
+        ["reason"=>"Recargo del 5% bruto", "rate"=>5, "hasTaxes"=>false]
+      ),
       "taxes" => array(
         Facturae::TAX_IVA  => 10,
         Facturae::TAX_IRPF => 15
@@ -172,14 +179,11 @@ final class FacturaeTest extends TestCase {
    * Invoices provider
    */
   public function invoicesProvider() {
-    // TODO: uncomment last two tests
-    // Not ready for production as almost no provider supports v3.2.2,
-    // not even the Spanish Goverment itself. Maybe in 2018?
     return [
+      "v3.2 (X.509)"     => [Facturae::SCHEMA_3_2,   false],
       "v3.2.1 (X.509)"   => [Facturae::SCHEMA_3_2_1, false],
       "v3.2.1 (PKCS#12)" => [Facturae::SCHEMA_3_2_1, true],
-      //"v3.2.2 (X.509)"   => [Facturae::SCHEMA_3_2_2, false],
-      //"v3.2.2 (PKCS#12)" => [Facturae::SCHEMA_3_2_2, true]
+      "v3.2.2 (PKCS#12)" => [Facturae::SCHEMA_3_2_2, true]
     ];
   }
 
