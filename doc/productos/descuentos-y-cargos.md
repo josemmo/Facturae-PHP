@@ -17,26 +17,26 @@ $fac->addItem(new FacturaeItem([
     ["reason" => "5€ de descuento", "amount" => 5]
   ],
   "charges" => [
-    ["reason"=>"Recargo del 1,30%", "rate"=>1.3]
+    ["reason" => "Recargo del 1,30%", "rate" => 1.3]
   ],
   "taxes" => [Facturae::TAX_IVA => 21]
 ]));
 ```
 
 ## Descuentos y cargos sobre el total con impuestos
-Supongamos que vendemos un producto por un importe de 100€ (IVA incluido) y descuento del 20%. Por defecto, Facturae-PHP aplicará el descuento sobre los 100€ **siempre y cuando se indique el campo `unitPrice` en vez de `unitPriceWithoutTax`**:
+Supongamos que vendemos un producto por un importe de 100€ (IVA incluido) y descuento de 5€. Por defecto, Facturae-PHP aplicará el descuento sobre los 100€ **siempre y cuando se indique el campo `unitPrice` en vez de `unitPriceWithoutTax`**:
 ```php
 $fac->addItem(new FacturaeItem([
   "name" => "Un producto con descuento",
   "unitPrice" => 100,
   "discounts" => [
-    ["reason" => "Descuento del 20%", "rate" => 20]
+    ["reason" => "Descuento de 5€ (IVA incluído)", "amount" => 5]
   ],
   "taxes" => [Facturae::TAX_IVA => 10]
 ]));
 ```
 
-Esto significa que Facturae-PHP ajustará el importe del descuento y su porcentaje para representarlo en función de la base imponible como especifica el estándar.
+Esto significa que Facturae-PHP ajustará el importe del descuento para representarlo en función de la base imponible como especifica el estándar.
 
 Si se quisiera evitar este comportamiento y aplicar un descuento a la base imponible de una línea de producto con impuestos incluídos, se deberá usar el flag `hasTaxes`:
 ```php
@@ -44,8 +44,11 @@ $fac->addItem(new FacturaeItem([
   "name" => "Un producto con descuento",
   "unitPrice" => 100,
   "discounts" => [
-    ["reason"=>"5€ de descuento sobre la BI", "amount"=>5, "haxTaxes"=>false]
+    ["reason" => "Descuento de 5€", "amount" => 5, "haxTaxes" => false]
   ],
   "taxes" => [Facturae::TAX_IVA => 10]
 ]));
 ```
+
+> #### NOTA
+> Consulta el test `DiscountsTest.php` dentro del directorio `tests/` para más información sobre este comportamiento.

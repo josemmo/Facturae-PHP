@@ -71,25 +71,17 @@ class FacturaeItem {
         }
       }
 
-      // Remove discounts and charges
-      $unitPriceWithoutTax = $this->unitPrice;
+      // Adjust discounts and charges according to taxes
       foreach (['discounts', 'charges'] as $i=>$groupTag) {
-        $factor = ($i == 0) ? -1 : 1;
         foreach ($this->{$groupTag} as &$group) {
+          if (isset($group['rate'])) continue;
           $hasTaxes = isset($group['hasTaxes']) ? $group['hasTaxes'] : true;
-          if (isset($group['rate'])) {
-            if ($hasTaxes) $group['rate'] /= $taxesPercent;
-            $amount = $this->unitPrice * ($group['rate'] / 100);
-          } else {
-            if ($hasTaxes) $group['amount'] /= $taxesPercent;
-            $amount = $group['amount'];
-          }
-          $unitPriceWithoutTax += $amount * $factor;
+          if ($hasTaxes) $group['amount'] /= $taxesPercent;
         }
       }
 
       // Apply taxes
-      $this->unitPriceWithoutTax = $unitPriceWithoutTax / $taxesPercent;
+      $this->unitPriceWithoutTax = $this->unitPrice / $taxesPercent;
     }
   }
 
