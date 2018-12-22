@@ -36,6 +36,8 @@ abstract class FacturaeProperties extends FacturaeConstants {
   );
   protected $items = array();
   protected $legalLiterals = array();
+  protected $discounts = array();
+  protected $charges = array();
 
 
   /**
@@ -338,6 +340,77 @@ abstract class FacturaeProperties extends FacturaeConstants {
 
 
   /**
+   * Add general discount
+   * @param  string   $reason       Discount reason
+   * @param  float    $value        Discount percent or amount
+   * @param  boolean  $isPercentage Whether value is percentage or not
+   * @return Facturae               Invoice instance
+   */
+  public function addDiscount($reason, $value, $isPercentage=true) {
+    $this->discounts[] = array(
+      "reason" => $reason,
+      "rate"   => $isPercentage ? $value : null,
+      "amount" => $isPercentage ? null   : $value
+    );
+    return $this;
+  }
+
+
+  /**
+   * Get general discounts
+   * @return array Invoice general discounts
+   */
+  public function getDiscounts() {
+    return $this->discounts;
+  }
+
+
+  /**
+   * Clear general discounts
+   * @return Facturae Invoice instance
+   */
+  public function clearDiscounts() {
+    $this->discounts = array();
+    return $this;
+  }
+
+
+  /**
+   * Add general charge
+   * @param  string   $reason       Charge reason
+   * @param  float    $value        Charge percent or amount
+   * @param  boolean  $isPercentage Whether value is percentage or not
+   * @return Facturae               Invoice instance
+   */
+  public function addCharge($reason, $value, $isPercentage=true) {
+    $this->charges[] = array(
+      "reason" => $reason,
+      "rate"   => $isPercentage ? $value : null,
+      "amount" => $isPercentage ? null   : $value
+    );
+  }
+
+
+  /**
+   * Get general charges
+   * @return array Invoice general charges
+   */
+  public function getCharges() {
+    return $this->charges;
+  }
+
+
+  /**
+   * Clear general charges
+   * @return Facturae Invoice instance
+   */
+  public function clearCharges() {
+    $this->charges = array();
+    return $this;
+  }
+
+
+  /**
    * Add item
    *
    * Adds an item row to invoice. The fist parameter ($desc), can be an string
@@ -397,10 +470,12 @@ abstract class FacturaeProperties extends FacturaeConstants {
     $totals = array(
       "taxesOutputs" => array(),
       "taxesWithheld" => array(),
+      "generalDiscounts" => array(),
+      "generalCharges" => array(),
       "invoiceAmount" => 0,
       "grossAmount" => 0,
-      "generalDiscounts" => 0, // TODO: implement general discounts
-      "generalCharges" => 0,   // TODO: implement general surcharges
+      "totalGeneralDiscounts" => 0,
+      "totalGeneralCharges" => 0,
       "totalTaxesOutputs" => 0,
       "totalTaxesWithheld" => 0
     );
@@ -430,17 +505,39 @@ abstract class FacturaeProperties extends FacturaeConstants {
       }
     }
 
-    // Normalize values
+    // Normalize gross amount (needed for next step)
     $totals['grossAmount'] = $this->pad($totals['grossAmount']);
+
+    // Get general discounts and charges
+    foreach (['discounts', 'charges'] as $groupTag) {
+      foreach ($this->{$groupTag} as $item) {
+        if (is_null($item['rate'])) {
+          $rate = null;
+          $amount = $item['amount'];
+        } else {
+          $rate = $this->pad($item['rate'], 'Discount/Rate');
+          $amount = $totals['grossAmount'] * ($rate / 100);
+        }
+        $amount = $this->pad($amount, 'Discount/Amount');
+        $totals['general' . ucfirst($groupTag)][] = array(
+          "reason" => $item['reason'],
+          "rate" => $rate,
+          "amount" => $amount
+        );
+        $totals['totalGeneral' . ucfirst($groupTag)] += $amount;
+      }
+    }
+
+    // Normalize rest of values
     $totals['totalTaxesOutputs'] = $this->pad($totals['totalTaxesOutputs']);
     $totals['totalTaxesWithheld'] = $this->pad($totals['totalTaxesWithheld']);
-    $totals['generalDiscounts'] = $this->pad($totals['generalDiscounts']);
-    $totals['generalCharges'] = $this->pad($totals['generalCharges']);
+    $totals['totalGeneralDiscounts'] = $this->pad($totals['totalGeneralDiscounts']);
+    $totals['totalGeneralCharges'] = $this->pad($totals['totalGeneralCharges']);
 
-    // Fill rest of values
-    $totals['grossAmountBeforeTaxes'] = $totals['grossAmount'] -
-      $totals['generalDiscounts'] + $totals['generalCharges'];
-    $totals['invoiceAmount'] = $this->pad($totals['grossAmount'] +
+    // Fill missing values
+    $totals['grossAmountBeforeTaxes'] = $this->pad($totals['grossAmount'] -
+      $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges']);
+    $totals['invoiceAmount'] = $this->pad($totals['grossAmountBeforeTaxes'] +
       $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld']);
 
     return $totals;

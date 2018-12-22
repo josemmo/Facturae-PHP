@@ -107,4 +107,29 @@ final class DiscountsTest extends TestCase {
     }
   }
 
+
+  /**
+   * Test general discounts
+   */
+  public function testGeneralDiscounts() {
+    $fac = $this->_getBaseInvoice();
+    $fac->addItem('Test item', 100, 1, Facturae::TAX_IVA, 25);
+    $fac->addDiscount('Half price', 50);
+    $fac->addDiscount('5€ off', 5, false);
+    $fac->addCharge('Twice as much', 50);
+
+    // Generate invoice and validate output
+    $invoiceXml = new \SimpleXMLElement($fac->export());
+    $invoiceXml = $invoiceXml->Invoices->Invoice[0];
+    $totalDiscounts = floatval($invoiceXml->InvoiceTotals->TotalGeneralDiscounts);
+    $totalCharges = floatval($invoiceXml->InvoiceTotals->TotalGeneralSurcharges);
+    $invoiceTotal = floatval($invoiceXml->InvoiceTotals->InvoiceTotal);
+    $expectedDiscounts = (100 / 1.25) * 0.5 + 5;
+    $expectedCharges = (100 / 1.25) * 0.5;
+    $expectedTotal = 100 - $expectedDiscounts + $expectedCharges;
+    $this->assertEquals($totalDiscounts, $expectedDiscounts, '', 0.00001);
+    $this->assertEquals($totalCharges, $expectedCharges, '', 0.00001);
+    $this->assertEquals($invoiceTotal, $expectedTotal, '', 0.00001);
+  }
+
 }

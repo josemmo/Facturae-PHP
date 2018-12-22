@@ -68,6 +68,19 @@ final class MethodsTest extends TestCase {
     $fac->clearLegalLiterals();
     $this->assertEquals([], $fac->getLegalLiterals());
 
+    // Discounts and charges
+    $fac->addDiscount('First', 10);
+    $fac->addDiscount('Second', 15, false);
+    $fac->addCharge('First', 20);
+    $fac->addCharge('Second', 25, false);
+    $fac->addCharge('Third', 30);
+    $this->assertEquals(2, count($fac->getDiscounts()));
+    $this->assertEquals(3, count($fac->getCharges()));
+    $fac->clearDiscounts();
+    $this->assertEquals([], $fac->getDiscounts());
+    $fac->clearCharges();
+    $this->assertEquals([], $fac->getCharges());
+
     // Items
     $items = array(
       new FacturaeItem(['name'=>'First item']),

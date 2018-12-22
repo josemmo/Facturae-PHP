@@ -1,7 +1,7 @@
 ---
 title: Versión de FacturaE
 parent: Propiedades de una factura
-nav_order: 4
+nav_order: 5
 permalink: /propiedades/version-de-facturae.html
 ---
 

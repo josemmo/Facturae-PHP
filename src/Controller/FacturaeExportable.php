@@ -124,17 +124,39 @@ abstract class FacturaeExportable extends FacturaeSignable {
     }
 
     // Add invoice totals
-    $xml .= '<InvoiceTotals>' .
-              '<TotalGrossAmount>' . $totals['grossAmount'] . '</TotalGrossAmount>' .
-              '<TotalGeneralDiscounts>' . $totals['generalDiscounts'] . '</TotalGeneralDiscounts>' .
-              '<TotalGeneralSurcharges>' . $totals['generalCharges'] . '</TotalGeneralSurcharges>' .
-              '<TotalGrossAmountBeforeTaxes>' . $totals['grossAmountBeforeTaxes'] . '</TotalGrossAmountBeforeTaxes>' .
-              '<TotalTaxOutputs>' . $totals['totalTaxesOutputs'] . '</TotalTaxOutputs>' .
-              '<TotalTaxesWithheld>' . $totals['totalTaxesWithheld'] . '</TotalTaxesWithheld>' .
-              '<InvoiceTotal>' . $totals['invoiceAmount'] . '</InvoiceTotal>' .
-              '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>' .
-              '<TotalExecutableAmount>' . $totals['invoiceAmount'] . '</TotalExecutableAmount>' .
-            '</InvoiceTotals>';
+    $xml .= '<InvoiceTotals>';
+    $xml .= '<TotalGrossAmount>' . $totals['grossAmount'] . '</TotalGrossAmount>';
+
+    // Add general discounts and charges
+    $generalGroups = array(
+      ['GeneralDiscounts', 'Discount'],
+      ['GeneralSurcharges', 'Charge']
+    );
+    foreach (['generalDiscounts', 'generalCharges'] as $g=>$groupTag) {
+      if (empty($totals[$groupTag])) continue;
+      $xmlTag = $generalGroups[$g][1];
+      $xml .= '<' . $generalGroups[$g][0] . '>';
+      foreach ($totals[$groupTag] as $elem) {
+        $xml .= "<$xmlTag>";
+        $xml .= "<${xmlTag}Reason>" . $tools->escape($elem['reason']) . "</${xmlTag}Reason>";
+        if (!is_null($elem['rate'])) {
+          $xml .= "<${xmlTag}Rate>" . $elem['rate'] . "</${xmlTag}Rate>";
+        }
+        $xml .="<${xmlTag}Amount>" . $elem['amount'] . "</${xmlTag}Amount>";
+        $xml .= "</$xmlTag>";
+      }
+      $xml .= '</' . $generalGroups[$g][0] . '>';
+    }
+
+    $xml .= '<TotalGeneralDiscounts>' . $totals['totalGeneralDiscounts'] . '</TotalGeneralDiscounts>';
+    $xml .= '<TotalGeneralSurcharges>' . $totals['totalGeneralCharges'] . '</TotalGeneralSurcharges>';
+    $xml .= '<TotalGrossAmountBeforeTaxes>' . $totals['grossAmountBeforeTaxes'] . '</TotalGrossAmountBeforeTaxes>';
+    $xml .= '<TotalTaxOutputs>' . $totals['totalTaxesOutputs'] . '</TotalTaxOutputs>';
+    $xml .= '<TotalTaxesWithheld>' . $totals['totalTaxesWithheld'] . '</TotalTaxesWithheld>';
+    $xml .= '<InvoiceTotal>' . $totals['invoiceAmount'] . '</InvoiceTotal>';
+    $xml .= '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>';
+    $xml .= '<TotalExecutableAmount>' . $totals['invoiceAmount'] . '</TotalExecutableAmount>';
+    $xml .= '</InvoiceTotals>';
 
     // Add invoice items
     $xml .= '<Items>';

@@ -151,6 +151,10 @@ final class FacturaeTest extends TestCase {
       "dentro del campo LegalLiterals del XML de la factura");
     $fac->addLegalLiteral("Y este, \"otro\" con 'caracteres' a <escapar>");
 
+    // Añadimos recargos y descuentos sobre el total de la factura
+    $fac->addDiscount('A mitad de precio', 50);
+    $fac->addCharge('Recargo del 50%', 50);
+
     // Establecemos un método de pago (por coverage, solo en algunos casos)
     if (!$isPfx) {
       $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766");
