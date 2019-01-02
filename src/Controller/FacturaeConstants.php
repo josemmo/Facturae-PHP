@@ -8,7 +8,7 @@ namespace josemmo\Facturae\Controller;
 abstract class FacturaeConstants {
 
   /* PUBLIC CONSTANTS */
-  const VERSION = "1.3.4"; // Library version
+  const VERSION = "1.4.0"; // Library version
   const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
   const SCHEMA_3_2 = "3.2";
@@ -102,13 +102,19 @@ abstract class FacturaeConstants {
       null => ["min"=>2, "max"=>2],
       "Item/Quantity" => ["min"=>2, "max"=>8],
       "Item/UnitPriceWithoutTax" => ["min"=>2, "max"=>8],
-      "Tax/Rate" => ["min"=>2, "max"=>8]
+      "Item/GrossAmount" => ["min"=>2, "max"=>8],
+      "Tax/Rate" => ["min"=>2, "max"=>8],
+      "Discount/Rate" => ["min"=>2, "max"=>8],
+      "Discount/Amount" => ["min"=>2, "max"=>2]
     ],
     self::SCHEMA_3_2 => [
       null => ["min"=>2, "max"=>2],
       "Item/Quantity" => ["min"=>2, "max"=>6],
       "Item/TotalAmountWithoutTax" => ["min"=>6, "max"=>6],
-      "Item/UnitPriceWithoutTax" => ["min"=>6, "max"=>6]
+      "Item/UnitPriceWithoutTax" => ["min"=>6, "max"=>6],
+      "Item/GrossAmount" => ["min"=>6, "max"=>6],
+      "Discount/Rate" => ["min"=>4, "max"=>4],
+      "Discount/Amount" => ["min"=>6, "max"=>6]
     ]
   );
 

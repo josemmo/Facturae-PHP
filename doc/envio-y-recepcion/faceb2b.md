@@ -1,3 +1,10 @@
+---
+title: Comunicación con FACeB2B
+parent: Envío y recepción
+nav_order: 2
+permalink: /envio-y-recepcion/faceb2b.html
+---
+
 # Comunicación con FACeB2B
 Facturae-PHP permite establecer comunicación directa sin salir de la librería con los servicios web de [FACeB2B](https://faceb2b.gob.es/) para enviar y recibir facturas entre empresas del sector privado.
 
@@ -8,6 +15,8 @@ Para poder usar los servicios web de FACeB2B el proceso es un poco más complica
 3. También desde FACeB2B, registra tu empresa como ESF. **No hace falta** que marques la casilla de gestionar facturas de terceros.
 4. Crea una nueva plataforma de facturación y sube la **clave pública** del certificado que utilizarás para comunicarte con los Web Services. Puede ser la clave pública del certificado que hemos estado usando hasta ahora.
 5. Asocia las unidades DIRe desde FACeB2B (pestaña "Alta de clientes") a la plataforma que acabas de crear.
+
+---
 
 ## Cliente de FACeB2B
 El uso de FACeB2B desde Facturae-PHP es extremadamente sencillo:
@@ -29,6 +38,8 @@ $face->setProduction(false);
 ```
 
 Todas las llamadas a FACeB2B desde `Faceb2bClient` devuelven un objeto `SimpleXMLElement`. Consulta el [manual de PHP](http://php.net/manual/simplexml.examples-basic.php) para más información.
+
+---
 
 ## Listado de métodos
 A continuación se incluyen los métodos de `Faceb2bClient` para llamar al servicio web FACeB2B junto a una vista previa en JSON de la respuesta que devuelven.

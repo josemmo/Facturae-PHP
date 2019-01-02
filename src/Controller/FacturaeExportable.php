@@ -124,17 +124,39 @@ abstract class FacturaeExportable extends FacturaeSignable {
     }
 
     // Add invoice totals
-    $xml .= '<InvoiceTotals>' .
-              '<TotalGrossAmount>' . $totals['grossAmount'] . '</TotalGrossAmount>' .
-              '<TotalGeneralDiscounts>0.00</TotalGeneralDiscounts>' .
-              '<TotalGeneralSurcharges>0.00</TotalGeneralSurcharges>' .
-              '<TotalGrossAmountBeforeTaxes>' . $totals['grossAmountBeforeTaxes'] . '</TotalGrossAmountBeforeTaxes>' .
-              '<TotalTaxOutputs>' . $totals['totalTaxesOutputs'] . '</TotalTaxOutputs>' .
-              '<TotalTaxesWithheld>' . $totals['totalTaxesWithheld'] . '</TotalTaxesWithheld>' .
-              '<InvoiceTotal>' . $totals['invoiceAmount'] . '</InvoiceTotal>' .
-              '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>' .
-              '<TotalExecutableAmount>' . $totals['invoiceAmount'] . '</TotalExecutableAmount>' .
-            '</InvoiceTotals>';
+    $xml .= '<InvoiceTotals>';
+    $xml .= '<TotalGrossAmount>' . $totals['grossAmount'] . '</TotalGrossAmount>';
+
+    // Add general discounts and charges
+    $generalGroups = array(
+      ['GeneralDiscounts', 'Discount'],
+      ['GeneralSurcharges', 'Charge']
+    );
+    foreach (['generalDiscounts', 'generalCharges'] as $g=>$groupTag) {
+      if (empty($totals[$groupTag])) continue;
+      $xmlTag = $generalGroups[$g][1];
+      $xml .= '<' . $generalGroups[$g][0] . '>';
+      foreach ($totals[$groupTag] as $elem) {
+        $xml .= "<$xmlTag>";
+        $xml .= "<${xmlTag}Reason>" . $tools->escape($elem['reason']) . "</${xmlTag}Reason>";
+        if (!is_null($elem['rate'])) {
+          $xml .= "<${xmlTag}Rate>" . $elem['rate'] . "</${xmlTag}Rate>";
+        }
+        $xml .="<${xmlTag}Amount>" . $elem['amount'] . "</${xmlTag}Amount>";
+        $xml .= "</$xmlTag>";
+      }
+      $xml .= '</' . $generalGroups[$g][0] . '>';
+    }
+
+    $xml .= '<TotalGeneralDiscounts>' . $totals['totalGeneralDiscounts'] . '</TotalGeneralDiscounts>';
+    $xml .= '<TotalGeneralSurcharges>' . $totals['totalGeneralCharges'] . '</TotalGeneralSurcharges>';
+    $xml .= '<TotalGrossAmountBeforeTaxes>' . $totals['grossAmountBeforeTaxes'] . '</TotalGrossAmountBeforeTaxes>';
+    $xml .= '<TotalTaxOutputs>' . $totals['totalTaxesOutputs'] . '</TotalTaxOutputs>';
+    $xml .= '<TotalTaxesWithheld>' . $totals['totalTaxesWithheld'] . '</TotalTaxesWithheld>';
+    $xml .= '<InvoiceTotal>' . $totals['invoiceAmount'] . '</InvoiceTotal>';
+    $xml .= '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>';
+    $xml .= '<TotalExecutableAmount>' . $totals['invoiceAmount'] . '</TotalExecutableAmount>';
+    $xml .= '</InvoiceTotals>';
 
     // Add invoice items
     $xml .= '<Items>';
@@ -156,8 +178,31 @@ abstract class FacturaeExportable extends FacturaeSignable {
         '<Quantity>' . $item['quantity'] . '</Quantity>' .
         '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
         '<UnitPriceWithoutTax>' . $item['unitPriceWithoutTax'] . '</UnitPriceWithoutTax>' .
-        '<TotalCost>' . $item['totalAmountWithoutTax'] . '</TotalCost>' .
-        '<GrossAmount>' . $item['totalAmountWithoutTax'] . '</GrossAmount>'; // TODO: implement discounts
+        '<TotalCost>' . $item['totalAmountWithoutTax'] . '</TotalCost>';
+
+      // Add discounts and charges
+      $itemGroups = array(
+        ['DiscountsAndRebates', 'Discount'],
+        ['Charges', 'Charge']
+      );
+      foreach (['discounts', 'charges'] as $g=>$group) {
+        if (empty($item[$group])) continue;
+        $groupTag = $itemGroups[$g][1];
+        $xml .= '<' . $itemGroups[$g][0] . '>';
+        foreach ($item[$group] as $elem) {
+          $xml .= "<$groupTag>";
+          $xml .= "<${groupTag}Reason>" . $tools->escape($elem['reason']) . "</${groupTag}Reason>";
+          if (!is_null($elem['rate'])) {
+            $xml .= "<${groupTag}Rate>" . $elem['rate'] . "</${groupTag}Rate>";
+          }
+          $xml .="<${groupTag}Amount>" . $elem['amount'] . "</${groupTag}Amount>";
+          $xml .= "</$groupTag>";
+        }
+        $xml .= '</' . $itemGroups[$g][0] . '>';
+      }
+
+      // Add gross amount
+      $xml .= '<GrossAmount>' . $item['grossAmount'] . '</GrossAmount>';
 
       // Add item taxes
       // NOTE: As you can see here, taxesWithheld is before taxesOutputs.

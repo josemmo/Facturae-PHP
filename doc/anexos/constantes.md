@@ -1,6 +1,13 @@
-# Anexo
+---
+title: Constantes
+parent: Anexos
+nav_order: 2
+permalink: /anexos/constantes.html
+---
 
-## Constantes
+
+# Constantes
+## Formatos de FacturaE
 
 |Constante|Descripción|
 |--------:|:----------|
@@ -9,10 +16,18 @@
 |`Facturae::SCHEMA_3_2_2`|Formato de Facturae 3.2.2|
 |`Facturae::SIGN_POLICY_3_1`|Formato de firma 3.1|
 
+---
+
+## Formas de pago
+
 |Constante|Descripción|
 |--------:|:----------|
 |`Facturae::PAYMENT_CASH`|Pago al contado|
 |`Facturae::PAYMENT_TRANSFER`|Pago por transferencia|
+
+---
+
+## Tipos de impuestos
 
 |Constante|Descripción|
 |--------:|:----------|
@@ -45,6 +60,10 @@
 |`Facturae::TAX_IGFEI`|Impuesto sobre los Gases Fluorados de Efecto Invernadero|
 |`Facturae::TAX_IRNR`|Impuesto sobre la Renta de No Residentes|
 |`Facturae::TAX_ISS`|Impuesto sobre Sociedades|
+
+---
+
+## Unidades de medida
 
 |Constante|Descripción|
 |--------:|:----------|
@@ -85,6 +104,10 @@
 |`Facturae::UNIT_WATTS`|Vatios|
 |`Facturae::UNIT_KWH`|Kilovatios por hora (KWh)|
 
+---
+
+## Tipos de centros
+
 |Constante|Descripción|
 |--------:|:----------|
 |`FacturaeCentre::ROLE_CONTABLE`<br>o `FacturaeCentre::ROLE_FISCAL`|Oficina contable|
@@ -99,11 +122,3 @@
 |`FacturaeCentre::ROLE_B2B_PAYMENT_RECEIVER`|Receptor del pago en FACeB2B|
 |`FacturaeCentre::ROLE_B2B_COLLECTION_RECEIVER`|Collection receiver en FACeB2B|
 |`FacturaeCentre::ROLE_B2B_ISSUER`|Emisor en FACeB2B|
-
-## Herramientas de validación
-Todas las facturas generadas y firmadas con Facturae-PHP son probadas con las siguientes herramientas online para garantizar el cumplimiento del estándar:
-
-- https://viewer.facturadirecta.com/ (no soporta 3.2.2)
-- http://plataforma.firma-e.com/VisualizadorFacturae/ (no soporta 3.2.2)
-- http://sedeaplicaciones2.minetur.gob.es/FacturaE/index.jsp
-- https://face.gob.es/es/facturas/validar-visualizar-facturas

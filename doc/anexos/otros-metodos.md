@@ -1,3 +1,10 @@
+---
+title: Otros métodos
+parent: Anexos
+nav_order: 1
+permalink: /anexos/otros-metodos.html
+---
+
 # Otros métodos
 Aquí se incluyen aquellos métodos del paquete que no se han podido catalogar en ninguno de los apartados anteriores.
 
