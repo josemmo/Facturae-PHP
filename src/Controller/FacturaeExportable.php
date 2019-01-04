@@ -250,7 +250,7 @@ abstract class FacturaeExportable extends FacturaeSignable {
                   '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
       if ($this->header['paymentMethod'] == self::PAYMENT_TRANSFER) {
         $xml .=   '<AccountToBeCredited>' .
-                    '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>' .
+                    '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>';
         if (!is_null($this->header['paymentBIC'])) {
           $xml .=   '<BIC>' . $this->header['paymentBIC'] . '</BIC>';
         }                    
