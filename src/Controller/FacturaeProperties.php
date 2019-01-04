@@ -220,9 +220,10 @@ abstract class FacturaeProperties extends FacturaeConstants {
    * Set payment method
    * @param  string      $method Payment method
    * @param  string|null $iban   Bank account in case of bank transfer
+   * @param  string|null $bic    SWIFT/BIC code of bank account
    * @return Facturae            Invoice instance
    */
-  public function setPaymentMethod($method=self::PAYMENT_CASH, $iban=null) {
+  public function setPaymentMethod($method=self::PAYMENT_CASH, $iban=null, $bic=null) {
     $this->header['paymentMethod'] = $method;
     if (!is_null($iban)) $iban = str_replace(" ", "", $iban);
     $this->header['paymentIBAN'] = $iban;
