@@ -248,13 +248,16 @@ abstract class FacturaeExportable extends FacturaeSignable {
       $xml .= '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>';
       $xml .= '<InstallmentAmount>' . $totals['invoiceAmount'] . '</InstallmentAmount>';
       $xml .= '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
-      if ($this->header['paymentMethod'] == self::PAYMENT_TRANSFER) {
-        $xml .= '<AccountToBeCredited>';
+      if (!is_null($this->header['paymentIBAN'])) {
+        $accountType = ($this->header['paymentMethod'] == self::PAYMENT_DEBIT) ?
+          "AccountToBeDebited" :
+          "AccountToBeCredited";
+        $xml .= "<$accountType>";
         $xml .= '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>';
         if (!is_null($this->header['paymentBIC'])) {
           $xml .= '<BIC>' . $this->header['paymentBIC'] . '</BIC>';
         }
-        $xml .= '</AccountToBeCredited>';
+        $xml .= "</$accountType>";
       }
       $xml .= '</Installment>';
       $xml .= '</PaymentDetails>';
