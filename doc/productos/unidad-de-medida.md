@@ -20,4 +20,4 @@ $fac->addItem(new FacturaeItem([
 
 Su valor por defecto (si no se indica) es `Facturae::UNIT_DEFAULT`, que es la unidad adimensional.
 
-Dentro del anexo se encuentra [una tabla](/anexos/constantes.html#unidades-de-medida) con todos los posibles valores que puede tomar este campo.
+Dentro del anexo se encuentra [una tabla](../anexos/constantes.html#unidades-de-medida) con todos los posibles valores que puede tomar este campo.

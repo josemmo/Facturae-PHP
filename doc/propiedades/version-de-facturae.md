@@ -11,4 +11,4 @@ Por defecto el paquete creará la factura siguiendo el formato (schema) FacturaE
 $fac = new Facturae(Facturae::SCHEMA_3_2_2);
 ```
 
-Los posibles valores que puede tomar este argumento se encuentra en la [tabla de constantes](/anexos/constantes.html#formatos-de-facturae) del anexo.
+Los posibles valores que puede tomar este argumento se encuentra en la [tabla de constantes](../anexos/constantes.html#formatos-de-facturae) del anexo.
