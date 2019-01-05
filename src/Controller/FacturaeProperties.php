@@ -219,15 +219,18 @@ abstract class FacturaeProperties extends FacturaeConstants {
   /**
    * Set payment method
    * @param  string      $method Payment method
-   * @param  string|null $iban   Bank account in case of bank transfer
+   * @param  string|null $iban   Bank account number (IBAN)
    * @param  string|null $bic    SWIFT/BIC code of bank account
    * @return Facturae            Invoice instance
    */
   public function setPaymentMethod($method=self::PAYMENT_CASH, $iban=null, $bic=null) {
+    if (!is_null($iban)) $iban = preg_replace('/[^A-Z0-9]/', '', $iban);
+    if (!is_null($bic)) {
+      $bic = preg_replace('/[^A-Z0-9]/', '', $bic);
+      $bic = str_pad($bic, 11, 'X');
+    }
     $this->header['paymentMethod'] = $method;
-    if (!is_null($iban)) $iban = str_replace(" ", "", $iban);
     $this->header['paymentIBAN'] = $iban;
-    if (!is_null($bic)) $bic = str_replace(" ", "", $bic);
     $this->header['paymentBIC'] = $bic;
     return $this;
   }
@@ -250,6 +253,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
     return $this->header['paymentIBAN'];
   }
 
+
   /**
    * Get payment BIC
    * @return string|null Payment bank account BIC
@@ -257,6 +261,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
   public function getPaymentBIC() {
     return $this->header['paymentBIC'];
   }
+
 
   /**
    * Set description
