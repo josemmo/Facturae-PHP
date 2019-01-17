@@ -22,25 +22,25 @@ permalink: /anexos/constantes.html
 
 |Constante|Descripción|
 |--------:|:----------|
-|`PAYMENT_CASH`|Al contado|
-|`PAYMENT_DEBIT`|Recibo Domiciliado|
-|`PAYMENT_RECEIPT`|Recibo|
-|`PAYMENT_TRANSFER`|Transferencia|
-|`PAYMENT_ACCEPTED_BILL_OF_EXCHANGE`|Letra Aceptada|
-|`PAYMENT_DOCUMENTARY_CREDIT`|Crédito Documentario|
-|`PAYMENT_CONTRACT_AWARD`|Adjudicación de contrato|
-|`PAYMENT_BILL_OF_EXCHANGE`|Letra de cambio|
-|`PAYMENT_TRANSFERABLE_IOU`|Pagaré a la Orden|
-|`PAYMENT_IOU`|Pagaré No a la Orden|
-|`PAYMENT_CHEQUE`|Cheque|
-|`PAYMENT_REIMBURSEMENT`|Reposición|
-|`PAYMENT_SPECIAL`|Especiales|
-|`PAYMENT_SETOFF`|Compensación|
-|`PAYMENT_POSTGIRO`|Giro postal|
-|`PAYMENT_CERTIFIED_CHEQUE`|Cheque conformado|
-|`PAYMENT_BANKERS_DRAFT`|Cheque bancario|
-|`PAYMENT_CASH_ON_DELIVERY`|Pago contra reembolso|
-|`PAYMENT_CARD`|Pago mediante tarjeta|
+|`Facturae::PAYMENT_CASH`|Al contado|
+|`Facturae::PAYMENT_DEBIT`|Recibo Domiciliado|
+|`Facturae::PAYMENT_RECEIPT`|Recibo|
+|`Facturae::PAYMENT_TRANSFER`|Transferencia|
+|`Facturae::PAYMENT_ACCEPTED_BILL_OF_EXCHANGE`|Letra Aceptada|
+|`Facturae::PAYMENT_DOCUMENTARY_CREDIT`|Crédito Documentario|
+|`Facturae::PAYMENT_CONTRACT_AWARD`|Adjudicación de contrato|
+|`Facturae::PAYMENT_BILL_OF_EXCHANGE`|Letra de cambio|
+|`Facturae::PAYMENT_TRANSFERABLE_IOU`|Pagaré a la Orden|
+|`Facturae::PAYMENT_IOU`|Pagaré No a la Orden|
+|`Facturae::PAYMENT_CHEQUE`|Cheque|
+|`Facturae::PAYMENT_REIMBURSEMENT`|Reposición|
+|`Facturae::PAYMENT_SPECIAL`|Especiales|
+|`Facturae::PAYMENT_SETOFF`|Compensación|
+|`Facturae::PAYMENT_POSTGIRO`|Giro postal|
+|`Facturae::PAYMENT_CERTIFIED_CHEQUE`|Cheque conformado|
+|`Facturae::PAYMENT_BANKERS_DRAFT`|Cheque bancario|
+|`Facturae::PAYMENT_CASH_ON_DELIVERY`|Pago contra reembolso|
+|`Facturae::PAYMENT_CARD`|Pago mediante tarjeta|
 
 ---
 
