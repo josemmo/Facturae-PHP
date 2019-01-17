@@ -8,7 +8,7 @@ namespace josemmo\Facturae\Controller;
 abstract class FacturaeConstants {
 
   /* PUBLIC CONSTANTS */
-  const VERSION = "1.4.0"; // Library version
+  const VERSION = "1.4.1"; // Library version
   const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
   const SCHEMA_3_2 = "3.2";
@@ -21,7 +21,24 @@ abstract class FacturaeConstants {
   );
 
   const PAYMENT_CASH = "01";
+  const PAYMENT_DEBIT = "02";
+  const PAYMENT_RECEIPT = "03";
   const PAYMENT_TRANSFER = "04";
+  const PAYMENT_ACCEPTED_BILL_OF_EXCHANGE = "05";
+  const PAYMENT_DOCUMENTARY_CREDIT = "06";
+  const PAYMENT_CONTRACT_AWARD = "07";
+  const PAYMENT_BILL_OF_EXCHANGE = "08";
+  const PAYMENT_TRANSFERABLE_IOU = "09";
+  const PAYMENT_IOU = "10";
+  const PAYMENT_CHEQUE = "11";
+  const PAYMENT_REIMBURSEMENT = "12";
+  const PAYMENT_SPECIAL = "13";
+  const PAYMENT_SETOFF = "14";
+  const PAYMENT_POSTGIRO = "15";
+  const PAYMENT_CERTIFIED_CHEQUE = "16";
+  const PAYMENT_BANKERS_DRAFT = "17";
+  const PAYMENT_CASH_ON_DELIVERY = "18";
+  const PAYMENT_CARD = "19";
 
   const TAX_IVA = "01";
   const TAX_IPSI = "02";

@@ -243,18 +243,24 @@ abstract class FacturaeExportable extends FacturaeSignable {
       $dueDate = is_null($this->header['dueDate']) ?
         $this->header['issueDate'] :
         $this->header['dueDate'];
-      $xml .= '<PaymentDetails>' .
-                '<Installment>' .
-                  '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>' .
-                  '<InstallmentAmount>' . $totals['invoiceAmount'] . '</InstallmentAmount>' .
-                  '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
-      if ($this->header['paymentMethod'] == self::PAYMENT_TRANSFER) {
-        $xml .=   '<AccountToBeCredited>' .
-                    '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>' .
-                  '</AccountToBeCredited>';
+      $xml .= '<PaymentDetails>';
+      $xml .= '<Installment>';
+      $xml .= '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>';
+      $xml .= '<InstallmentAmount>' . $totals['invoiceAmount'] . '</InstallmentAmount>';
+      $xml .= '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
+      if (!is_null($this->header['paymentIBAN'])) {
+        $accountType = ($this->header['paymentMethod'] == self::PAYMENT_DEBIT) ?
+          "AccountToBeDebited" :
+          "AccountToBeCredited";
+        $xml .= "<$accountType>";
+        $xml .= '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>';
+        if (!is_null($this->header['paymentBIC'])) {
+          $xml .= '<BIC>' . $this->header['paymentBIC'] . '</BIC>';
+        }
+        $xml .= "</$accountType>";
       }
-      $xml .=   '</Installment>' .
-              '</PaymentDetails>';
+      $xml .= '</Installment>';
+      $xml .= '</PaymentDetails>';
     }
 
     // Add legal literals

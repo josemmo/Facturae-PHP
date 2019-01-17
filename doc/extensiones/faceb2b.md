@@ -6,7 +6,7 @@ permalink: /extensiones/faceb2b.html
 ---
 
 # Extensión de FACeB2B
-Igual que es posible generar facturas listas para enviar a [FACe](https://face.gob.es/) añadiendo los objetos `FacturaeCentre` correspondientes dentro de la propiedad `centres` de un `FacturaeParty` (véase apartado de [entidades](/entidades/) para más información), existe su equivalente para el sector privado.
+Igual que es posible generar facturas listas para enviar a [FACe](https://face.gob.es/) añadiendo los objetos `FacturaeCentre` correspondientes dentro de la propiedad `centres` de un `FacturaeParty` (véase apartado de [entidades](../entidades/) para más información), existe su equivalente para el sector privado.
 
 ## Introducción a FACeB2B
 FACeB2B es una plataforma casi idéntica a FACe para que empresas dadas de alta en [DIRe](https://dire.gob.es/) puedan enviarse facturas electrónicas unas a otras.
@@ -25,7 +25,7 @@ Para poder subir una factura a FACe esta debe tener los centros (`FacturaeCentre
 ---
 
 ## Usando FACeB2B con esta librería
-Para convertir la factura generada en el [ejemplo simple](/ejemplos/factura-simple.html) en un documento listo para enviar por FACeB2B, se añaden los centros a través de `$fac->getExtension('Fb2b')`:
+Para convertir la factura generada en el [ejemplo simple](../ejemplos/factura-simple.html) en un documento listo para enviar por FACeB2B, se añaden los centros a través de `$fac->getExtension('Fb2b')`:
 ```php
 $b2b = $fac->getExtension('Fb2b');
 $b2b->setReceiver(new FacturaeCentre([
@@ -75,4 +75,4 @@ $b2b->setContractReference('333000');
 ---
 
 ## Enviar facturas a FACeB2B
-Esta extensión solo sirve para generar facturas electrónicas que puedan ser enviadas a FACeB2B. Para el proceso de envío programático consulta el apartado de [comunicación con FACeB2B](/envio-y-recepcion/faceb2b.html).
+Esta extensión solo sirve para generar facturas electrónicas que puedan ser enviadas a FACeB2B. Para el proceso de envío programático consulta el apartado de [comunicación con FACeB2B](../envio-y-recepcion/faceb2b.html).

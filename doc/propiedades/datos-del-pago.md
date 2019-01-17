@@ -13,9 +13,16 @@ Es posible indicar la forma de pago de una factura. Por ejemplo, en caso de paga
 $fac->setPaymentMethod(Facturae::PAYMENT_CASH);
 ```
 
-En caso de transferencia también debe indicarse la cuenta bancaria destinataria:
+Los posibles valores que puede tomar este argumento se encuentra en la [tabla de constantes](../anexos/constantes.html#formas-de-pago) del anexo.
+
+En caso de transferencia (entre otras formas de pago) también debe indicarse la cuenta bancaria destinataria:
 ```php
 $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766");
+```
+
+Si fuera necesario, se puede añadir el código BIC/SWIFT junto con el IBAN en el momento de establecer la forma de pago:
+```php
+$fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766", "CAHMESMM");
 ```
 
 ---

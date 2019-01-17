@@ -157,7 +157,8 @@ final class FacturaeTest extends TestCase {
 
     // Establecemos un método de pago (por coverage, solo en algunos casos)
     if (!$isPfx) {
-      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766");
+      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER,
+        "ES7620770024003102575766", "CAHMESMM");
       $fac->setDueDate("2017-12-31");
     }
 
