@@ -1,6 +1,10 @@
 # Let's start with the basics: this is a PHP project
 language: php
 
+# Disable email notifications for all builds
+notifications:
+  email: false
+
 # Run on top of a few versions to check compatibility
 matrix:
   fast_finish: true
@@ -11,6 +15,7 @@ matrix:
       env: SEND_COVERAGE=1
     - php: 7.2
     - php: 7.3
+    - php: nightly
   allow_failures:
     - php: nightly
 
