@@ -41,7 +41,7 @@ class Faceb2bClient extends SoapClient {
     $req .= '<invoiceFile>' .
         '<content>' . $tools->toBase64($invoice->getData()) . '</content>' .
         '<name>' . $invoice->getFilename() . '</name>' .
-        '<mime>' . $invoice->getMimeType() . '</mime>' .
+        '<mime>text/xml</mime>' . // Mandatory MIME type
       '</invoiceFile>';
 
     if (!is_null($attachment)) {
