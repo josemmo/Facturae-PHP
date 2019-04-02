@@ -8,9 +8,6 @@ permalink: /ejemplos/envio-face.html
 # Envío a FACe
 Este ejemplo muestra cómo enviar una factura a FACe sin usar otras dependencias externas.
 
-> #### NOTA
-> Si se quisiera enviar la factura a FACeB2B en vez de a FACe solo habría que cambiar todas las ocurrencias del término `FaceClient` por `FaceB2BClient`.
-
 ```php
 require_once 'ruta/hacia/vendor/autoload.php';
 
