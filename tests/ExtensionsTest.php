@@ -77,7 +77,7 @@ final class ExtensionsTest extends AbstractTest {
     ]));
 
     // Exportamos la factura
-    $fac->sign(__DIR__ . "/test.pfx", null, "12345");
+    $fac->sign(__DIR__ . "/certs/facturae.pfx", null, "12345");
     $success = ($fac->export(self::FILE_PATH) !== false);
     $this->assertTrue($success);
 

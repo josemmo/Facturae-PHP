@@ -165,9 +165,10 @@ final class FacturaeTest extends AbstractTest {
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
-      $fac->sign(__DIR__ . "/test.pfx", null, "12345");
+      $fac->sign(__DIR__ . "/certs/facturae.pfx", null, "12345");
     } else {
-      $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
+      $fac->sign(__DIR__ . "/certs/facturae-public.pem",
+                 __DIR__ . "/certs/facturae-private.pem", "12345");
     }
     $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
 
