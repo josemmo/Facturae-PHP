@@ -39,7 +39,7 @@ final class PerformanceTest extends AbstractTest {
         "province"      => "Madrid"
       ]));
       $fac->addItem("Producto #$i", 20.14, 3, Facturae::TAX_IVA, 21);
-      $fac->sign(__DIR__ . "/certs/facturae.pfx", null, "12345");
+      $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
       $fac->export();
     }
 

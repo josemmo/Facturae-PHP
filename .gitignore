@@ -1,8 +1,13 @@
-/build/
+# App
 /vendor/
 /composer.lock
-tests/salida-*.xsig
-tests/cookies.txt
+
+# Tests
+/tests/output/*.*
+!/tests/output/.gitignore
+
+# Documentation site
+/build/
 Gemfile.lock
 .sass-cache/
 _site/

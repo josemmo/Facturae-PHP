@@ -7,7 +7,7 @@ use josemmo\Facturae\FacturaeParty;
 
 final class ExtensionsTest extends AbstractTest {
 
-  const FILE_PATH = __DIR__ . "/salida-extensiones.xsig";
+  const FILE_PATH = self::OUTPUT_DIR . "/salida-extensiones.xsig";
   const FB2B_XSD_PATH = "https://administracionelectronica.gob.es/ctt/resources/Soluciones/2811/Descargas/Extension%20FACEB2B%20v1-1.xsd";
 
   /**
@@ -77,7 +77,7 @@ final class ExtensionsTest extends AbstractTest {
     ]));
 
     // Exportamos la factura
-    $fac->sign(__DIR__ . "/certs/facturae.pfx", null, "12345");
+    $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
     $success = ($fac->export(self::FILE_PATH) !== false);
     $this->assertTrue($success);
 
