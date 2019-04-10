@@ -23,6 +23,11 @@
         "codacy/coverage": "dev-master",
         "phpunit/phpunit": "^5"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "josemmo\\Facturae\\Tests\\": "tests/"
+        }
+    },
     "autoload": {
         "psr-4": {
             "josemmo\\Facturae\\": "src/"

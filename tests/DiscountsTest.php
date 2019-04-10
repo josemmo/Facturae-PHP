@@ -1,10 +1,11 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
-use PHPUnit\Framework\TestCase;
 
-final class DiscountsTest extends TestCase {
+final class DiscountsTest extends AbstractTest {
 
   /**
    * Get base invoice

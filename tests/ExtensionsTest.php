@@ -1,10 +1,11 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeCentre;
 use josemmo\Facturae\FacturaeParty;
-use PHPUnit\Framework\TestCase;
 
-final class ExtensionsTest extends TestCase {
+final class ExtensionsTest extends AbstractTest {
 
   const FILE_PATH = __DIR__ . "/salida-extensiones.xsig";
   const FB2B_XSD_PATH = "https://administracionelectronica.gob.es/ctt/resources/Soluciones/2811/Descargas/Extension%20FACEB2B%20v1-1.xsd";

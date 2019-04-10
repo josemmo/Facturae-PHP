@@ -1,9 +1,10 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Face\FaceClient;
 use josemmo\Facturae\Face\Faceb2bClient;
-use PHPUnit\Framework\TestCase;
 
-final class WebservicesTest extends TestCase {
+final class WebservicesTest extends AbstractTest {
 
   /**
    * Test FACe

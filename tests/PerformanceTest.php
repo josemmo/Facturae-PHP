@@ -1,9 +1,10 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeParty;
-use PHPUnit\Framework\TestCase;
 
-final class PerformanceTest extends TestCase {
+final class PerformanceTest extends AbstractTest {
 
   const ROUNDS = 100;
   const PRECISION = 10;

@@ -1,10 +1,11 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
-use PHPUnit\Framework\TestCase;
 
-final class DecimalsTest extends TestCase {
+final class DecimalsTest extends AbstractTest {
 
   const NUM_OF_TESTS = 1000;
   const ITEMS_PER_INVOICE = 3;

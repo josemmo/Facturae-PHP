@@ -1,11 +1,12 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaeCentre;
-use PHPUnit\Framework\TestCase;
 
-final class FacturaeTest extends TestCase {
+final class FacturaeTest extends AbstractTest {
 
   const FILE_PATH = __DIR__ . "/salida-*.xsig";
   const COOKIES_PATH = __DIR__ . "/cookies.txt";
