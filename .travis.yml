@@ -12,7 +12,7 @@ matrix:
     - php: 5.6
     - php: 7.0
     - php: 7.1
-      env: SEND_COVERAGE=1
+      env: SEND_COVERAGE=1 TEST_WEBSERVICES=1
     - php: 7.2
     - php: 7.3
     - php: nightly

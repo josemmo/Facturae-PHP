@@ -9,5 +9,6 @@ abstract class AbstractTest extends TestCase {
   const CERTS_DIR = __DIR__ . "/certs";
   const FACTURAE_CERT_PASS = "12345";
   const WEBSERVICES_CERT_PASS = "G5cp,fYC9gje";
+  const NOTIFICATIONS_EMAIL = "josemmo@pm.me";
 
 }
