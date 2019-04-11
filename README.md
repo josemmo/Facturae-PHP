@@ -1,7 +1,7 @@
 # Facturae-PHP
 [![Travis](https://travis-ci.org/josemmo/Facturae-PHP.svg?branch=master)](https://travis-ci.org/josemmo/Facturae-PHP)
-[![Codacy](https://api.codacy.com/project/badge/Grade/cc00c08d95b247ae9e6f8f8366e87a04)](https://www.codacy.com/app/josemmo/Facturae-PHP)
-[![Coverage](https://api.codacy.com/project/badge/Coverage/cc00c08d95b247ae9e6f8f8366e87a04)](https://www.codacy.com/app/josemmo/Facturae-PHP)
+[![Codacy](https://api.codacy.com/project/badge/Grade/ff163f2711a44e31b19a8181c15726f5)](https://www.codacy.com/app/josemmo/Facturae-PHP)
+[![Coverage](https://api.codacy.com/project/badge/Coverage/ff163f2711a44e31b19a8181c15726f5)](https://www.codacy.com/app/josemmo/Facturae-PHP)
 [![Última versión estable](https://poser.pugx.org/josemmo/facturae-php/v/stable)](https://packagist.org/packages/josemmo/facturae-php)
 [![Licencia](https://poser.pugx.org/josemmo/facturae-php/license)](https://packagist.org/packages/josemmo/facturae-php)
 [![Documentación](https://img.shields.io/badge/docs-online-blue.svg?longCache=true)](https://josemmo.github.io/Facturae-PHP/)
@@ -42,17 +42,17 @@ $fac->export("mi-factura.xsig");
 ```
 
 ## Requisitos
- - PHP 5.6 o superior
- - OpenSSL (solo para firmar facturas)
- - cURL (solo para *timestamping* y FACe / FACeB2B)
- - libXML (solo para FACe y FACeB2B)
+  - PHP 5.6 o superior
+  - OpenSSL (solo para firmar facturas)
+  - cURL (solo para *timestamping* y FACe / FACeB2B)
+  - libXML (solo para FACe y FACeB2B)
 
 ## Características
-- Generación de facturas 100% conformes con la [Ley 25/2013 del 27 de diciembre](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-13722)
-- Exportación según las versiones de formato [3.2, 3.2.1 y 3.2.2](http://www.facturae.gob.es/formato/Paginas/version-3-2.aspx) de Facturae
-- Firmado de acuerdo a la [política de firma de Facturae 3.1](http://www.facturae.gob.es/formato/Paginas/politicas-firma-electronica.aspx) basada en XAdES
-- Sellado de tiempo según el [RFC3161](https://www.ietf.org/rfc/rfc3161.txt)
-- Envío automatizado de facturas a **FACe y FACeB2B** 🔥
+  - Generación de facturas 100% conformes con la [Ley 25/2013 del 27 de diciembre](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-13722)
+  - Exportación según las versiones de formato [3.2, 3.2.1 y 3.2.2](http://www.facturae.gob.es/formato/Paginas/version-3-2.aspx) de Facturae
+  - Firmado de acuerdo a la [política de firma de Facturae 3.1](http://www.facturae.gob.es/formato/Paginas/politicas-firma-electronica.aspx) basada en XAdES
+  - Sellado de tiempo según el [RFC3161](https://www.ietf.org/rfc/rfc3161.txt)
+  - Envío automatizado de facturas a **FACe y FACeB2B** 🔥
 
 ## Licencia
 Facturae-PHP se encuentra bajo [licencia MIT](LICENSE). Eso implica que puedes utilizar este paquete en cualquier proyecto (incluso con fines comerciales), siempre y cuando hagas referencia al uso y autoría de la misma.
