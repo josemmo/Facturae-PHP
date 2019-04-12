@@ -105,7 +105,6 @@ final class WebservicesTest extends AbstractTest {
     // Get invoice status
     $res = $face->getInvoices($res->factura->numeroRegistro);
     $this->assertEquals(intval($res->resultado->codigo), 0);
-
   }
 
 
@@ -115,12 +114,47 @@ final class WebservicesTest extends AbstractTest {
   public function testFaceb2b() {
     $this->checkEnv();
 
-    $face = new Faceb2bClient(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
-    $face->setProduction(false);
-    $res = $face->getCodes();
+    $faceb2b = new Faceb2bClient(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $faceb2b->setProduction(false);
 
-    $success = isset($res->codes);
-    $this->assertTrue($success);
+    // Test misc. methods
+    $this->assertFalse(empty($faceb2b->getCodes()->codes));
+    $this->assertEquals(intval($faceb2b->getRegisteredInvoices()->resultStatus->code), 0);
+    $this->assertEquals(intval($faceb2b->getInvoiceCancellations()->resultStatus->code), 0);
+
+    // Generate invoice
+    $fac = $this->getBaseInvoice();
+    $fac->setBuyer(new FacturaeParty([
+      "taxNumber" => "A78923125",
+      "name"      => "Teléfonica Móviles España, S.A.U.",
+      "address"   => "Calle Gran Vía, 28",
+      "postCode"  => "28013",
+      "town"      => "Madrid",
+      "province"  => "Madrid"
+    ]));
+    $fac->getExtension('Fb2b')->setReceiver(new FacturaeCentre([
+      "code" => "ESA789231250000",
+      "name" => "Centro administrativo receptor"
+    ]));
+    $fac->sign(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+
+    // Send invoice
+    $invoiceFile = new FacturaeFile();
+    $invoiceFile->loadData($fac->export(), "factura-de-prueba.xsig");
+    $res = $faceb2b->sendInvoice($invoiceFile);
+    $this->assertEquals(intval($res->resultStatus->code), 0);
+    $this->assertFalse(empty($res->invoiceDetail->registryNumber));
+    $registryNumber = $res->invoiceDetail->registryNumber;
+
+    // Cancel invoice
+    $res = $faceb2b->requestInvoiceCancellation($registryNumber,
+      "C002", "Factura de prueba autogenerada por " . Facturae::USER_AGENT);
+    $this->assertEquals(intval($res->resultStatus->code), 0);
+
+    // Confirm cancellation
+    $res = $faceb2b->getInvoiceDetails($registryNumber);
+    $this->assertEquals(intval($res->resultStatus->code), 0);
+    $this->assertEquals(strval($res->invoiceDetail->cancellationInfo->reason), "C002");
   }
 
 }
