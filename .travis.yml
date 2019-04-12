@@ -1,22 +1,32 @@
 # Let's start with the basics: this is a PHP project
 language: php
 
-# Run on top of a few versions to check compatibility
-php:
-  - 5.6
-  - 7.0
-  - nightly
+# Disable email notifications for all builds
+notifications:
+  email: false
 
-# This triggers builds to run on the new TravisCI infrastructure
-# http://docs.travis-ci.com/user/workers/container-based-infrastructure/
-sudo: false
+# Run on top of a few versions to check compatibility
+matrix:
+  fast_finish: true
+  include:
+    - php: 5.6
+    - php: 7.0
+    - php: 7.1
+      env: SEND_COVERAGE=1 TEST_WEBSERVICES=1
+    - php: 7.2
+    - php: 7.3
+    - php: nightly
+  allow_failures:
+    - php: nightly
 
 # Install Composer package before testing
 install:
   - composer install --no-interaction
 
+# Run PHPUnit tests
 script:
   - php vendor/bin/phpunit --coverage-clover build/coverage/xml
 
+# Send coverage to Codacy (just once per build)
 after_success:
-  - php vendor/bin/codacycoverage clover build/coverage/xml
+  - if [ "$SEND_COVERAGE" == "1" ]; then php vendor/bin/codacycoverage clover build/coverage/xml; fi

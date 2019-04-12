@@ -171,8 +171,12 @@ abstract class SoapClient {
     $xml = new \DOMDocument();
     $xml->loadXML($res);
     $xml = $xml->getElementsByTagName('Body')->item(0)
-      ->getElementsByTagName('*')->item(0)
-      ->getElementsByTagName('return')->item(0);
+      ->getElementsByTagName('*')->item(0);
+    while (true) {
+      $child = $xml->getElementsByTagName('return')->item(0);
+      if (is_null($child)) break;
+      $xml = $child;
+    }
     $xml = simplexml_import_dom($xml);
 
     return $xml;

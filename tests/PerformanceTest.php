@@ -1,9 +1,10 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeParty;
-use PHPUnit\Framework\TestCase;
 
-final class PerformanceTest extends TestCase {
+final class PerformanceTest extends AbstractTest {
 
   const ROUNDS = 100;
   const PRECISION = 10;
@@ -38,7 +39,7 @@ final class PerformanceTest extends TestCase {
         "province"      => "Madrid"
       ]));
       $fac->addItem("Producto #$i", 20.14, 3, Facturae::TAX_IVA, 21);
-      $fac->sign(__DIR__ . "/test.pfx", null, "12345");
+      $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
       $fac->export();
     }
 

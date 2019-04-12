@@ -1,14 +1,15 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaeCentre;
-use PHPUnit\Framework\TestCase;
 
-final class FacturaeTest extends TestCase {
+final class FacturaeTest extends AbstractTest {
 
-  const FILE_PATH = __DIR__ . "/salida-*.xsig";
-  const COOKIES_PATH = __DIR__ . "/cookies.txt";
+  const FILE_PATH = self::OUTPUT_DIR . "/salida-*.xsig";
+  const COOKIES_PATH = self::OUTPUT_DIR . "/cookies.txt";
 
   /**
    * Test Create Invoice
@@ -164,9 +165,10 @@ final class FacturaeTest extends TestCase {
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
-      $fac->sign(__DIR__ . "/test.pfx", null, "12345");
+      $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
     } else {
-      $fac->sign(__DIR__ . "/public.pem", __DIR__ . "/private.pem", "12345");
+      $fac->sign(self::CERTS_DIR . "/facturae-public.pem",
+                 self::CERTS_DIR . "/facturae-private.pem", self::FACTURAE_CERT_PASS);
     }
     $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
 

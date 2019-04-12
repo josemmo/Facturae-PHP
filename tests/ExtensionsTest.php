@@ -1,12 +1,14 @@
 <?php
+namespace josemmo\Facturae\Tests;
+
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeCentre;
 use josemmo\Facturae\FacturaeParty;
-use PHPUnit\Framework\TestCase;
 
-final class ExtensionsTest extends TestCase {
+final class ExtensionsTest extends AbstractTest {
 
-  const FILE_PATH = __DIR__ . "/salida-extensiones.xsig";
+  const FILE_PATH = self::OUTPUT_DIR . "/salida-extensiones.xsig";
+  const FB2B_XSD_PATH = "https://administracionelectronica.gob.es/ctt/resources/Soluciones/2811/Descargas/Extension%20FACEB2B%20v1-1.xsd";
 
   /**
    * Test extensions
@@ -75,9 +77,18 @@ final class ExtensionsTest extends TestCase {
     ]));
 
     // Exportamos la factura
-    $fac->sign(__DIR__ . "/test.pfx", null, "12345");
+    $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
     $success = ($fac->export(self::FILE_PATH) !== false);
-    $this->assertTrue($success); // TODO: validate result XML
+    $this->assertTrue($success);
+
+    // Validamos la parte de FACeB2B
+    $rawXml = file_get_contents(self::FILE_PATH);
+    $rawXml = explode('<Extensions>', $rawXml);
+    $rawXml = explode('</Extensions>', $rawXml[1])[0];
+    $xml = new \DOMDocument();
+    $xml->loadXML($rawXml);
+    $isValidXml = $xml->schemaValidate(self::FB2B_XSD_PATH);
+    $this->assertTrue($isValidXml);
   }
 
 }
