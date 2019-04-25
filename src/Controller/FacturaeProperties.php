@@ -408,7 +408,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
    * Get amounts withheld
    * @return string[] amount withheld
    */
-  public function getLegalLiterals() {
+  public function getAmountsWithheld() {
     return $this->amountWithheld;
   }
   
