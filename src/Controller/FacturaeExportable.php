@@ -155,6 +155,15 @@ abstract class FacturaeExportable extends FacturaeSignable {
     $xml .= '<TotalTaxesWithheld>' . $totals['totalTaxesWithheld'] . '</TotalTaxesWithheld>';
     $xml .= '<InvoiceTotal>' . $totals['invoiceAmount'] . '</InvoiceTotal>';
     $xml .= '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>';
+    if (!empty($totals['amountsWithheld'])) {
+      $xml .= '<AmountsWithheld>';
+      foreach ($totals['amountsWithheld'][] as $item) {
+        $xml .= '<WithholdingReason>' . $item['reason']. '</WithholdingReason>';        
+        $xml .= '<WithholdingAmount>' . $item['amount']. '</WithholdingAmount>';        
+      }
+      $xml .= '</AmountsWithheld>';
+    }
+    
     $xml .= '<TotalExecutableAmount>' . $totals['invoiceAmount'] . '</TotalExecutableAmount>';
     $xml .= '</InvoiceTotals>';
 
