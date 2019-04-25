@@ -572,8 +572,8 @@ abstract class FacturaeProperties extends FacturaeConstants {
       $totals['amountsWithheld'][] = array(
         "reason" => $item['reason'],
         "amount" => pad($item['amount'])
-        $amountWithheld += $item['amount'];
       );
+      $amountWithheld += $item['amount'];
     }
 
     // Normalize rest of values
