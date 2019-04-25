@@ -37,7 +37,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
   );
   protected $items = array();
   protected $legalLiterals = array();
-  protected $amountWithheld = array();
+  protected $amountsWithheld = array();
   protected $discounts = array();
   protected $charges = array();
 
@@ -397,7 +397,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
    * @return Facturae               Invoice instance
    */
   public function addAmountWithheld($reason, $value) {
-    $this->amountWithheld[] = array(
+    $this->amountsWithheld[] = array(
       "reason" => $reason,      
       "amount" => $value
     );
@@ -409,7 +409,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
    * @return string[] amount withheld
    */
   public function getAmountsWithheld() {
-    return $this->amountWithheld;
+    return $this->amountsWithheld;
   }
   
   /**
