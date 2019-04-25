@@ -62,7 +62,7 @@ abstract class FacturaeExportable extends FacturaeSignable {
                   '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
                 '</TotalOutstandingAmount>' .
                 '<TotalExecutableAmount>' .
-                  '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
+                  '<TotalAmount>' . $totals['executableAmount'] . '</TotalAmount>' .
                 '</TotalExecutableAmount>' .
                 '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
               '</Batch>' .
@@ -157,16 +157,14 @@ abstract class FacturaeExportable extends FacturaeSignable {
     $xml .= '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>';
     if (!empty($totals['amountsWithheld'])) {
       $xml .= '<AmountsWithheld>';
-      $amountWithheld = 0;
       foreach ($totals['amountsWithheld'] as $item) {
         $xml .= '<WithholdingReason>' . $item['reason']. '</WithholdingReason>';        
         $xml .= '<WithholdingAmount>' . $item['amount']. '</WithholdingAmount>';
-        $amountWithheld += $item['amount'];
       }
       $xml .= '</AmountsWithheld>';
     }
     
-    $xml .= '<TotalExecutableAmount>' . ($totals['invoiceAmount'] - $amountWithheld) . '</TotalExecutableAmount>';
+    $xml .= '<TotalExecutableAmount>' . $totals['executableAmount'] . '</TotalExecutableAmount>';
     $xml .= '</InvoiceTotals>';
 
     // Add invoice items
