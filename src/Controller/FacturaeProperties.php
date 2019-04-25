@@ -509,6 +509,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
       "taxesWithheld" => array(),
       "generalDiscounts" => array(),
       "generalCharges" => array(),
+      "amountsWithheld" => array(),
       "invoiceAmount" => 0,
       "grossAmount" => 0,
       "totalGeneralDiscounts" => 0,
@@ -563,6 +564,13 @@ abstract class FacturaeProperties extends FacturaeConstants {
         );
         $totals['totalGeneral' . ucfirst($groupTag)] += $amount;
       }
+    }
+    
+    foreach ($amountsWithheld as $item){
+      $totals[amountsWithheld][] = array(
+        "reason" => $item['reason'],
+        "amount" => pad($item['amount'])
+      );
     }
 
     // Normalize rest of values
