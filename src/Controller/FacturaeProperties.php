@@ -566,7 +566,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
       }
     }
     
-    foreach ($amountsWithheld as $item){
+    foreach ($this->amountsWithheld as $item){
       $totals['amountsWithheld'][] = array(
         "reason" => $item['reason'],
         "amount" => pad($item['amount'])
