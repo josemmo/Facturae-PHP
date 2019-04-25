@@ -587,7 +587,10 @@ abstract class FacturaeProperties extends FacturaeConstants {
       $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges']);
     $totals['invoiceAmount'] = $this->pad($totals['grossAmountBeforeTaxes'] +
       $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld']);
-    $totals['invoiceAmount'] = $totals['invoiceAmount'] - $amountWithheld; 
+    $totals['invoiceAmount'] = $totals['invoiceAmount'] - $amountWithheld;     
+    $totals['executableAmount'] = $totals['invoiceAmount'] - $amountWithheld;
+
+
 
     return $totals;
   }
