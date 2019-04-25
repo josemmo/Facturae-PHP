@@ -510,7 +510,8 @@ abstract class FacturaeProperties extends FacturaeConstants {
       "generalDiscounts" => array(),
       "generalCharges" => array(),
       "amountsWithheld" => array(),
-      "invoiceAmount" => 0,
+      "invoiceAmount" => 0, // Total invoice non-inclusive of any amount withheld
+      "executableAmount => 0, // Total invoice amount - amount withheld
       "grossAmount" => 0,
       "totalGeneralDiscounts" => 0,
       "totalGeneralCharges" => 0,
@@ -566,10 +567,12 @@ abstract class FacturaeProperties extends FacturaeConstants {
       }
     }
     
+    $amountWithheld = 0;
     foreach ($this->amountsWithheld as $item){
       $totals['amountsWithheld'][] = array(
         "reason" => $item['reason'],
         "amount" => pad($item['amount'])
+        $amountWithheld += $item['amount'];
       );
     }
 
@@ -584,6 +587,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
       $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges']);
     $totals['invoiceAmount'] = $this->pad($totals['grossAmountBeforeTaxes'] +
       $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld']);
+    $totals['invoiceAmount'] = $totals['invoiceAmount'] - $amountWithheld; 
 
     return $totals;
   }
