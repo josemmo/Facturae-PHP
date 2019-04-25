@@ -511,7 +511,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
       "generalCharges" => array(),
       "amountsWithheld" => array(),
       "invoiceAmount" => 0, // Total invoice non-inclusive of any amount withheld
-      "executableAmount => 0, // Total invoice amount - amount withheld
+      "executableAmount" => 0, // Total invoice amount - amount withheld
       "grossAmount" => 0,
       "totalGeneralDiscounts" => 0,
       "totalGeneralCharges" => 0,
