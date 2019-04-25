@@ -37,6 +37,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
   );
   protected $items = array();
   protected $legalLiterals = array();
+  protected $amountWithheld = array();
   protected $discounts = array();
   protected $charges = array();
 
@@ -353,8 +354,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
     $this->legalLiterals = array();
     return $this;
   }
-
-
+  
   /**
    * Add general discount
    * @param  string   $reason       Discount reason
@@ -370,7 +370,6 @@ abstract class FacturaeProperties extends FacturaeConstants {
     );
     return $this;
   }
-
 
   /**
    * Get general discounts
@@ -391,6 +390,28 @@ abstract class FacturaeProperties extends FacturaeConstants {
   }
 
 
+  /**
+   * Add amount withheld
+   * @param  string   $reason       Amount withheld reason
+   * @param  float    $value        Amount withheld
+   * @return Facturae               Invoice instance
+   */
+  public function addAmountWithheld($reason, $value) {
+    $this->amountWithheld[] = array(
+      "reason" => $reason,      
+      "amount" => $value
+    );
+    return $this;
+  }
+
+  /**
+   * Get amounts withheld
+   * @return string[] amount withheld
+   */
+  public function getLegalLiterals() {
+    return $this->amountWithheld;
+  }
+  
   /**
    * Add general charge
    * @param  string   $reason       Charge reason
