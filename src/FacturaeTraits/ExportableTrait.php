@@ -38,6 +38,9 @@ trait ExportableTrait {
   public function export($filePath=null) {
     $tools = new XmlTools();
 
+    // Notify extensions
+    foreach ($this->extensions as $ext) $ext->__onBeforeExport();
+
     // Prepare document
     $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
            'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';

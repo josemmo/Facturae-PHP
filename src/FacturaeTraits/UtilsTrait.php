@@ -56,7 +56,7 @@ trait UtilsTrait {
 
   /**
    * Get extension
-   * @param  string    $name Extension name
+   * @param  string    $name Extension name or class name
    * @return Extension       Extension instance
    */
   public function getExtension($name) {
@@ -64,10 +64,15 @@ trait UtilsTrait {
     array_pop($topNamespace);
     $topNamespace = implode('\\', $topNamespace);
 
-    if (!isset($this->extensions[$name])) {
-      $namespace = $topNamespace . "\\Extensions\\{$name}Extension";
-      $this->extensions[$name] = new $namespace($this);
+    // Get extension from invoice instance
+    if (isset($this->extensions[$name])) {
+      return $this->extensions[$name];
     }
+
+    // Instantiate extension
+    $classPath = "$topNamespace\\Extensions\\{$name}Extension";
+    if (!class_exists($classPath)) $classPath = $name;
+    $this->extensions[$name] = new $classPath($this);
     return $this->extensions[$name];
   }
 

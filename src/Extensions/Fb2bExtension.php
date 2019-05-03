@@ -3,13 +3,11 @@ namespace josemmo\Facturae\Extensions;
 
 use josemmo\Facturae\FacturaeCentre;
 
-class Fb2bExtension extends Extension {
-
+class Fb2bExtension extends FacturaeExtension {
   private $publicSectorInfo = array();
   private $receiver = null;
   private $sellerCentres = array();
   private $buyerCentres = array();
-
 
   /**
    * Set public organism code
@@ -71,8 +69,7 @@ class Fb2bExtension extends Extension {
 
 
   /**
-   * Get additional data
-   * @return string|null Additional XML data
+   * @inheritdoc
    */
   public function __getAdditionalData() {
     if (empty($this->receiver)) return null;
