@@ -1,15 +1,14 @@
 <?php
-namespace josemmo\Facturae\Controller;
+namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\KeyPairReader;
 use josemmo\Facturae\Common\XmlTools;
 
 /**
  * Implements all properties and methods needed for an instantiable
- * @link{josemmo\Facturae\Facturae} to be signed and time stamped.
+ * Facturae to be signed and time stamped.
  */
-abstract class FacturaeSignable extends FacturaeUtils {
-
+trait SignableTrait {
   protected $signTime = null;
   protected $signPolicy = null;
   protected $timestampServer = null;
@@ -18,10 +17,8 @@ abstract class FacturaeSignable extends FacturaeUtils {
   private $publicKey = null;
   private $privateKey = null;
 
-
   /**
    * Set sign time
-   *
    * @param int|string $time Time of the signature
    */
   public function setSignTime($time) {
@@ -31,7 +28,6 @@ abstract class FacturaeSignable extends FacturaeUtils {
 
   /**
    * Set timestamp server
-   *
    * @param string $server Timestamp Authority URL
    * @param string $user   TSA User
    * @param string $pass   TSA Password
@@ -45,17 +41,13 @@ abstract class FacturaeSignable extends FacturaeUtils {
 
   /**
    * Sign
-   *
-   * @param  string  $publicPath  Path to public key PEM file or PKCS#12
-   *                              certificate store
-   * @param  string  $privatePath Path to private key PEM file (should be null
-   *                              in case of PKCS#12)
+   * @param  string  $publicPath  Path to public key PEM file or PKCS#12 certificate store
+   * @param  string  $privatePath Path to private key PEM file (should be null in case of PKCS#12)
    * @param  string  $passphrase  Private key passphrase
    * @param  array   $policy      Facturae sign policy
    * @return boolean              Success
    */
-  public function sign($publicPath, $privatePath=null, $passphrase="",
-                       $policy=self::SIGN_POLICY_3_1) {
+  public function sign($publicPath, $privatePath=null, $passphrase="", $policy=self::SIGN_POLICY_3_1) {
     // Generate random IDs
     $tools = new XmlTools();
     $this->signatureID = $tools->randomId();
@@ -81,7 +73,6 @@ abstract class FacturaeSignable extends FacturaeUtils {
 
   /**
    * Inject signature
-   *
    * @param  string $xml Unsigned XML document
    * @return string      Signed XML document
    */
@@ -230,7 +221,6 @@ abstract class FacturaeSignable extends FacturaeUtils {
 
   /**
    * Inject timestamp
-   *
    * @param  string $signedXml Signed XML document
    * @return string            Signed and timestamped XML document
    */

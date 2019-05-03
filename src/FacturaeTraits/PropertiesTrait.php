@@ -1,18 +1,14 @@
 <?php
-namespace josemmo\Facturae\Controller;
+namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\FacturaeItem;
 
 /**
- * Implements all attributes and methods needed to make
- * @link{josemmo\Facturae\Facturae} instantiable.
- *
+ * Implements all attributes and methods needed to make Facturae instantiable.
  * This includes all properties that define an electronic invoice, but without
  * additional functionalities such as signing or exporting.
  */
-abstract class FacturaeProperties extends FacturaeConstants {
-
-  /* ATTRIBUTES */
+trait PropertiesTrait {
   protected $currency = "EUR";
   protected $language = "es";
   protected $version = null;
@@ -428,11 +424,9 @@ abstract class FacturaeProperties extends FacturaeConstants {
 
   /**
    * Add item
-   *
    * Adds an item row to invoice. The fist parameter ($desc), can be an string
    * representing the item description or a 2 element array containing the item
    * description and an additional string of information.
-   *
    * @param  FacturaeItem|string|array $desc      Item to add or description
    * @param  float                     $unitPrice Price per unit, taxes included
    * @param  float                     $quantity  Quantity
@@ -440,8 +434,7 @@ abstract class FacturaeProperties extends FacturaeConstants {
    * @param  float                     $taxRate   Tax rate
    * @return Facturae                             Invoice instance
    */
-  public function addItem($desc, $unitPrice=null, $quantity=1, $taxType=null,
-                          $taxRate=null) {
+  public function addItem($desc, $unitPrice=null, $quantity=1, $taxType=null, $taxRate=null) {
     if ($desc instanceOf FacturaeItem) {
       $item = $desc;
     } else {

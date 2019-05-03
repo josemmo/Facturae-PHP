@@ -1,5 +1,5 @@
 <?php
-namespace josemmo\Facturae\Controller\Extensions;
+namespace josemmo\Facturae\Extensions;
 
 use josemmo\Facturae\FacturaeCentre;
 

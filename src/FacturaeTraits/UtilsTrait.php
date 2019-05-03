@@ -1,18 +1,25 @@
 <?php
-namespace josemmo\Facturae\Controller;
+namespace josemmo\Facturae\FacturaeTraits;
 
 /**
- * Implements utilitary methods for an instantiable
- * @link{josemmo\Facturae\Facturae}.
+ * Implements utilitary methods for an instantiable Facturae.
  */
-abstract class FacturaeUtils extends FacturaeProperties {
-
+trait UtilsTrait {
   protected $extensions = array();
+
+  /**
+   * Is withheld tax
+   * This method returns if a tax type is, by default, a withheld tax.
+   * @param  string  $taxCode Tax
+   * @return boolean          Is withheld
+   */
+  public static function isWithheldTax($taxCode) {
+    return in_array($taxCode, [self::TAX_IRPF]);
+  }
 
 
   /**
-   * Pad
-   *
+   * Pad amount
    * @param  float       $val   Input value
    * @param  string|null $field Field
    * @return string             Padded value
@@ -53,8 +60,12 @@ abstract class FacturaeUtils extends FacturaeProperties {
    * @return Extension       Extension instance
    */
   public function getExtension($name) {
+    $topNamespace = explode('\\', __NAMESPACE__);
+    array_pop($topNamespace);
+    $topNamespace = implode('\\', $topNamespace);
+
     if (!isset($this->extensions[$name])) {
-      $namespace = __NAMESPACE__ . "\\Extensions\\{$name}Extension";
+      $namespace = $topNamespace . "\\Extensions\\{$name}Extension";
       $this->extensions[$name] = new $namespace($this);
     }
     return $this->extensions[$name];
