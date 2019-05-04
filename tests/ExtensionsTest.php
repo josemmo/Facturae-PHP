@@ -4,6 +4,7 @@ namespace josemmo\Facturae\Tests;
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeCentre;
 use josemmo\Facturae\FacturaeParty;
+use josemmo\Facturae\Tests\Extensions\DisclaimerExtension;
 
 final class ExtensionsTest extends AbstractTest {
 
@@ -76,19 +77,28 @@ final class ExtensionsTest extends AbstractTest {
       "role" => FacturaeCentre::ROLE_B2B_COLLECTOR
     ]));
 
+    // Añadimos la extensión externa de prueba
+    $disclaimer = $fac->getExtension(DisclaimerExtension::class);
+    $disclaimer->enable();
+
     // Exportamos la factura
     $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
     $success = ($fac->export(self::FILE_PATH) !== false);
     $this->assertTrue($success);
 
-    // Validamos la parte de FACeB2B
     $rawXml = file_get_contents(self::FILE_PATH);
-    $rawXml = explode('<Extensions>', $rawXml);
-    $rawXml = explode('</Extensions>', $rawXml[1])[0];
-    $xml = new \DOMDocument();
-    $xml->loadXML($rawXml);
-    $isValidXml = $xml->schemaValidate(self::FB2B_XSD_PATH);
+    $extXml = explode('<Extensions>', $rawXml);
+    $extXml = explode('</Extensions>', $extXml[1])[0];
+
+    // Validamos la parte de FACeB2B
+    $faceXml = new \DOMDocument();
+    $faceXml->loadXML($extXml);
+    $isValidXml = $faceXml->schemaValidate(self::FB2B_XSD_PATH);
     $this->assertTrue($isValidXml);
+
+    // Validamos la ejecución de DisclaimerExtension
+    $disclaimerPos = strpos($rawXml, '<LegalReference>' . $disclaimer->getDisclaimer() . '</LegalReference>');
+    $this->assertTrue($disclaimerPos !== false);
   }
 
 }
