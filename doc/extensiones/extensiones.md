@@ -11,7 +11,7 @@ Las [extensiones de formato](http://www.facturae.gob.es/formato/Paginas/extensio
 Una extensión puede ser accedida desde cualquier factura a través del método `$fac->getExtension()` y cada extensión dispone de su propio set de métodos, estado interno y funcionalidad.
 
 ## Extensiones de terceros
-Además de las extensiones incluidas con Facturae-PHP, desde la versión 1.4.2 es posible utilizar clases externas como extensiones. Esto permite a las empresas **añadir lógica de negocio propia** a esta librería sin la obligación de compartir el código fuente bajo licencia MIT.
+Además de las extensiones incluidas con Facturae-PHP, desde la versión 1.5.0 es posible utilizar clases externas como extensiones. Esto permite a las empresas **añadir lógica de negocio propia** a esta librería sin la obligación de compartir el código fuente bajo licencia MIT.
 
 Para usar una extensión de terceros se deberá llamar al mismo método de antes con el nombre de la clase como parámetro:
 ```php
