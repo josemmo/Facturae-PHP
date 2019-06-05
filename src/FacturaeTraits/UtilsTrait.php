@@ -1,18 +1,25 @@
 <?php
-namespace josemmo\Facturae\Controller;
+namespace josemmo\Facturae\FacturaeTraits;
 
 /**
- * Implements utilitary methods for an instantiable
- * @link{josemmo\Facturae\Facturae}.
+ * Implements utilitary methods for an instantiable Facturae.
  */
-abstract class FacturaeUtils extends FacturaeProperties {
-
+trait UtilsTrait {
   protected $extensions = array();
+
+  /**
+   * Is withheld tax
+   * This method returns if a tax type is, by default, a withheld tax.
+   * @param  string  $taxCode Tax
+   * @return boolean          Is withheld
+   */
+  public static function isWithheldTax($taxCode) {
+    return in_array($taxCode, [self::TAX_IRPF]);
+  }
 
 
   /**
-   * Pad
-   *
+   * Pad amount
    * @param  float       $val   Input value
    * @param  string|null $field Field
    * @return string             Padded value
@@ -49,14 +56,23 @@ abstract class FacturaeUtils extends FacturaeProperties {
 
   /**
    * Get extension
-   * @param  string    $name Extension name
+   * @param  string    $name Extension name or class name
    * @return Extension       Extension instance
    */
   public function getExtension($name) {
-    if (!isset($this->extensions[$name])) {
-      $namespace = __NAMESPACE__ . "\\Extensions\\{$name}Extension";
-      $this->extensions[$name] = new $namespace($this);
+    $topNamespace = explode('\\', __NAMESPACE__);
+    array_pop($topNamespace);
+    $topNamespace = implode('\\', $topNamespace);
+
+    // Get extension from invoice instance
+    if (isset($this->extensions[$name])) {
+      return $this->extensions[$name];
     }
+
+    // Instantiate extension
+    $classPath = "$topNamespace\\Extensions\\{$name}Extension";
+    if (!class_exists($classPath)) $classPath = $name;
+    $this->extensions[$name] = new $classPath($this);
     return $this->extensions[$name];
   }
 

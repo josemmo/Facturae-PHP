@@ -1,10 +1,8 @@
 <?php
-namespace josemmo\Facturae\Controller\Extensions;
+namespace josemmo\Facturae\Extensions;
 
-abstract class Extension {
-
+abstract class FacturaeExtension {
   private $fac;
-
 
   /**
    * Constructor function
@@ -31,6 +29,14 @@ abstract class Extension {
    */
   public function __getAdditionalData() {
     return null;
+  }
+
+
+  /**
+   * On before export
+   */
+  public function __onBeforeExport() {
+    // NOTE: Nothing done by default
   }
 
 

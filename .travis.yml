@@ -19,6 +19,10 @@ matrix:
   allow_failures:
     - php: nightly
 
+# Prepare environment
+before_install:
+  - if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then unset SEND_COVERAGE; unset TEST_WEBSERVICES; fi
+
 # Install Composer package before testing
 install:
   - composer install --no-interaction

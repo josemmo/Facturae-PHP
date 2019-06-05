@@ -1,12 +1,12 @@
 <?php
-namespace josemmo\Facturae\Controller;
+namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\XmlTools;
 
 /**
- * Allows a @link{josemmo\Facturae\Facturae} instance to be exported to XML.
+ * Allows a Facturae instance to be exported to XML.
  */
-abstract class FacturaeExportable extends FacturaeSignable {
+trait ExportableTrait {
 
   /**
    * Add optional fields
@@ -31,14 +31,15 @@ abstract class FacturaeExportable extends FacturaeSignable {
 
   /**
    * Export
-   *
    * Get Facturae XML data
-   *
    * @param  string     $filePath Path to save invoice
    * @return string|int           XML data|Written file bytes
    */
   public function export($filePath=null) {
     $tools = new XmlTools();
+
+    // Notify extensions
+    foreach ($this->extensions as $ext) $ext->__onBeforeExport();
 
     // Prepare document
     $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
