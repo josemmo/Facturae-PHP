@@ -20,7 +20,7 @@ $awesome = $fac->getExtension(AwesomeExtension::class);
 
 Una extensión de Facturae-PHP tiene un aspecto similar a este:
 ```php
-class AwesomeExtension extends josemmo\Facturae\Extensions\FacturaeExtension {
+class AwesomeExtension extends \josemmo\Facturae\Extensions\FacturaeExtension {
   // NOTA: todos los métodos de este ejemplo son opcionales
 
   public function __getAdditionalData() {
