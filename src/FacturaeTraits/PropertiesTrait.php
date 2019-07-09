@@ -35,6 +35,11 @@ trait PropertiesTrait {
   protected $legalLiterals = array();
   protected $discounts = array();
   protected $charges = array();
+  protected $additional = array(
+    "relatedInvoice" => null,
+    "relatedDocument" => array(),
+	"invoiceAdditionalInformation" => null
+  );
 
 
   /**
@@ -550,6 +555,53 @@ trait PropertiesTrait {
       $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld']);
 
     return $totals;
+  }
+  
+  /**
+   * Set additional information
+   * @param  string     $information Invoice additional information
+   * @return Facturae                Invoice instance
+   */
+  
+  public function setAdditionalInformation($information) {
+    $this->additional['invoiceAdditionalInformation'] = $information;
+    return $this;
+  }
+
+  /**
+   * Get additional information
+   * @return Facturae additional information
+   */
+
+  public function getAdditionalInformation() {
+    return $this->additional['invoiceAdditionalInformation'];
+  } 
+  
+  /**
+   * Add related document
+   * @param  string     $file        File path
+   * @param  string     $description Document Description
+   * @return Facturae                Invoice instance
+   */
+  
+  public function addRelatedDocument($file,$description) {
+  	if (file_exists($file)) {
+		$myfile = fopen($file, "r");
+		$fileData = fread($myfile,filesize($file));
+		fclose($myfile);
+    	$this->additional['relatedDocument'][] = array("attachmentCompressionAlgorithm" => "NONE", "attachmentFormat" => pathinfo($file, PATHINFO_EXTENSION), "attachmentEncoding" => "BASE64", "attachmentDescription" => $description, "attachmentData" => base64_encode($fileData)); 
+	}
+    return $this;
+  }
+  
+  /**
+   * Clear related documents
+   * @return Facturae                Invoice instance
+   */ 
+  
+  public function clearRelatedDocument() {
+	$this->additional['relatedDocument'] = array();
+    return $this;
   }
 
 }
