@@ -279,10 +279,28 @@ trait ExportableTrait {
       $extXML = $ext->__getAdditionalData();
       if (!empty($extXML)) $extensionsXML[] = $extXML;
     }
-    if (count($extensionsXML) > 0) {
-      $xml .= '<AdditionalData><Extensions>';
-      $xml .= implode("", $extensionsXML);
-      $xml .= '</Extensions></AdditionalData>';
+    if (count($extensionsXML) > 0 || count($this->additional['relatedDocument']) > 0 || $this->additional['invoiceAdditionalInformation'] !== NULL) {
+	    $xml .= '<AdditionalData>';
+	    if (count($this->additional['relatedDocument']) > 0) {
+        $xml .= '<RelatedDocuments>';
+		    foreach ($this->additional['relatedDocument'] as $attachmnet) {
+			    $xml .= '<Attachment>';
+			    $xml .= '<AttachmentCompressionAlgorithm>'.$attachmnet['attachmentCompressionAlgorithm'].'</AttachmentCompressionAlgorithm>';
+			    $xml .= '<AttachmentFormat>'.$attachmnet['attachmentFormat'].'</AttachmentFormat>';
+			    $xml .= '<AttachmentEncoding>'.$attachmnet['attachmentEncoding'].'</AttachmentEncoding>';
+			    $xml .= '<AttachmentDescription>'.$attachmnet['attachmentDescription'].'</AttachmentDescription>';
+			    $xml .= '<AttachmentData>'.$attachmnet['attachmentData'].'</AttachmentData>';
+			    $xml .= '</Attachment>';
+		    }
+        $xml .= '</RelatedDocuments>';
+	    }
+	    if ($this->additional['invoiceAdditionalInformation'] !== NULL) $xml .= '<InvoiceAdditionalInformation>' . $this->additional['invoiceAdditionalInformation'] . '</InvoiceAdditionalInformation>';
+	    if (count($extensionsXML) > 0) {
+        $xml .= '<Extensions>';
+        $xml .= implode("", $extensionsXML);
+        $xml .= '</Extensions>';
+	    }
+	    $xml .= '</AdditionalData>';
     }
 
     // Close invoice and document
