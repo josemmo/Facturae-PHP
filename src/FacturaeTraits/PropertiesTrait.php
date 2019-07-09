@@ -590,7 +590,7 @@ trait PropertiesTrait {
 		$fileData = fread($myfile,filesize($file));
 		fclose($myfile);
     	$this->additional['relatedDocument'][] = array("attachmentCompressionAlgorithm" => "NONE", "attachmentFormat" => pathinfo($file, PATHINFO_EXTENSION), "attachmentEncoding" => "BASE64", "attachmentDescription" => $description, "attachmentData" => base64_encode($fileData)); 
-	}
+	  }
     return $this;
   }
   
