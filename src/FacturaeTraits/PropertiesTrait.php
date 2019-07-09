@@ -38,7 +38,7 @@ trait PropertiesTrait {
   protected $additional = array(
     "relatedInvoice" => null,
     "relatedDocument" => array(),
-	"invoiceAdditionalInformation" => null
+	  "invoiceAdditionalInformation" => null
   );
 
 
