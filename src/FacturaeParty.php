@@ -151,6 +151,19 @@ class FacturaeParty {
               '<Province>' . $tools->escape($this->province) . '</Province>' .
               '<CountryCode>' . $this->countryCode . '</CountryCode>' .
             '</AddressInSpain>';
+    
+    // Add contact details
+    if ($this->phone !== NULL || $this->fax !== NULL || $this->website !== NULL || $this->email !== NULL || $this->contactPeople !== NULL || $this->cnoCnae !== NULL || $this->ineTownCode !== NULL) {
+      $xml .= '<ContactDetails>';
+      if ($this->phone !== NULL) $xml .= '<Telephone>' . $tools->escape($this->phone) . '</Telephone>';
+      if ($this->fax !== NULL) $xml .= '<TeleFax>' . $tools->escape($this->fax) . '</TeleFax>';
+      if ($this->website !== NULL) $xml .= '<WebAddress>' . $tools->escape($this->website) . '</WebAddress>';
+      if ($this->email !== NULL) $xml .= '<ElectronicMail>' . $tools->escape($this->email) . '</ElectronicMail>';
+      if ($this->contactPeople !== NULL) $xml .= '<ContactPersons>' . $tools->escape($this->contactPeople) . '</ContactPersons>';
+      if ($this->cnoCnae !== NULL) $xml .= '<CnoCnae>' . $this->cnoCnae . '</CnoCnae>';
+      if ($this->ineTownCode !== NULL) $xml .= '<INETownCode>' . $$this->ineTownCode . '</INETownCode>';
+      $xml .= '</ContactDetails>';
+    }
 
     // Close custom block
     $xml .= ($this->isLegalEntity) ? '</LegalEntity>' : '</Individual>';
