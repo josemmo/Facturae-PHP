@@ -274,34 +274,7 @@ trait ExportableTrait {
     }
 
     // Add additional data
-    $extensionsXML = array();
-    foreach ($this->extensions as $ext) {
-      $extXML = $ext->__getAdditionalData();
-      if (!empty($extXML)) $extensionsXML[] = $extXML;
-    }
-    if (count($extensionsXML) > 0 || count($this->additional['relatedDocument']) > 0 || $this->additional['invoiceAdditionalInformation'] !== NULL) {
-	    $xml .= '<AdditionalData>';
-	    if (count($this->additional['relatedDocument']) > 0) {
-        $xml .= '<RelatedDocuments>';
-		    foreach ($this->additional['relatedDocument'] as $attachmnet) {
-			    $xml .= '<Attachment>';
-			    $xml .= '<AttachmentCompressionAlgorithm>'.$attachmnet['attachmentCompressionAlgorithm'].'</AttachmentCompressionAlgorithm>';
-			    $xml .= '<AttachmentFormat>'.$attachmnet['attachmentFormat'].'</AttachmentFormat>';
-			    $xml .= '<AttachmentEncoding>'.$attachmnet['attachmentEncoding'].'</AttachmentEncoding>';
-			    $xml .= '<AttachmentDescription>'.$attachmnet['attachmentDescription'].'</AttachmentDescription>';
-			    $xml .= '<AttachmentData>'.$attachmnet['attachmentData'].'</AttachmentData>';
-			    $xml .= '</Attachment>';
-		    }
-        $xml .= '</RelatedDocuments>';
-	    }
-	    if ($this->additional['invoiceAdditionalInformation'] !== NULL) $xml .= '<InvoiceAdditionalInformation>' . $this->additional['invoiceAdditionalInformation'] . '</InvoiceAdditionalInformation>';
-	    if (count($extensionsXML) > 0) {
-        $xml .= '<Extensions>';
-        $xml .= implode("", $extensionsXML);
-        $xml .= '</Extensions>';
-	    }
-	    $xml .= '</AdditionalData>';
-    }
+    $xml .= $this->getAdditionalDataXML();
 
     // Close invoice and document
     $xml .= '</Invoice></Invoices></fe:Facturae>';
@@ -316,6 +289,58 @@ trait ExportableTrait {
 
     // Save document
     if (!is_null($filePath)) return file_put_contents($filePath, $xml);
+    return $xml;
+  }
+
+
+  /**
+   * Get additional data XML
+   * @return string Additional data XML
+   */
+  private function getAdditionalDataXML() {
+    $extensionsXML = array();
+    foreach ($this->extensions as $ext) {
+      $extXML = $ext->__getAdditionalData();
+      if (!empty($extXML)) $extensionsXML[] = $extXML;
+    }
+    $relInvoice =& $this->header['relatedInvoice'];
+    $additionalInfo =& $this->header['additionalInformation'];
+
+    // Validate additional data fields
+    $hasData = !empty($extensionsXML) || !empty($this->attachments) || !empty($relInvoice) || !empty($additionalInfo);
+    if (!$hasData) return "";
+
+    // Generate initial XML block
+    $tools = new XmlTools();
+    $xml = '<AdditionalData>';
+    if (!empty($relInvoice)) $xml .= '<RelatedInvoice>' . $tools->escape($relInvoice) . '</RelatedInvoice>';
+
+    // Add attachments
+    if (!empty($this->attachments)) {
+      $xml .= '<RelatedDocuments>';
+      foreach ($this->attachments as $att) {
+        $type = explode('/', $att['file']->getMimeType());
+        $type = end($type);
+        $xml .= '<Attachment>';
+        $xml .= '<AttachmentCompressionAlgorithm>NONE</AttachmentCompressionAlgorithm>';
+        $xml .= '<AttachmentFormat>' . $tools->escape($type) . '</AttachmentFormat>';
+        $xml .= '<AttachmentEncoding>BASE64</AttachmentEncoding>';
+        $xml .= '<AttachmentDescription>' . $tools->escape($att['description']) . '</AttachmentDescription>';
+        $xml .= '<AttachmentData>' . base64_encode($att['file']->getData()) . '</AttachmentData>';
+        $xml .= '</Attachment>';
+      }
+      $xml .= '</RelatedDocuments>';
+    }
+
+    // Add additional information
+    if (!empty($additionalInfo)) {
+      $xml .= '<InvoiceAdditionalInformation>' . $tools->escape($additionalInfo) . '</InvoiceAdditionalInformation>';
+    }
+
+    // Add extensions data
+    if (!empty($extensionsXML)) $xml .= '<Extensions>' . implode('', $extensionsXML) . '</Extensions>';
+
+    $xml .= '</AdditionalData>';
     return $xml;
   }
 
