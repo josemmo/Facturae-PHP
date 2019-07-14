@@ -2,6 +2,7 @@
 namespace josemmo\Facturae\Tests;
 
 use josemmo\Facturae\Facturae;
+use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaeCentre;
@@ -44,7 +45,12 @@ final class FacturaeTest extends AbstractTest {
       "province"  => "Madrid",
       "book"      => "0",
       "sheet"     => "1",
-      "merchantRegister" => "RG"
+      "merchantRegister" => "RG",
+      "phone"       => "910112233",
+      "fax"         => "910112234",
+      "email"       => "noexiste@ejemplo.com",
+      "cnoCnae"     => "04647",
+      "ineTownCode" => "0796"
     ]));
 
     // Incluimos los datos del comprador
@@ -55,6 +61,8 @@ final class FacturaeTest extends AbstractTest {
       "postCode"  => "28701",
       "town"      => "San Sebastián de los Reyes",
       "province"  => "Madrid",
+      "website"   => "http://www.ssreyes.org/es/",
+      "contactPeople" => "Persona de contacto",
       "centres"   => [
         new FacturaeCentre([
           "role"     => FacturaeCentre::ROLE_GESTOR,
@@ -162,6 +170,15 @@ final class FacturaeTest extends AbstractTest {
         "ES7620770024003102575766", "CAHMESMM");
       $fac->setDueDate("2017-12-31");
     }
+
+    // Añadimos datos adicionales
+    $fac->setRelatedInvoice('AAA-01273S');
+    $fac->setAdditionalInformation('Esta factura es una prueba generada por ' . Facturae::USER_AGENT);
+
+    // Adjuntamos un documento
+    $attachment = new FacturaeFile();
+    $attachment->loadData('<?xml version="1.0" encoding="UTF-8"?><test><hola>mundo</hola></test>', 'adjunto.xml');
+    $fac->addAttachment($attachment, 'Un documento XML muy pequeño');
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {

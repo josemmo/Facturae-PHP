@@ -2,6 +2,7 @@
 namespace josemmo\Facturae\Tests;
 
 use josemmo\Facturae\Facturae;
+use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 
@@ -92,6 +93,21 @@ final class MethodsTest extends AbstractTest {
     $this->assertEquals($items, $fac->getItems());
     $fac->clearItems();
     $this->assertEquals([], $fac->getItems());
+
+    // Additional data
+    $relatedInvoice = "AAA-01726";
+    $additionalInfo = "Lorem ipsum dolor sit amet consectetur adipiscing elit lectus imperdiet quam a nulla.";
+    $fac->setRelatedInvoice($relatedInvoice);
+    $this->assertEquals($relatedInvoice, $fac->getRelatedInvoice());
+    $fac->setAdditionalInformation($additionalInfo);
+    $this->assertEquals($additionalInfo, $fac->getAdditionalInformation());
+
+    // Attachments
+    $file = new FacturaeFile();
+    $fac->addAttachment($file, 'Test description');
+    $this->assertEquals($file, $fac->getAttachments()[0]['file']);
+    $fac->clearAttachments();
+    $this->assertEquals([], $fac->getAttachments());
   }
 
 }
