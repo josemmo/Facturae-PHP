@@ -151,24 +151,55 @@ class FacturaeParty {
               '<Province>' . $tools->escape($this->province) . '</Province>' .
               '<CountryCode>' . $this->countryCode . '</CountryCode>' .
             '</AddressInSpain>';
-    
+
     // Add contact details
-    if ($this->phone !== NULL || $this->fax !== NULL || $this->website !== NULL || $this->email !== NULL || $this->contactPeople !== NULL || $this->cnoCnae !== NULL || $this->ineTownCode !== NULL) {
-      $xml .= '<ContactDetails>';
-      if ($this->phone !== NULL) $xml .= '<Telephone>' . $tools->escape($this->phone) . '</Telephone>';
-      if ($this->fax !== NULL) $xml .= '<TeleFax>' . $tools->escape($this->fax) . '</TeleFax>';
-      if ($this->website !== NULL) $xml .= '<WebAddress>' . $tools->escape($this->website) . '</WebAddress>';
-      if ($this->email !== NULL) $xml .= '<ElectronicMail>' . $tools->escape($this->email) . '</ElectronicMail>';
-      if ($this->contactPeople !== NULL) $xml .= '<ContactPersons>' . $tools->escape($this->contactPeople) . '</ContactPersons>';
-      if ($this->cnoCnae !== NULL) $xml .= '<CnoCnae>' . $this->cnoCnae . '</CnoCnae>';
-      if ($this->ineTownCode !== NULL) $xml .= '<INETownCode>' . $$this->ineTownCode . '</INETownCode>';
-      $xml .= '</ContactDetails>';
-    }
+    $xml .= $this->getContactDetailsXML();
 
     // Close custom block
     $xml .= ($this->isLegalEntity) ? '</LegalEntity>' : '</Individual>';
 
     // Return data
+    return $xml;
+  }
+
+
+  /**
+   * Get contact details XML
+   *
+   * @return string Contact details XML
+   */
+  private function getContactDetailsXML() {
+    $tools = new XmlTools();
+    $contactFields = [
+      "phone" => "Telephone",
+      "fax" => "TeleFax",
+      "website" => "WebAddress",
+      "email" => "ElectronicMail",
+      "contactPeople" => "ContactPersons",
+      "cnoCnae" => "CnoCnae",
+      "ineTownCode" => "INETownCode"
+    ];
+
+    // Validate attributes
+    $hasDetails = false;
+    foreach (array_keys($contactFields) as $field) {
+      if (!empty($this->$field)) {
+        $hasDetails = true;
+        break;
+      }
+    }
+    if (!$hasDetails) return "";
+
+    // Add fields
+    $xml = '<ContactDetails>';
+    foreach ($contactFields as $field=>$xmlName) {
+      $value = $this->$field;
+      if (!empty($value)) {
+        $xml .= "<$xmlName>" . $tools->escape($value) . "</$xmlName>";
+      }
+    }
+    $xml .= '</ContactDetails>';
+
     return $xml;
   }
 

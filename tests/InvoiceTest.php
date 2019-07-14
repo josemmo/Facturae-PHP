@@ -44,7 +44,12 @@ final class FacturaeTest extends AbstractTest {
       "province"  => "Madrid",
       "book"      => "0",
       "sheet"     => "1",
-      "merchantRegister" => "RG"
+      "merchantRegister" => "RG",
+      "phone"       => "910112233",
+      "fax"         => "910112234",
+      "email"       => "noexiste@ejemplo.com",
+      "cnoCnae"     => "04647",
+      "ineTownCode" => "0796"
     ]));
 
     // Incluimos los datos del comprador
@@ -55,6 +60,8 @@ final class FacturaeTest extends AbstractTest {
       "postCode"  => "28701",
       "town"      => "San Sebastián de los Reyes",
       "province"  => "Madrid",
+      "website"   => "http://www.ssreyes.org/es/",
+      "contactPeople" => "Persona de contacto",
       "centres"   => [
         new FacturaeCentre([
           "role"     => FacturaeCentre::ROLE_GESTOR,
