@@ -2,6 +2,7 @@
 namespace josemmo\Facturae\Tests;
 
 use josemmo\Facturae\Facturae;
+use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaeCentre;
@@ -169,6 +170,15 @@ final class FacturaeTest extends AbstractTest {
         "ES7620770024003102575766", "CAHMESMM");
       $fac->setDueDate("2017-12-31");
     }
+
+    // Añadimos datos adicionales
+    $fac->setRelatedInvoice('AAA-01273S');
+    $fac->setAdditionalInformation('Esta factura es una prueba generada por ' . Facturae::USER_AGENT);
+
+    // Adjuntamos un documento
+    $attachment = new FacturaeFile();
+    $attachment->loadData('<?xml version="1.0" encoding="UTF-8"?><test><hola>mundo</hola></test>', 'adjunto.xml');
+    $fac->addAttachment($attachment, 'Un documento XML muy pequeño');
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
