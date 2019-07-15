@@ -103,9 +103,17 @@ final class DiscountsTest extends AbstractTest {
     $invoiceXml = $invoiceXml->Invoices->Invoice[0];
     foreach ($invoiceXml->Items->InvoiceLine as $item) {
       $itemGross = floatval($item->GrossAmount);
+      $taxableBase = floatval($item->TaxesOutputs->Tax[0]->TaxableBase->TotalAmount);
       $expectedGross = array_shift($expectedGrossAmounts);
       $this->assertEquals($itemGross, $expectedGross, '', 0.00001);
+      $this->assertEquals($taxableBase, $expectedGross, '', 0.00001);
     }
+
+    // Validate total amounts
+    $totalGrossAmount = floatval($invoiceXml->InvoiceTotals->TotalGrossAmount);
+    $totalTaxOutputs = floatval($invoiceXml->InvoiceTotals->TotalTaxOutputs);
+    $this->assertEquals(299, $totalGrossAmount, '', 0.00001);
+    $this->assertEquals(28, $totalTaxOutputs, '', 0.00001);
   }
 
 
