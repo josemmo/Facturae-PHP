@@ -1,6 +1,7 @@
 <?php
 namespace josemmo\Facturae\FacturaeTraits;
 
+use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
 
 /**
@@ -25,7 +26,9 @@ trait PropertiesTrait {
     "description" => null,
     "receiverTransactionReference" => null,
     "fileReference" => null,
-    "receiverContractReference" => null
+    "receiverContractReference" => null,
+    "relatedInvoice" => null,
+    "additionalInformation" => null
   );
   protected $parties = array(
     "seller" => null,
@@ -35,6 +38,7 @@ trait PropertiesTrait {
   protected $legalLiterals = array();
   protected $discounts = array();
   protected $charges = array();
+  protected $attachments = array();
 
 
   /**
@@ -418,6 +422,84 @@ trait PropertiesTrait {
    */
   public function clearCharges() {
     $this->charges = array();
+    return $this;
+  }
+
+
+  /**
+   * Set related invoice
+   * @param  string   $relatedInvoice Related invoice number
+   * @return Facturae                 Invoice instance
+   */
+  public function setRelatedInvoice($relatedInvoice) {
+    $this->header['relatedInvoice'] = $relatedInvoice;
+  }
+
+
+  /**
+   * Get related invoice
+   * @return string|null Related invoice number
+   */
+  public function getRelatedInvoice() {
+    return $this->header['relatedInvoice'];
+  }
+
+
+  /**
+   * Set additional information
+   * @param  string   $information Invoice additional information
+   * @return Facturae              Invoice instance
+   */
+  public function setAdditionalInformation($information) {
+    $this->header['additionalInformation'] = $information;
+    return $this;
+  }
+
+
+  /**
+   * Get additional information
+   * @return string|null Additional information
+   */
+  public function getAdditionalInformation() {
+    return $this->header['additionalInformation'];
+  }
+
+
+  /**
+   * Add attachment
+   * @param  string|FacturaeFile $file        File path or instance
+   * @param  string|null         $description Document description
+   * @return Facturae                         Invoice instance
+   */
+  public function addAttachment($file, $description=null) {
+    if (is_string($file)) {
+      $filePath = $file;
+      $file = new FacturaeFile();
+      $file->loadFile($filePath);
+    }
+
+    $this->attachments[] = array(
+      "file" => $file,
+      "description" => $description
+    );
+  }
+
+
+  /**
+   * Get attachments
+   * @return array Attachments
+   */
+  public function getAttachments() {
+    return $this->attachments;
+  }
+
+
+  /**
+   * Clear attachments
+   * @return Facturae Invoice instance
+   */
+  public function clearAttachments() {
+    $this->attachments = array();
     return $this;
   }
 

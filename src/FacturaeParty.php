@@ -152,10 +152,54 @@ class FacturaeParty {
               '<CountryCode>' . $this->countryCode . '</CountryCode>' .
             '</AddressInSpain>';
 
+    // Add contact details
+    $xml .= $this->getContactDetailsXML();
+
     // Close custom block
     $xml .= ($this->isLegalEntity) ? '</LegalEntity>' : '</Individual>';
 
     // Return data
+    return $xml;
+  }
+
+
+  /**
+   * Get contact details XML
+   *
+   * @return string Contact details XML
+   */
+  private function getContactDetailsXML() {
+    $tools = new XmlTools();
+    $contactFields = [
+      "phone" => "Telephone",
+      "fax" => "TeleFax",
+      "website" => "WebAddress",
+      "email" => "ElectronicMail",
+      "contactPeople" => "ContactPersons",
+      "cnoCnae" => "CnoCnae",
+      "ineTownCode" => "INETownCode"
+    ];
+
+    // Validate attributes
+    $hasDetails = false;
+    foreach (array_keys($contactFields) as $field) {
+      if (!empty($this->$field)) {
+        $hasDetails = true;
+        break;
+      }
+    }
+    if (!$hasDetails) return "";
+
+    // Add fields
+    $xml = '<ContactDetails>';
+    foreach ($contactFields as $field=>$xmlName) {
+      $value = $this->$field;
+      if (!empty($value)) {
+        $xml .= "<$xmlName>" . $tools->escape($value) . "</$xmlName>";
+      }
+    }
+    $xml .= '</ContactDetails>';
+
     return $xml;
   }
 

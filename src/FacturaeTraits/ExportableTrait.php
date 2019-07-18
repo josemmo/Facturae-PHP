@@ -274,16 +274,7 @@ trait ExportableTrait {
     }
 
     // Add additional data
-    $extensionsXML = array();
-    foreach ($this->extensions as $ext) {
-      $extXML = $ext->__getAdditionalData();
-      if (!empty($extXML)) $extensionsXML[] = $extXML;
-    }
-    if (count($extensionsXML) > 0) {
-      $xml .= '<AdditionalData><Extensions>';
-      $xml .= implode("", $extensionsXML);
-      $xml .= '</Extensions></AdditionalData>';
-    }
+    $xml .= $this->getAdditionalDataXML();
 
     // Close invoice and document
     $xml .= '</Invoice></Invoices></fe:Facturae>';
@@ -298,6 +289,58 @@ trait ExportableTrait {
 
     // Save document
     if (!is_null($filePath)) return file_put_contents($filePath, $xml);
+    return $xml;
+  }
+
+
+  /**
+   * Get additional data XML
+   * @return string Additional data XML
+   */
+  private function getAdditionalDataXML() {
+    $extensionsXML = array();
+    foreach ($this->extensions as $ext) {
+      $extXML = $ext->__getAdditionalData();
+      if (!empty($extXML)) $extensionsXML[] = $extXML;
+    }
+    $relInvoice =& $this->header['relatedInvoice'];
+    $additionalInfo =& $this->header['additionalInformation'];
+
+    // Validate additional data fields
+    $hasData = !empty($extensionsXML) || !empty($this->attachments) || !empty($relInvoice) || !empty($additionalInfo);
+    if (!$hasData) return "";
+
+    // Generate initial XML block
+    $tools = new XmlTools();
+    $xml = '<AdditionalData>';
+    if (!empty($relInvoice)) $xml .= '<RelatedInvoice>' . $tools->escape($relInvoice) . '</RelatedInvoice>';
+
+    // Add attachments
+    if (!empty($this->attachments)) {
+      $xml .= '<RelatedDocuments>';
+      foreach ($this->attachments as $att) {
+        $type = explode('/', $att['file']->getMimeType());
+        $type = end($type);
+        $xml .= '<Attachment>';
+        $xml .= '<AttachmentCompressionAlgorithm>NONE</AttachmentCompressionAlgorithm>';
+        $xml .= '<AttachmentFormat>' . $tools->escape($type) . '</AttachmentFormat>';
+        $xml .= '<AttachmentEncoding>BASE64</AttachmentEncoding>';
+        $xml .= '<AttachmentDescription>' . $tools->escape($att['description']) . '</AttachmentDescription>';
+        $xml .= '<AttachmentData>' . base64_encode($att['file']->getData()) . '</AttachmentData>';
+        $xml .= '</Attachment>';
+      }
+      $xml .= '</RelatedDocuments>';
+    }
+
+    // Add additional information
+    if (!empty($additionalInfo)) {
+      $xml .= '<InvoiceAdditionalInformation>' . $tools->escape($additionalInfo) . '</InvoiceAdditionalInformation>';
+    }
+
+    // Add extensions data
+    if (!empty($extensionsXML)) $xml .= '<Extensions>' . implode('', $extensionsXML) . '</Extensions>';
+
+    $xml .= '</AdditionalData>';
     return $xml;
   }
 

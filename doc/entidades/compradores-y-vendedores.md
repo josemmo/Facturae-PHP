@@ -28,7 +28,7 @@ $empresa = new FacturaeParty([
   "fax"     => "910555443"
   "website" => "http://www.perico.com/",
   "contactPeople" => "Perico",
-  "cnoCnae" => "4791", // Clasif. Nacional de Act. Económicas
+  "cnoCnae" => "04647", // Clasif. Nacional de Act. Económicas
   "ineTownCode" => "280796" // Cód. de municipio del INE
 ]);
 
@@ -48,7 +48,7 @@ $personaFisica = new FacturaeParty([
   "fax"     => "910777888"
   "website" => "http://www.antoniogarcia.es/",
   "contactPeople" => "Antonio García",
-  "cnoCnae" => "4791", // Clasif. Nacional de Act. Económicas
+  "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
   "ineTownCode" => "280796" // Cód. de municipio del INE
 ]);
 ```
