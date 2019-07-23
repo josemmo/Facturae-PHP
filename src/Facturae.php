@@ -132,6 +132,18 @@ class Facturae {
       "Item/GrossAmount" => ["min"=>6, "max"=>6],
       "Discount/Rate" => ["min"=>4, "max"=>4],
       "Discount/Amount" => ["min"=>6, "max"=>6]
+    ],
+    self::SCHEMA_3_2_1 => [
+      null => ["min"=>2, "max"=>2],
+      "Item/Quantity" => ["min"=>1, "max"=>8], 
+      "Item/TotalAmountWithoutTax" => ["min"=>1, "max"=>8],
+      "Item/UnitPriceWithoutTax" => ["min"=>1, "max"=>8],
+      "Item/GrossAmount" => ["min"=>1, "max"=>8],
+      "Discount/Rate" => ["min"=>1, "max"=>8],
+      "Discount/Amount" => ["min"=>1, "max"=>8],
+      "Tax/Rate" => ["min"=>1, "max"=>8],
+      "Tax/Amount" => ["min"=>1, "max"=>8],
+      "Tax/Base" => ["min"=>1, "max"=>8]
     ]
   );
 
