@@ -103,9 +103,9 @@ class FacturaeItem {
     $quantity = $fac->pad($this->quantity, 'Item/Quantity');
     $unitPriceWithoutTax = $fac->pad($this->unitPriceWithoutTax, 'Item/UnitPriceWithoutTax');
     $totalAmountWithoutTax = $fac->pad($quantity * $unitPriceWithoutTax, 'Item/TotalAmountWithoutTax');
-    $grossAmount = $totalAmountWithoutTax;
 
     // Process charges and discounts
+    $grossAmount = $totalAmountWithoutTax;
     foreach (['discounts', 'charges'] as $i=>$groupTag) {
       $factor = ($i == 0) ? -1 : 1;
       foreach ($this->{$groupTag} as $group) {
@@ -125,6 +125,7 @@ class FacturaeItem {
         $grossAmount += $amount * $factor;
       }
     }
+    $grossAmount = $fac->pad($grossAmount, 'Item/GrossAmount');
 
     // Get taxes
     $totalTaxesOutputs = 0;
@@ -151,7 +152,7 @@ class FacturaeItem {
     $addProps['quantity'] = $quantity;
     $addProps['unitPriceWithoutTax'] = $unitPriceWithoutTax;
     $addProps['totalAmountWithoutTax'] = $totalAmountWithoutTax;
-    $addProps['grossAmount'] = $fac->pad($grossAmount, 'Item/GrossAmount');
+    $addProps['grossAmount'] = $grossAmount;
     $addProps['totalTaxesOutputs'] = $totalTaxesOutputs;
     $addProps['totalTaxesWithheld'] = $totalTaxesWithheld;
     return array_merge(get_object_vars($this), $addProps);
