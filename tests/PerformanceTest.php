@@ -2,7 +2,6 @@
 namespace josemmo\Facturae\Tests;
 
 use josemmo\Facturae\Facturae;
-use josemmo\Facturae\FacturaeParty;
 
 final class PerformanceTest extends AbstractTest {
 
@@ -16,28 +15,7 @@ final class PerformanceTest extends AbstractTest {
     $start = microtime(true);
 
     for ($i=0; $i<self::ROUNDS; $i++) {
-      $fac = new Facturae();
-      $fac->setNumber('FAC201804', '123');
-      $fac->setIssueDate('2018-04-01');
-      $fac->setSeller(new FacturaeParty([
-        "taxNumber" => "A00000000",
-        "name"      => "Perico de los Palotes S.A.",
-        "address"   => "C/ Falsa, 123",
-        "postCode"  => "12345",
-        "town"      => "Madrid",
-        "province"  => "Madrid"
-      ]));
-      $fac->setBuyer(new FacturaeParty([
-        "isLegalEntity" => false,
-        "taxNumber"     => "00000000A",
-        "name"          => "Antonio",
-        "firstSurname"  => "García",
-        "lastSurname"   => "Pérez",
-        "address"       => "Avda. Mayor, 7",
-        "postCode"      => "54321",
-        "town"          => "Madrid",
-        "province"      => "Madrid"
-      ]));
+      $fac = $this->getBaseInvoice();
       $fac->addItem("Producto #$i", 20.14, 3, Facturae::TAX_IVA, 21);
       $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
       $fac->export();

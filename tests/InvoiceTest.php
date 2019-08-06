@@ -10,7 +10,6 @@ use josemmo\Facturae\FacturaeCentre;
 final class FacturaeTest extends AbstractTest {
 
   const FILE_PATH = self::OUTPUT_DIR . "/salida-*.xsig";
-  const COOKIES_PATH = self::OUTPUT_DIR . "/cookies.txt";
 
   /**
    * Test Create Invoice
@@ -195,7 +194,7 @@ final class FacturaeTest extends AbstractTest {
     $res = $fac->export($outputPath);
 
     // ... y validar la factura
-    $this->validateInvoiceXML($outputPath);
+    $this->validateInvoiceXML($outputPath, true);
   }
 
 
@@ -209,60 +208,6 @@ final class FacturaeTest extends AbstractTest {
       "v3.2.1 (PKCS#12)" => [Facturae::SCHEMA_3_2_1, true],
       "v3.2.2 (PKCS#12)" => [Facturae::SCHEMA_3_2_2, true]
     ];
-  }
-
-
-  /**
-   * Validate Invoice XML
-   *
-   * @param string $path Invoice path
-   */
-  private function validateInvoiceXML($path) {
-    // Prepare file to upload
-    if (function_exists('curl_file_create')) {
-      $postFile = curl_file_create($path);
-    } else {
-      $postFile = "@" . realpath($path);
-    }
-
-    // Send upload request
-    $ch = curl_init();
-    curl_setopt_array($ch, array(
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/index2.jsp",
-      CURLOPT_POST => 1,
-      CURLOPT_POSTFIELDS => array(
-        "referencia" => $postFile,
-        "valContable" => "on",
-        "valFirma" => "on",
-        "aceptarCondiciones" => "on",
-        "submit" => "Siguiente"
-      ),
-      CURLOPT_COOKIEJAR => self::COOKIES_PATH
-    ));
-    $res = curl_exec($ch);
-    curl_close($ch);
-    if (strpos($res, "window.open('facturae.jsp'") === false) {
-      $this->expectException(UnexpectedValueException::class);
-    }
-
-    // Fetch results
-    $ch = curl_init();
-    curl_setopt_array($ch, array(
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/facturae.jsp",
-      CURLOPT_COOKIEFILE => self::COOKIES_PATH
-    ));
-    $res = curl_exec($ch);
-    curl_close($ch);
-
-    // Validate results
-    $this->assertNotEmpty($res);
-    $this->assertContains('euro_ok.png', $res, 'Invalid XML Format');
-    $this->assertContains('>Nivel de Firma Válido<', $res, 'Invalid Signature');
-    $this->assertContains('>XAdES_T<', $res, 'Invalid Timestamp');
   }
 
 }
