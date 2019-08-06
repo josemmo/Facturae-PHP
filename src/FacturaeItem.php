@@ -148,6 +148,22 @@ class FacturaeItem {
       }
     }
 
+    // Fix decimals
+    if (!is_null($this->unitPrice)) {
+      $expectedTotal = $this->unitPrice * $this->quantity;
+      $generatedTotal = $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld;
+      $diffAmount = $fac->pad($expectedTotal - $generatedTotal, 'Tax/Amount');
+      if (abs($diffAmount) == 0.01) {
+        foreach (['taxesOutputs', 'taxesWithheld'] as $taxesGroup) {
+          foreach ($addProps[$taxesGroup] as &$taxItem) {
+            $taxItem['amount'] += $diffAmount;
+            ${'total' . ucfirst($taxesGroup)} += $diffAmount;
+            break 2;
+          }
+        }
+      }
+    }
+
     // Add rest of properties
     $addProps['quantity'] = $quantity;
     $addProps['unitPriceWithoutTax'] = $unitPriceWithoutTax;
