@@ -17,6 +17,7 @@
     "suggest": {
         "ext-openssl": "For signing and timestamping both invoices and SOAP requests",
         "ext-curl": "For communicating with remote TSA Servers and SOAP Web Services",
+        "ext-fileinfo": "For getting MIME types when using FacturaeFile",
         "lib-libxml": "For parsing SOAP XML responses for FACe and FACeB2B"
     },
     "require-dev": {
