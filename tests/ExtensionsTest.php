@@ -3,7 +3,6 @@ namespace josemmo\Facturae\Tests;
 
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeCentre;
-use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\Tests\Extensions\DisclaimerExtension;
 
 final class ExtensionsTest extends AbstractTest {
@@ -16,28 +15,7 @@ final class ExtensionsTest extends AbstractTest {
    */
   public function testExtensions() {
     // Creamos una factura estándar
-    $fac = new Facturae();
-    $fac->setNumber('EMP201712', '0003');
-    $fac->setIssueDate('2017-12-01');
-    $fac->setSeller(new FacturaeParty([
-      "taxNumber" => "A00000000",
-      "name"      => "Perico el de los Palotes S.A.",
-      "address"   => "C/ Falsa, 123",
-      "postCode"  => "12345",
-      "town"      => "Madrid",
-      "province"  => "Madrid"
-    ]));
-    $fac->setBuyer(new FacturaeParty([
-      "isLegalEntity" => false,
-      "taxNumber"     => "00000000A",
-      "name"          => "Antonio",
-      "firstSurname"  => "García",
-      "lastSurname"   => "Pérez",
-      "address"       => "Avda. Mayor, 7",
-      "postCode"      => "54321",
-      "town"          => "Madrid",
-      "province"      => "Madrid"
-    ]));
+    $fac = $this->getBaseInvoice();
     $fac->addItem("Línea de producto", 100, 1, Facturae::TAX_IVA, 10);
 
     // Obtener la extensión de FACeB2B y establecemos la entidad pública

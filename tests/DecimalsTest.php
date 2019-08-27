@@ -3,7 +3,6 @@ namespace josemmo\Facturae\Tests;
 
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
-use josemmo\Facturae\FacturaeParty;
 
 final class DecimalsTest extends AbstractTest {
 
@@ -17,37 +16,13 @@ final class DecimalsTest extends AbstractTest {
 
   /**
    * Run test on a random invoice
-   *
    * @param  string  $schema FacturaE schema
    * @return boolean         Success
    */
   private function _runTest($schema) {
-    // Creamos una factura estándar
-    $fac = new Facturae($schema);
-    $fac->setNumber('EMP201712', '0003');
-    $fac->setIssueDate('2017-12-01');
-    $fac->setSeller(new FacturaeParty([
-      "taxNumber" => "A00000000",
-      "name"      => "Perico el de los Palotes S.A.",
-      "address"   => "C/ Falsa, 123",
-      "postCode"  => "12345",
-      "town"      => "Madrid",
-      "province"  => "Madrid"
-    ]));
-    $fac->setBuyer(new FacturaeParty([
-      "isLegalEntity" => false,
-      "taxNumber"     => "00000000A",
-      "name"          => "Antonio",
-      "firstSurname"  => "García",
-      "lastSurname"   => "Pérez",
-      "address"       => "Avda. Mayor, 7",
-      "postCode"      => "54321",
-      "town"          => "Madrid",
-      "province"      => "Madrid"
-    ]));
+    $fac = $this->getBaseInvoice($schema);
 
-    // Añadimos elementos con importes aleatorios
-    $unitPriceTotal = 0;
+    // Add items with random values
     $pricePow = 10 ** self::PRICE_DECIMALS;
     $quantityPow = 10 ** self::QUANTITY_DECIMALS;
     $taxPow = 10 ** self::TAX_DECIMALS;
@@ -55,7 +30,6 @@ final class DecimalsTest extends AbstractTest {
       $unitPrice = mt_rand(1, $pricePow) / $pricePow;
       $quantity = mt_rand(1, $quantityPow*10) / $quantityPow;
       $specialTax = mt_rand(1, $taxPow*20) / $taxPow;
-      $unitPriceTotal += $unitPrice * $quantity;
       $fac->addItem(new FacturaeItem([
         "name" => "Línea de producto #$i",
         "quantity" => $quantity,
@@ -68,7 +42,7 @@ final class DecimalsTest extends AbstractTest {
       ]));
     }
 
-    // Validamos los totales de la factura
+    // Validate invoice totals
     $invoiceXml = new \SimpleXMLElement($fac->export());
     $invoiceXml = $invoiceXml->Invoices->Invoice[0];
 
@@ -95,6 +69,35 @@ final class DecimalsTest extends AbstractTest {
       }
     }
     $this->assertEquals($totalCount, $successCount);
+  }
+
+
+  /**
+   * Test autofix decimals
+   */
+  public function testAutofixDecimals() {
+    $fac = $this->getBaseInvoice();
+
+    // Add items
+    $amounts = [671, 69, 11.21];
+    foreach ($amounts as $i=>$itemAmount) {
+      $fac->addItem(new FacturaeItem([
+        "name"      => "Tengo un importe peculiar #" . ($i+1),
+        "quantity"  => $i+1,
+        "unitPrice" => $itemAmount / ($i+1),
+        "taxes"     => [Facturae::TAX_IVA => 21]
+      ]));
+    }
+
+    // Export invoice
+    $outputPath = self::OUTPUT_DIR . "/salida-autodecimales.xml";
+    $fac->export($outputPath);
+    $invoiceXml = new \SimpleXMLElement(file_get_contents($outputPath));
+
+    // Validate invoice
+    $invoiceTotal = (float) $invoiceXml->Invoices->Invoice[0]->InvoiceTotals->InvoiceTotal;
+    $this->assertEquals($invoiceTotal, array_sum($amounts));
+    $this->validateInvoiceXML($outputPath);
   }
 
 }

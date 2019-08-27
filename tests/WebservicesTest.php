@@ -21,10 +21,10 @@ final class WebservicesTest extends AbstractTest {
 
 
   /**
-   * Get base invoice
+   * Get Webservices base invoice
    * @return Facturae Invoice instance
    */
-  private function getBaseInvoice() {
+  private function getWsBaseInvoice() {
     $fac = new Facturae();
     $fac->setNumber('PRUEBA-' . date('ym'), date('Hms'));
     $fac->setIssueDate(date('Y-m-d'));
@@ -61,7 +61,7 @@ final class WebservicesTest extends AbstractTest {
     $this->assertFalse(empty($face->getNifs('E04921501')->nifs));
 
     // Generate invoice
-    $fac = $this->getBaseInvoice();
+    $fac = $this->getWsBaseInvoice();
     $fac->setBuyer(new FacturaeParty([
       "taxNumber" => "V28000024",
       "name"      => "Banco de España",
@@ -123,7 +123,7 @@ final class WebservicesTest extends AbstractTest {
     $this->assertEquals(intval($faceb2b->getInvoiceCancellations()->resultStatus->code), 0);
 
     // Generate invoice
-    $fac = $this->getBaseInvoice();
+    $fac = $this->getWsBaseInvoice();
     $fac->setBuyer(new FacturaeParty([
       "taxNumber" => "A78923125",
       "name"      => "Teléfonica Móviles España, S.A.U.",

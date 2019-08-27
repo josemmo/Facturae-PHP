@@ -3,46 +3,14 @@ namespace josemmo\Facturae\Tests;
 
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
-use josemmo\Facturae\FacturaeParty;
 
 final class DiscountsTest extends AbstractTest {
-
-  /**
-   * Get base invoice
-   * @return Facturae Base invoice
-   */
-  private function _getBaseInvoice() {
-    $fac = new Facturae();
-    $fac->setNumber('EMP201712', '0003');
-    $fac->setIssueDate('2017-12-01');
-    $fac->setSeller(new FacturaeParty([
-      "taxNumber" => "A00000000",
-      "name"      => "Perico el de los Palotes S.A.",
-      "address"   => "C/ Falsa, 123",
-      "postCode"  => "12345",
-      "town"      => "Madrid",
-      "province"  => "Madrid"
-    ]));
-    $fac->setBuyer(new FacturaeParty([
-      "isLegalEntity" => false,
-      "taxNumber"     => "00000000A",
-      "name"          => "Antonio",
-      "firstSurname"  => "García",
-      "lastSurname"   => "Pérez",
-      "address"       => "Avda. Mayor, 7",
-      "postCode"      => "54321",
-      "town"          => "Madrid",
-      "province"      => "Madrid"
-    ]));
-    return $fac;
-  }
-
 
   /**
    * Test invoice item discounts
    */
   public function testItemDiscounts() {
-    $fac = $this->_getBaseInvoice();
+    $fac = $this->getBaseInvoice();
     $expectedGrossAmounts = [];
 
     // Add first item
@@ -121,7 +89,7 @@ final class DiscountsTest extends AbstractTest {
    * Test general discounts
    */
   public function testGeneralDiscounts() {
-    $fac = $this->_getBaseInvoice();
+    $fac = $this->getBaseInvoice();
     $fac->addItem('Test item', 100, 1, Facturae::TAX_IVA, 25);
     $fac->addDiscount('Half price', 50);
     $fac->addDiscount('5€ off', 5, false);
