@@ -1,5 +1,5 @@
 # Facturae-PHP
-[![Travis](https://travis-ci.org/josemmo/Facturae-PHP.svg?branch=master)](https://travis-ci.org/josemmo/Facturae-PHP)
+[![Travis](https://travis-ci.com/josemmo/Facturae-PHP.svg?branch=master)](https://travis-ci.com/josemmo/Facturae-PHP)
 [![Codacy](https://api.codacy.com/project/badge/Grade/ff163f2711a44e31b19a8181c15726f5)](https://www.codacy.com/app/josemmo/Facturae-PHP)
 [![Coverage](https://api.codacy.com/project/badge/Coverage/ff163f2711a44e31b19a8181c15726f5)](https://www.codacy.com/app/josemmo/Facturae-PHP)
 [![Última versión estable](https://poser.pugx.org/josemmo/facturae-php/v/stable)](https://packagist.org/packages/josemmo/facturae-php)
