@@ -54,7 +54,7 @@ class XmlTools {
     $ns = array_merge($xmlns, $attributes);
 
     // Generate new XML element
-    $xml = $elementName . " " . implode($ns, " ") . ">" . $xml[1];
+    $xml = $elementName . " " . implode(' ', $ns) . ">" . $xml[1];
     return $xml;
   }
 
