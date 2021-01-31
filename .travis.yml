@@ -31,7 +31,7 @@ install:
 
 # Run PHPUnit tests
 script:
-  - XDEBUG_MODE=coverage vendor/bin/phpunit
+  - XDEBUG_MODE=coverage vendor/bin/simple-phpunit
 
 # Send coverage to Codacy (just once per build)
 after_success:
