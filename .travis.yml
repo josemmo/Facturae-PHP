@@ -14,7 +14,7 @@ matrix:
     - php: 7.1
     - php: 7.2
     - php: 7.3
-      env: SEND_COVERAGE=1 TEST_WEBSERVICES=1
+      env: SEND_COVERAGE=true TEST_WEBSERVICES=true
     - php: 7.4
     - php: nightly
   allow_failures:
@@ -30,8 +30,8 @@ install:
 
 # Run PHPUnit tests
 script:
-  - php vendor/bin/phpunit --coverage-clover build/coverage/xml
+  - XDEBUG_MODE=coverage vendor/bin/phpunit
 
 # Send coverage to Codacy (just once per build)
 after_success:
-  - if [ "$SEND_COVERAGE" == "1" ]; then php vendor/bin/codacycoverage clover build/coverage/xml; fi
+  - if [ "$SEND_COVERAGE" == "true" ]; then bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r build/clover.xml; fi

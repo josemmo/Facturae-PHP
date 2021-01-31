@@ -21,8 +21,7 @@
         "lib-libxml": "For parsing SOAP XML responses for FACe and FACeB2B"
     },
     "require-dev": {
-        "codacy/coverage": "dev-master",
-        "phpunit/phpunit": "^5"
+        "phpunit/phpunit": "^9"
     },
     "autoload-dev": {
         "psr-4": {

@@ -14,9 +14,8 @@ final class WebservicesTest extends AbstractTest {
    * Check environment
    */
   private function checkEnv() {
-    $isCI = getenv('CI');
     $testWS = getenv('TEST_WEBSERVICES');
-    if ($isCI && !$testWS) $this->markTestSkipped('Environment conditions not met');
+    if ($testWS !== "true") $this->markTestSkipped('TEST_WEBSERVICES is not true, skipping webservice tests');
   }
 
 
