@@ -77,6 +77,7 @@ abstract class AbstractTest extends TestCase {
     ));
     $res = curl_exec($ch);
     curl_close($ch);
+    unset($ch);
     if (strpos($res, "window.open('facturae.jsp'") === false) {
       $this->expectException(\UnexpectedValueException::class);
     }
@@ -91,6 +92,7 @@ abstract class AbstractTest extends TestCase {
     ));
     $res = curl_exec($ch);
     curl_close($ch);
+    unset($ch);
 
     // Validate results
     $this->assertNotEmpty($res);
