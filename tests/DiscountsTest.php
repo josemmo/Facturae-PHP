@@ -73,15 +73,15 @@ final class DiscountsTest extends AbstractTest {
       $itemGross = floatval($item->GrossAmount);
       $taxableBase = floatval($item->TaxesOutputs->Tax[0]->TaxableBase->TotalAmount);
       $expectedGross = array_shift($expectedGrossAmounts);
-      $this->assertEquals($itemGross, $expectedGross, '', 0.00001);
-      $this->assertEquals($taxableBase, $expectedGross, '', 0.00001);
+      $this->assertEqualsWithDelta($itemGross, $expectedGross, 0.00001);
+      $this->assertEqualsWithDelta($taxableBase, $expectedGross, 0.00001);
     }
 
     // Validate total amounts
     $totalGrossAmount = floatval($invoiceXml->InvoiceTotals->TotalGrossAmount);
     $totalTaxOutputs = floatval($invoiceXml->InvoiceTotals->TotalTaxOutputs);
-    $this->assertEquals(299, $totalGrossAmount, '', 0.00001);
-    $this->assertEquals(28, $totalTaxOutputs, '', 0.00001);
+    $this->assertEqualsWithDelta(299, $totalGrossAmount, 0.00001);
+    $this->assertEqualsWithDelta(28, $totalTaxOutputs, 0.00001);
   }
 
 
@@ -104,9 +104,9 @@ final class DiscountsTest extends AbstractTest {
     $expectedDiscounts = (100 / 1.25) * 0.5 + 5;
     $expectedCharges = (100 / 1.25) * 0.5;
     $expectedTotal = 100 - $expectedDiscounts + $expectedCharges;
-    $this->assertEquals($totalDiscounts, $expectedDiscounts, '', 0.00001);
-    $this->assertEquals($totalCharges, $expectedCharges, '', 0.00001);
-    $this->assertEquals($invoiceTotal, $expectedTotal, '', 0.00001);
+    $this->assertEqualsWithDelta($totalDiscounts, $expectedDiscounts, 0.00001);
+    $this->assertEqualsWithDelta($totalCharges, $expectedCharges, 0.00001);
+    $this->assertEqualsWithDelta($invoiceTotal, $expectedTotal, 0.00001);
   }
 
 }
