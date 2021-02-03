@@ -76,8 +76,8 @@ final class MethodsTest extends AbstractTest {
     $fac->addCharge('First', 20);
     $fac->addCharge('Second', 25, false);
     $fac->addCharge('Third', 30);
-    $this->assertEquals(2, count($fac->getDiscounts()));
-    $this->assertEquals(3, count($fac->getCharges()));
+    $this->assertCount(2, $fac->getDiscounts());
+    $this->assertCount(3, $fac->getCharges());
     $fac->clearDiscounts();
     $this->assertEquals([], $fac->getDiscounts());
     $fac->clearCharges();

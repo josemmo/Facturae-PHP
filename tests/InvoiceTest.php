@@ -7,7 +7,7 @@ use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaeCentre;
 
-final class FacturaeTest extends AbstractTest {
+final class InvoiceTest extends AbstractTest {
 
   const FILE_PATH = self::OUTPUT_DIR . "/salida-*.xsig";
 

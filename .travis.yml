@@ -30,7 +30,7 @@ install:
 
 # Run PHPUnit tests
 script:
-  - php vendor/bin/phpunit --coverage-clover build/coverage/xml
+  - XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/coverage/xml
 
 # Send coverage to Codacy (just once per build)
 after_success:

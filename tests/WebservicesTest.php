@@ -55,10 +55,10 @@ final class WebservicesTest extends AbstractTest {
     $face->setProduction(false);
 
     // Test misc. methods
-    $this->assertFalse(empty($face->getStatus()->estados));
-    $this->assertFalse(empty($face->getAdministrations()->administraciones));
-    $this->assertFalse(empty($face->getUnits('E04921501')->relaciones));
-    $this->assertFalse(empty($face->getNifs('E04921501')->nifs));
+    $this->assertNotEmpty($face->getStatus()->estados);
+    $this->assertNotEmpty($face->getAdministrations()->administraciones);
+    $this->assertNotEmpty($face->getUnits('E04921501')->relaciones);
+    $this->assertNotEmpty($face->getNifs('E04921501')->nifs);
 
     // Generate invoice
     $fac = $this->getWsBaseInvoice();
@@ -94,13 +94,13 @@ final class WebservicesTest extends AbstractTest {
     $invoiceFile->loadData($fac->export(), "factura-de-prueba.xsig");
     $res = $face->sendInvoice(self::NOTIFICATIONS_EMAIL, $invoiceFile);
     $this->assertEquals(intval($res->resultado->codigo), 0);
-    $this->assertFalse(empty($res->factura->numeroRegistro));
+    $this->assertNotEmpty($res->factura->numeroRegistro);
 
     // Cancel invoice
     $res = $face->cancelInvoice($res->factura->numeroRegistro,
       "Factura de prueba autogenerada por " . Facturae::USER_AGENT);
     $this->assertEquals(intval($res->resultado->codigo), 0);
-    $this->assertFalse(empty($res->factura->mensaje));
+    $this->assertNotEmpty($res->factura->mensaje);
 
     // Get invoice status
     $res = $face->getInvoices($res->factura->numeroRegistro);
@@ -118,7 +118,7 @@ final class WebservicesTest extends AbstractTest {
     $faceb2b->setProduction(false);
 
     // Test misc. methods
-    $this->assertFalse(empty($faceb2b->getCodes()->codes));
+    $this->assertNotEmpty($faceb2b->getCodes()->codes);
     $this->assertEquals(intval($faceb2b->getRegisteredInvoices()->resultStatus->code), 0);
     $this->assertEquals(intval($faceb2b->getInvoiceCancellations()->resultStatus->code), 0);
 
@@ -143,7 +143,7 @@ final class WebservicesTest extends AbstractTest {
     $invoiceFile->loadData($fac->export(), "factura-de-prueba.xsig");
     $res = $faceb2b->sendInvoice($invoiceFile);
     $this->assertEquals(intval($res->resultStatus->code), 0);
-    $this->assertFalse(empty($res->invoiceDetail->registryNumber));
+    $this->assertNotEmpty($res->invoiceDetail->registryNumber);
     $registryNumber = $res->invoiceDetail->registryNumber;
 
     // Cancel invoice
