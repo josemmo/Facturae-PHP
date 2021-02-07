@@ -13,9 +13,9 @@ jobs:
     continue-on-error: ${{ matrix.experimental || false }}
     strategy:
       matrix:
-        php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '8.0']
+        php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
         include:
-          - php-version: '7.4'
+          - php-version: '8.0'
             test-ws: true
             send-coverage: true
           - php-version: '8.1'
