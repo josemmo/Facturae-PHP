@@ -77,6 +77,7 @@ abstract class AbstractTest extends TestCase {
     ));
     $res = curl_exec($ch);
     curl_close($ch);
+    unset($ch);
     if (strpos($res, "window.open('facturae.jsp'") === false) {
       $this->expectException(\UnexpectedValueException::class);
     }
@@ -91,15 +92,16 @@ abstract class AbstractTest extends TestCase {
     ));
     $res = curl_exec($ch);
     curl_close($ch);
+    unset($ch);
 
     // Validate results
     $this->assertNotEmpty($res);
-    $this->assertContains('euro_ok.png', $res, 'Invalid XML Format');
+    $this->assertStringContainsString('euro_ok.png', $res, 'Invalid XML Format');
     if ($validateSignature) {
-      $this->assertContains('>Nivel de Firma Válido<', $res, 'Invalid Signature');
+      $this->assertStringContainsString('>Nivel de Firma Válido<', $res, 'Invalid Signature');
     }
     if (strpos($res, '>Sellos de Tiempo<') !== false) {
-      $this->assertContains('>XAdES_T<', $res, 'Invalid Timestamp');
+      $this->assertStringContainsString('>XAdES_T<', $res, 'Invalid Timestamp');
     }
   }
 

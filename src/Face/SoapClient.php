@@ -166,6 +166,7 @@ abstract class SoapClient {
     ));
     $res = curl_exec($ch);
     curl_close($ch);
+    unset($ch);
 
     // Parse response
     $xml = new \DOMDocument();

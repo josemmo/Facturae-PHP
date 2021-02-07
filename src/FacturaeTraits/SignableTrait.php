@@ -261,6 +261,7 @@ trait SignableTrait {
     $tsr = curl_exec($ch);
     if ($tsr === false) throw new \Exception('cURL error: ' . curl_error($ch));
     curl_close($ch);
+    unset($ch);
 
     // Validate TimeStampRequest
     $responseCode = substr($tsr, 6, 3);

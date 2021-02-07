@@ -1,0 +1,46 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 12 * * 1" # Every Monday at 12:00
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      matrix:
+        php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
+        include:
+          - php-version: '8.0'
+            test-ws: true
+            send-coverage: true
+          - php-version: '8.1'
+            experimental: true
+    steps:
+      # Download code from repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Setup PHP and Composer
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug
+
+      # Run tests
+      - name: Run tests
+        env:
+          TEST_WEBSERVICES: ${{ !startsWith(github.ref, 'refs/pull/') && matrix.test-ws || false }}
+        run: composer install && vendor/bin/simple-phpunit
+
+      # Send coverage
+      - name: Send coverage
+        if: ${{ !startsWith(github.ref, 'refs/pull/') && matrix.send-coverage }}
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r build/clover.xml
