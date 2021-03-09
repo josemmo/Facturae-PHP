@@ -96,13 +96,23 @@ class FacturaeParty {
             break;
           }
         }
-        $xml .= '<AddressInSpain>' .
-                  '<Address>' . $tools->escape($addressTarget->address) . '</Address>' .
-                  '<PostCode>' . $addressTarget->postCode . '</PostCode>' .
-                  '<Town>' . $tools->escape($addressTarget->town) .'</Town>' .
-                  '<Province>' . $tools->escape($addressTarget->province) . '</Province>' .
-                  '<CountryCode>' . $addressTarget->countryCode . '</CountryCode>' .
-                '</AddressInSpain>';
+
+        if($addressTarget->countryCode=='ESP') {
+          $xml .= '<AddressInSpain>' .
+            '<Address>' . $tools->escape($addressTarget->address) . '</Address>' .
+            '<PostCode>' . $addressTarget->postCode . '</PostCode>' .
+            '<Town>' . $tools->escape($addressTarget->town) . '</Town>' .
+            '<Province>' . $tools->escape($addressTarget->province) . '</Province>' .
+            '<CountryCode>' . $addressTarget->countryCode . '</CountryCode>' .
+            '</AddressInSpain>';
+        } else {
+          $xml .= '<OverseasAddress>' .
+            '<Address>' . $tools->escape($addressTarget->address) . '</Address>' .
+            '<PostCodeAndTown>' . $addressTarget->postCode . ' ' . $tools->escape($addressTarget->town) . '</PostCodeAndTown>' .
+            '<Province>' . $tools->escape($addressTarget->province) . '</Province>' .
+            '<CountryCode>' . $addressTarget->countryCode . '</CountryCode>' .
+            '</OverseasAddress>';
+        }
 
         if (!is_null($centre->description)) {
           $xml .= '<CentreDescription>' . $tools->escape($centre->description) . '</CentreDescription>';
@@ -144,14 +154,22 @@ class FacturaeParty {
     }
 
     // Add address
-    $xml .= '<AddressInSpain>' .
-              '<Address>' . $tools->escape($this->address) . '</Address>' .
-              '<PostCode>' . $this->postCode . '</PostCode>' .
-              '<Town>' . $tools->escape($this->town) . '</Town>' .
-              '<Province>' . $tools->escape($this->province) . '</Province>' .
-              '<CountryCode>' . $this->countryCode . '</CountryCode>' .
-            '</AddressInSpain>';
-
+    if($this->countryCode=='ESP') {
+      $xml .= '<AddressInSpain>' .
+        '<Address>' . $tools->escape($this->address) . '</Address>' .
+        '<PostCode>' . $this->postCode . '</PostCode>' .
+        '<Town>' . $tools->escape($this->town) . '</Town>' .
+        '<Province>' . $tools->escape($this->province) . '</Province>' .
+        '<CountryCode>' . $this->countryCode . '</CountryCode>' .
+        '</AddressInSpain>';
+    } else {
+      $xml .= '<OverseasAddress>' .
+        '<Address>' . $tools->escape($this->address) . '</Address>' .
+        '<PostCodeAndTown>' . $this->postCode . ' ' . $tools->escape($this->town) . '</PostCodeAndTown>' .
+        '<Province>' . $tools->escape($this->province) . '</Province>' .
+        '<CountryCode>' . $this->countryCode . '</CountryCode>' .
+        '</OverseasAddress>';
+    }
     // Add contact details
     $xml .= $this->getContactDetailsXML();
 
@@ -204,3 +222,4 @@ class FacturaeParty {
   }
 
 }
+
