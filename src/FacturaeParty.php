@@ -97,7 +97,7 @@ class FacturaeParty {
           }
         }
 
-        if($addressTarget->countryCode=='ESP') {
+        if ($addressTarget->countryCode === "ESP") {
           $xml .= '<AddressInSpain>' .
             '<Address>' . $tools->escape($addressTarget->address) . '</Address>' .
             '<PostCode>' . $addressTarget->postCode . '</PostCode>' .
