@@ -154,7 +154,7 @@ class FacturaeParty {
     }
 
     // Add address
-    if($this->countryCode=='ESP') {
+    if ($this->countryCode === "ESP") {
       $xml .= '<AddressInSpain>' .
         '<Address>' . $tools->escape($this->address) . '</Address>' .
         '<PostCode>' . $this->postCode . '</PostCode>' .
