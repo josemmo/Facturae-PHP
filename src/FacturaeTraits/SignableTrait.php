@@ -41,11 +41,11 @@ trait SignableTrait {
 
   /**
    * Sign
-   * @param  string  $publicPath  Path to public key PEM file or PKCS#12 certificate store
-   * @param  string  $privatePath Path to private key PEM file (should be null in case of PKCS#12)
-   * @param  string  $passphrase  Private key passphrase
-   * @param  array   $policy      Facturae sign policy
-   * @return boolean              Success
+   * @param  string      $publicPath  Path to public key PEM file or PKCS#12 certificate store
+   * @param  string|null $privatePath Path to private key PEM file (should be null in case of PKCS#12)
+   * @param  string      $passphrase  Private key passphrase
+   * @param  array       $policy      Facturae sign policy
+   * @return boolean                  Success
    */
   public function sign($publicPath, $privatePath=null, $passphrase="", $policy=self::SIGN_POLICY_3_1) {
     // Generate random IDs
