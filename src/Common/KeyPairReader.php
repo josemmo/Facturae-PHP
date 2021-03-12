@@ -13,7 +13,7 @@ class KeyPairReader {
 
   /**
    * Get public key
-   * @return string Public Key
+   * @return string|null Public Key
    */
   public function getPublicKey() {
     return $this->publicKey;
@@ -22,7 +22,7 @@ class KeyPairReader {
 
   /**
    * Get private key
-   * @return string Private Key
+   * @return string|null Private Key
    */
   public function getPrivateKey() {
     return $this->privateKey;
@@ -32,13 +32,16 @@ class KeyPairReader {
   /**
    * KeyPairReader constructor
    *
-   * @param string $publicPath  Path to public key in PEM or PKCS#12 file
-   * @param string $privatePath Path to private key (null for PKCS#12)
-   * @param string $passphrase  Private key passphrase
+   * @param string      $publicPath  Path to public key in PEM or PKCS#12 file
+   * @param string|null $privatePath Path to private key (null for PKCS#12)
+   * @param string      $passphrase  Private key passphrase
    */
   public function __construct($publicPath, $privatePath=null, $passphrase="") {
-    if (is_null($privatePath)) $this->readPkcs12($publicPath, $passphrase);
-    $this->readX509($publicPath, $privatePath, $passphrase);
+    if (is_null($privatePath)) {
+      $this->readPkcs12($publicPath, $passphrase);
+    } else {
+      $this->readX509($publicPath, $privatePath, $passphrase);
+    }
   }
 
 
