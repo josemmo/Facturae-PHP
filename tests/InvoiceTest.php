@@ -145,6 +145,17 @@ final class InvoiceTest extends AbstractTest {
       )
     ]));
 
+    // Un producto con IVA con recargo de equivalencia e IRPF
+    $fac->addItem(new FacturaeItem([
+      "name" => "Llevo IVA con recargo de equivalencia",
+      "quantity" => 1,
+      "unitPrice" => 10,
+      "taxes" => [
+        Facturae::TAX_IVA  => ["rate"=>21, "surcharge"=>5.2],
+        Facturae::TAX_IRPF => 19
+      ]
+    ]));
+
     // Para terminar, añadimos 3 bombillas LED con un coste de 6,50 € ...
     // ... pero con los impuestos NO INCLUÍDOS en el precio unitario
     $fac->addItem(new FacturaeItem([
@@ -191,7 +202,7 @@ final class InvoiceTest extends AbstractTest {
     // ... exportarlo a un archivo ...
     $isPfxStr = $isPfx ? "PKCS12" : "X509";
     $outputPath = str_replace("*", "$schemaVersion-$isPfxStr", self::FILE_PATH);
-    $res = $fac->export($outputPath);
+    $fac->export($outputPath);
 
     // ... y validar la factura
     $this->validateInvoiceXML($outputPath, true);
