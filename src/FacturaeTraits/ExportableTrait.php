@@ -108,17 +108,23 @@ trait ExportableTrait {
       $xmlTag = ucfirst($taxesGroup); // Just capitalize variable name
       $xml .= "<$xmlTag>";
       foreach ($totals[$taxesGroup] as $type=>$taxRows) {
-        foreach ($taxRows as $rate=>$tax) {
+        foreach ($taxRows as $tax) {
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
-                    '<TaxRate>' . $this->pad($rate, 'Tax/Rate') . '</TaxRate>' .
+                    '<TaxRate>' . $this->pad($tax['rate'], 'Tax/Rate') . '</TaxRate>' .
                     '<TaxableBase>' .
                       '<TotalAmount>' . $this->pad($tax['base'], 'Tax/Base') . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
                       '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/Amount') . '</TotalAmount>' .
-                    '</TaxAmount>' .
-                  '</Tax>';
+                    '</TaxAmount>';
+          if ($tax['surcharge'] != 0) {
+            $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/Surcharge') . '</EquivalenceSurcharge>' .
+                    '<EquivalenceSurchargeAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/SurchargeAmount') . '</TotalAmount>' .
+                    '</EquivalenceSurchargeAmount>';
+          }
+          $xml .= '</Tax>';
         }
       }
       $xml .= "</$xmlTag>";
@@ -222,8 +228,14 @@ trait ExportableTrait {
                     '</TaxableBase>' .
                     '<TaxAmount>' .
                       '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/Amount') . '</TotalAmount>' .
-                    '</TaxAmount>' .
-                  '</Tax>';
+                    '</TaxAmount>';
+          if ($tax['surcharge'] != 0) {
+            $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/Surcharge') . '</EquivalenceSurcharge>' .
+                    '<EquivalenceSurchargeAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/SurchargeAmount') . '</TotalAmount>' .
+                    '</EquivalenceSurchargeAmount>';
+          }
+          $xml .= '</Tax>';
         }
         $xml .= "</$xmlTag>";
       }

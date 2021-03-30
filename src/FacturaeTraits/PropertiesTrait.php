@@ -584,14 +584,19 @@ trait PropertiesTrait {
           if (!isset($totals[$taxGroup][$type])) {
             $totals[$taxGroup][$type] = array();
           }
-          if (!isset($totals[$taxGroup][$type][$tax['rate']])) {
-            $totals[$taxGroup][$type][$tax['rate']] = array(
+          $taxKey = $tax['rate'] . ":" . $tax['surcharge'];
+          if (!isset($totals[$taxGroup][$type][$taxKey])) {
+            $totals[$taxGroup][$type][$taxKey] = array(
               "base" => 0,
-              "amount" => 0
+              "rate" => $tax['rate'],
+              "surcharge" => $tax['surcharge'],
+              "amount" => 0,
+              "surchargeAmount" => 0
             );
           }
-          $totals[$taxGroup][$type][$tax['rate']]['base'] += $tax['base'];
-          $totals[$taxGroup][$type][$tax['rate']]['amount'] += $tax['amount'];
+          $totals[$taxGroup][$type][$taxKey]['base'] += $tax['base'];
+          $totals[$taxGroup][$type][$taxKey]['amount'] += $tax['amount'];
+          $totals[$taxGroup][$type][$taxKey]['surchargeAmount'] += $tax['surchargeAmount'];
         }
       }
     }
