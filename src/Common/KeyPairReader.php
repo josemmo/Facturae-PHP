@@ -83,7 +83,10 @@ class KeyPairReader {
   private function readPkcs12($certPath, $passphrase) {
     if (!is_file($certPath)) return;
     if (openssl_pkcs12_read(file_get_contents($certPath), $store, $passphrase)) {
-      $this->publicChain = array_merge(array($store['cert']), $store['extracerts']);
+      $this->publicChain = array($store['cert']);
+      if (!empty($store['extracerts'])) {
+        $this->publicChain = array_merge($this->publicChain, $store['extracerts']);
+      }
       $this->privateKey = openssl_pkey_get_private($store['pkey']);
       unset($store);
     }
