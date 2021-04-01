@@ -94,17 +94,16 @@ class XmlTools {
 
   /**
    * Get certificate
-   * @param  string  $publicKey Public Key
-   * @param  boolean $pretty    Pretty Base64 response
-   * @return string             Base64 Certificate
+   * @param  string  $pem    Certificate for the public key in PEM format
+   * @param  boolean $pretty Pretty Base64 response
+   * @return string          Base64 Certificate
    */
-  public function getCert($publicKey, $pretty=true) {
-    openssl_x509_export($publicKey, $publicPEM);
-    $publicPEM = str_replace("-----BEGIN CERTIFICATE-----", "", $publicPEM);
-    $publicPEM = str_replace("-----END CERTIFICATE-----", "", $publicPEM);
-    $publicPEM = str_replace("\n", "", str_replace("\r", "", $publicPEM));
-    if ($pretty) $publicPEM = $this->prettify($publicPEM);
-    return $publicPEM;
+  public function getCert($pem, $pretty=true) {
+    $pem = str_replace("-----BEGIN CERTIFICATE-----", "", $pem);
+    $pem = str_replace("-----END CERTIFICATE-----", "", $pem);
+    $pem = str_replace("\n", "", str_replace("\r", "", $pem));
+    if ($pretty) $pem = $this->prettify($pem);
+    return $pem;
   }
 
 

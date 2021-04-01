@@ -14,7 +14,7 @@ trait SignableTrait {
   protected $timestampServer = null;
   private $timestampUser = null;
   private $timestampPass = null;
-  private $publicKey = null;
+  private $publicChain = [];
   private $privateKey = null;
 
   /**
@@ -61,13 +61,13 @@ trait SignableTrait {
 
     // Load public and private keys
     $reader = new KeyPairReader($publicPath, $privatePath, $passphrase);
-    $this->publicKey = $reader->getPublicKey();
+    $this->publicChain = $reader->getPublicChain();
     $this->privateKey = $reader->getPrivateKey();
     $this->signPolicy = $policy;
     unset($reader);
 
     // Return success
-    return (!empty($this->publicKey) && !empty($this->privateKey));
+    return (!empty($this->publicChain) && !empty($this->privateKey));
   }
 
 
@@ -78,7 +78,7 @@ trait SignableTrait {
    */
   protected function injectSignature($xml) {
     // Make sure we have all we need to sign the document
-    if (empty($this->publicKey) || empty($this->privateKey)) return $xml;
+    if (empty($this->publicChain) || empty($this->privateKey)) return $xml;
     $tools = new XmlTools();
 
     // Normalize document
@@ -86,7 +86,7 @@ trait SignableTrait {
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
-    $certData = openssl_x509_parse($this->publicKey);
+    $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
     foreach ($certData['issuer'] as $item=>$value) {
       $certIssuer[] = "$item=$value";
@@ -102,7 +102,7 @@ trait SignableTrait {
                   '<xades:Cert>' .
                     '<xades:CertDigest>' .
                       '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
-                      '<ds:DigestValue>' . $tools->getCertDigest($this->publicKey) . '</ds:DigestValue>' .
+                      '<ds:DigestValue>' . $tools->getCertDigest($this->publicChain[0]) . '</ds:DigestValue>' .
                     '</xades:CertDigest>' .
                     '<xades:IssuerSerial>' .
                       '<ds:X509IssuerName>' . $certIssuer . '</ds:X509IssuerName>' .
@@ -146,11 +146,13 @@ trait SignableTrait {
     $exponent = base64_encode($privateData['rsa']['e']);
 
     // Generate KeyInfo
-    $kInfo = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' . "\n" .
-               '<ds:X509Data>' . "\n" .
-                 '<ds:X509Certificate>' . "\n" . $tools->getCert($this->publicKey) . '</ds:X509Certificate>' . "\n" .
-               '</ds:X509Data>' . "\n" .
-               '<ds:KeyValue>' . "\n" .
+    $kInfo  = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' . "\n" .
+                '<ds:X509Data>' . "\n";
+    foreach ($this->publicChain as $pemCertificate) {
+      $kInfo .=   '<ds:X509Certificate>' . "\n" . $tools->getCert($pemCertificate) . '</ds:X509Certificate>' . "\n";
+    }
+    $kInfo .=   '</ds:X509Data>' . "\n" .
+              '<ds:KeyValue>' . "\n" .
                  '<ds:RSAKeyValue>' . "\n" .
                    '<ds:Modulus>' . "\n" . $modulus . '</ds:Modulus>' . "\n" .
                    '<ds:Exponent>' . $exponent . '</ds:Exponent>' . "\n" .
