@@ -192,7 +192,7 @@ final class InvoiceTest extends AbstractTest {
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
-      $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
+      $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
     } else {
       $fac->sign(self::CERTS_DIR . "/facturae-public.pem",
                  self::CERTS_DIR . "/facturae-private.pem", self::FACTURAE_CERT_PASS);

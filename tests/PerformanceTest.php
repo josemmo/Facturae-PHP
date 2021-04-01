@@ -17,7 +17,7 @@ final class PerformanceTest extends AbstractTest {
     for ($i=0; $i<self::ROUNDS; $i++) {
       $fac = $this->getBaseInvoice();
       $fac->addItem("Producto #$i", 20.14, 3, Facturae::TAX_IVA, 21);
-      $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
+      $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
       $fac->export();
     }
 
