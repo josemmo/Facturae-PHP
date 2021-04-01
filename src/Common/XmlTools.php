@@ -82,13 +82,13 @@ class XmlTools {
 
 
   /**
-   * Get digest
+   * Get digest in SHA-512
    * @param  string  $input  Input string
    * @param  boolean $pretty Pretty Base64 response
    * @return string          Digest
    */
   public function getDigest($input, $pretty=false) {
-    return $this->toBase64(sha1($input, true), $pretty);
+    return $this->toBase64(hash("sha512", $input, true), $pretty);
   }
 
 
@@ -109,13 +109,13 @@ class XmlTools {
 
 
   /**
-   * Get certificate digest
+   * Get certificate digest in SHA-512
    * @param  string  $publicKey Public Key
    * @param  boolean $pretty    Pretty Base64 response
    * @return string             Base64 Digest
    */
   public function getCertDigest($publicKey, $pretty=false) {
-    $digest = openssl_x509_fingerprint($publicKey, "sha1", true);
+    $digest = openssl_x509_fingerprint($publicKey, "sha512", true);
     return $this->toBase64($digest, $pretty);
   }
 

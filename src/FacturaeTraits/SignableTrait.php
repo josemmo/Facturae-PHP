@@ -87,11 +87,11 @@ trait SignableTrait {
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
     $certData = openssl_x509_parse($this->publicKey);
-    $certIssuer = array();
+    $certIssuer = [];
     foreach ($certData['issuer'] as $item=>$value) {
-      $certIssuer[] = $item . '=' . $value;
+      $certIssuer[] = "$item=$value";
     }
-    $certIssuer = implode(',', $certIssuer);
+    $certIssuer = implode(',', array_reverse($certIssuer));
 
     // Generate signed properties
     $prop = '<xades:SignedProperties Id="Signature' . $this->signatureID .
@@ -101,7 +101,7 @@ trait SignableTrait {
                 '<xades:SigningCertificate>' .
                   '<xades:Cert>' .
                     '<xades:CertDigest>' .
-                      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>' .
+                      '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
                       '<ds:DigestValue>' . $tools->getCertDigest($this->publicKey) . '</ds:DigestValue>' .
                     '</xades:CertDigest>' .
                     '<xades:IssuerSerial>' .
@@ -131,6 +131,9 @@ trait SignableTrait {
               '<xades:SignedDataObjectProperties>' .
                 '<xades:DataObjectFormat ObjectReference="#Reference-ID-' . $this->referenceID . '">' .
                   '<xades:Description>Factura electrónica</xades:Description>' .
+                  '<xades:ObjectIdentifier>' .
+                    '<xades:Identifier Qualifier="OIDAsURN">urn:oid:1.2.840.10003.5.109.10</xades:Identifier>' .
+                  '</xades:ObjectIdentifier>' .
                   '<xades:MimeType>text/xml</xades:MimeType>' .
                 '</xades:DataObjectFormat>' .
               '</xades:SignedDataObjectProperties>' .
@@ -171,21 +174,22 @@ trait SignableTrait {
                'Type="http://uri.etsi.org/01903#SignedProperties" ' .
                'URI="#Signature' . $this->signatureID . '-SignedProperties' .
                $this->signatureSignedPropertiesID . '">' . "\n" .
-                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
                  '</ds:DigestMethod>' . "\n" .
                  '<ds:DigestValue>' . $propDigest . '</ds:DigestValue>' . "\n" .
                '</ds:Reference>' . "\n" .
                '<ds:Reference URI="#Certificate' . $this->certificateID . '">' . "\n" .
-                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
                  '</ds:DigestMethod>' . "\n" .
                  '<ds:DigestValue>' . $kInfoDigest . '</ds:DigestValue>' . "\n" .
                '</ds:Reference>' . "\n" .
-               '<ds:Reference Id="Reference-ID-' . $this->referenceID . '" URI="">' . "\n" .
+               '<ds:Reference Id="Reference-ID-' . $this->referenceID . '" ' .
+               'Type="http://www.w3.org/2000/09/xmldsig#Object" URI="">' . "\n" .
                  '<ds:Transforms>' . "\n" .
                    '<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature">' .
                    '</ds:Transform>' . "\n" .
                  '</ds:Transforms>' . "\n" .
-                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
                  '</ds:DigestMethod>' . "\n" .
                  '<ds:DigestValue>' . $documentDigest . '</ds:DigestValue>' . "\n" .
                '</ds:Reference>' . "\n" .
