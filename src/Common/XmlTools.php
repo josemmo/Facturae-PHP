@@ -120,7 +120,7 @@ class XmlTools {
 
 
   /**
-   * Get signature
+   * Get signature in SHA-1
    * @param  string  $payload    Data to sign
    * @param  string  $privateKey Private Key
    * @param  boolean $pretty     Pretty Base64 response

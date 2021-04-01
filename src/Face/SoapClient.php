@@ -117,11 +117,11 @@ abstract class SoapClient {
         '</ds:CanonicalizationMethod>' .
         '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></ds:SignatureMethod>' .
         '<ds:Reference URI="#' . $timestampId . '">' .
-          '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>' .
+          '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
           '<ds:DigestValue>' . $timestampDigest . '</ds:DigestValue>' .
         '</ds:Reference>' .
         '<ds:Reference URI="#' . $bodyId . '">' .
-          '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>' .
+          '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
           '<ds:DigestValue>' . $bodyDigest . '</ds:DigestValue>' .
         '</ds:Reference>' .
       '</ds:SignedInfo>';
