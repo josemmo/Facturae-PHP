@@ -174,10 +174,21 @@ final class InvoiceTest extends AbstractTest {
     $fac->addDiscount('A mitad de precio', 50);
     $fac->addCharge('Recargo del 50%', 50);
 
-    // Establecemos un método de pago (por coverage, solo en algunos casos)
-    if (!$isPfx) {
-      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER,
-        "ES7620770024003102575766", "CAHMESMM");
+    // Establecemos un método de pago con cesión de crédito (solo en algunos casos)
+    if ($isPfx) {
+      $fac->setAssignee(new FacturaeParty([
+        "taxNumber" => "B00000000",
+        "name"      => "Cesionario S.L.",
+        "address"   => "C/ Falsa, 321",
+        "postCode"  => "02001",
+        "town"      => "Albacete",
+        "province"  => "Albacete",
+        "phone"     => "967000000",
+        "fax"       => "967000001",
+        "email"     => "cesionario@ejemplo.com"
+      ]));
+      $fac->setAssignmentClauses('Cláusula de cesión');
+      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766", "CAHMESMM");
       $fac->setDueDate("2017-12-31");
     }
 

@@ -45,10 +45,10 @@ trait ExportableTrait {
     $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
            'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
     $totals = $this->getTotals();
+    $paymentDetailsXML = $this->getPaymentDetailsXML($totals);
 
     // Add header
-    $batchIdentifier = $this->parties['seller']->taxNumber .
-      $this->header['number'] . $this->header['serie'];
+    $batchIdentifier = $this->parties['seller']->taxNumber . $this->header['number'] . $this->header['serie'];
     $xml .= '<FileHeader>' .
               '<SchemaVersion>' . $this->version .'</SchemaVersion>' .
               '<Modality>I</Modality>' .
@@ -66,8 +66,23 @@ trait ExportableTrait {
                   '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
                 '</TotalExecutableAmount>' .
                 '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
-              '</Batch>' .
-            '</FileHeader>';
+              '</Batch>';
+
+    // Add factoring assignment data
+    if (!is_null($this->parties['assignee'])) {
+      $xml .= '<FactoringAssignmentData>';
+      $xml .= '<Assignee>' . $this->parties['assignee']->getXML($this->version) . '</Assignee>';
+      $xml .= $paymentDetailsXML;
+      if (!is_null($this->header['assignmentClauses'])) {
+        $xml .= '<FactoringAssignmentClauses>' .
+                  $tools->escape($this->header['assignmentClauses']) .
+                '</FactoringAssignmentClauses>';
+      }
+      $xml .= '</FactoringAssignmentData>';
+    }
+
+    // Close header
+    $xml .= '</FileHeader>';
 
     // Add parties
     $xml .= '<Parties>' .
@@ -252,29 +267,7 @@ trait ExportableTrait {
     $xml .= '</Items>';
 
     // Add payment details
-    if (!is_null($this->header['paymentMethod'])) {
-      $dueDate = is_null($this->header['dueDate']) ?
-        $this->header['issueDate'] :
-        $this->header['dueDate'];
-      $xml .= '<PaymentDetails>';
-      $xml .= '<Installment>';
-      $xml .= '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>';
-      $xml .= '<InstallmentAmount>' . $totals['invoiceAmount'] . '</InstallmentAmount>';
-      $xml .= '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
-      if (!is_null($this->header['paymentIBAN'])) {
-        $accountType = ($this->header['paymentMethod'] == self::PAYMENT_DEBIT) ?
-          "AccountToBeDebited" :
-          "AccountToBeCredited";
-        $xml .= "<$accountType>";
-        $xml .= '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>';
-        if (!is_null($this->header['paymentBIC'])) {
-          $xml .= '<BIC>' . $this->header['paymentBIC'] . '</BIC>';
-        }
-        $xml .= "</$accountType>";
-      }
-      $xml .= '</Installment>';
-      $xml .= '</PaymentDetails>';
-    }
+    $xml .= $paymentDetailsXML;
 
     // Add legal literals
     if (count($this->legalLiterals) > 0) {
@@ -301,6 +294,36 @@ trait ExportableTrait {
 
     // Save document
     if (!is_null($filePath)) return file_put_contents($filePath, $xml);
+    return $xml;
+  }
+
+
+  /**
+   * Get payment details XML
+   * @param  array  $totals Invoice totals
+   * @return string         Payment details XML, empty string if not available
+   */
+  private function getPaymentDetailsXML($totals) {
+    if (is_null($this->header['paymentMethod'])) return "";
+
+    $dueDate = is_null($this->header['dueDate']) ? $this->header['issueDate'] : $this->header['dueDate'];
+    $xml  = '<PaymentDetails>';
+    $xml .= '<Installment>';
+    $xml .= '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>';
+    $xml .= '<InstallmentAmount>' . $totals['invoiceAmount'] . '</InstallmentAmount>';
+    $xml .= '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
+    if (!is_null($this->header['paymentIBAN'])) {
+      $accountType = ($this->header['paymentMethod'] == self::PAYMENT_DEBIT) ? "AccountToBeDebited" : "AccountToBeCredited";
+      $xml .= "<$accountType>";
+      $xml .= '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>';
+      if (!is_null($this->header['paymentBIC'])) {
+        $xml .= '<BIC>' . $this->header['paymentBIC'] . '</BIC>';
+      }
+      $xml .= "</$accountType>";
+    }
+    $xml .= '</Installment>';
+    $xml .= '</PaymentDetails>';
+
     return $xml;
   }
 
