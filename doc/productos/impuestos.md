@@ -1,11 +1,13 @@
 ---
-title: Múltiples impuestos
+title: Impuestos
 parent: Líneas de producto
 nav_order: 1
-permalink: /productos/multiples-impuestos.html
+permalink: /productos/impuestos.html
 ---
 
-# Múltiples impuestos
+# Impuestos
+
+## Múltiples impuestos
 Supongamos que se quieren añadir varios impuestos a una misma línea de producto. En este caso se deberá hacer uso de la API avanzada de productos de Facturae-PHP a través de la clase `FacturaeItem`:
 ```php
 // Vamos a añadir un producto utilizando la API avanzada
@@ -44,9 +46,23 @@ $fac->addItem(new FacturaeItem([
   "name" => "Llevo impuestos retenidos",
   "quantity" => 1,
   "unitPrice" => 10,
-  "taxes" => array(
+  "taxes" => [
     Facturae::TAX_IVA => 21,
     Facturae::TAX_IE  => ["rate"=>4, "isWithheld"=>true]
-  )
+  ]
+]));
+```
+
+## IVA con recargo de equivalencia
+Para añadir un recargo de equivalencia al IVA ("equivalence surcharge" en inglés) se debe especificar el porcentaje de recargo dentro de la propiedad `surcharge`:
+```php
+$fac->addItem(new FacturaeItem([
+  "name" => "Llevo IVA con recargo de equivalencia",
+  "quantity" => 1,
+  "unitPrice" => 10,
+  "taxes" => [
+    Facturae::TAX_IVA  => ["rate"=>21, "surcharge"=>5.2],
+    Facturae::TAX_IRPF => 19
+  ]
 ]));
 ```

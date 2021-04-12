@@ -51,6 +51,9 @@ class FacturaeItem {
         if (!isset($tax['isWithheld'])) { // Get value by default
           $tax['isWithheld'] = Facturae::isWithheldTax($r);
         }
+        if (!isset($tax['surcharge'])) {
+          $tax['surcharge'] = 0;
+        }
         if ($tax['isWithheld']) {
           $this->taxesWithheld[$r] = $tax;
         } else {
@@ -65,7 +68,7 @@ class FacturaeItem {
       $taxesPercent = 1;
       foreach (['taxesOutputs', 'taxesWithheld'] as $i=>$taxesGroupTag) {
         foreach ($this->{$taxesGroupTag} as $taxData) {
-          $rate = $taxData['rate'] / 100;
+          $rate = ($taxData['rate'] + $taxData['surcharge']) / 100;
           if ($i == 1) $rate *= -1; // In case of $taxesWithheld (2nd iteration)
           $taxesPercent += $rate;
         }
@@ -133,17 +136,20 @@ class FacturaeItem {
     foreach (['taxesOutputs', 'taxesWithheld'] as $i=>$taxesGroup) {
       foreach ($this->{$taxesGroup} as $type=>$tax) {
         $taxRate = $fac->pad($tax['rate'], 'Tax/Rate');
-        $taxAmount = $grossAmount * ($taxRate / 100);
-        $taxAmount = $fac->pad($taxAmount, 'Tax/Amount');
+        $surcharge = $fac->pad($tax['surcharge'], 'Tax/Surcharge');
+        $taxAmount = $fac->pad($grossAmount * ($taxRate / 100), 'Tax/Amount');
+        $surchargeAmount = $fac->pad($grossAmount * ($surcharge / 100), 'Tax/SurchargeAmount');
         $addProps[$taxesGroup][$type] = array(
           "base" => $fac->pad($grossAmount, 'Tax/Base'),
           "rate" => $taxRate,
-          "amount" => $taxAmount
+          "surcharge" => $surcharge,
+          "amount" => $taxAmount,
+          "surchargeAmount" => $surchargeAmount
         );
         if ($i == 1) { // In case of $taxesWithheld (2nd iteration)
-          $totalTaxesWithheld += $taxAmount;
+          $totalTaxesWithheld += $taxAmount + $surchargeAmount;
         } else {
-          $totalTaxesOutputs += $taxAmount;
+          $totalTaxesOutputs += $taxAmount + $surchargeAmount;
         }
       }
     }

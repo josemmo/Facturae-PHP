@@ -14,7 +14,7 @@ trait SignableTrait {
   protected $timestampServer = null;
   private $timestampUser = null;
   private $timestampPass = null;
-  private $publicKey = null;
+  private $publicChain = [];
   private $privateKey = null;
 
   /**
@@ -61,13 +61,13 @@ trait SignableTrait {
 
     // Load public and private keys
     $reader = new KeyPairReader($publicPath, $privatePath, $passphrase);
-    $this->publicKey = $reader->getPublicKey();
+    $this->publicChain = $reader->getPublicChain();
     $this->privateKey = $reader->getPrivateKey();
     $this->signPolicy = $policy;
     unset($reader);
 
     // Return success
-    return (!empty($this->publicKey) && !empty($this->privateKey));
+    return (!empty($this->publicChain) && !empty($this->privateKey));
   }
 
 
@@ -78,7 +78,7 @@ trait SignableTrait {
    */
   protected function injectSignature($xml) {
     // Make sure we have all we need to sign the document
-    if (empty($this->publicKey) || empty($this->privateKey)) return $xml;
+    if (empty($this->publicChain) || empty($this->privateKey)) return $xml;
     $tools = new XmlTools();
 
     // Normalize document
@@ -86,12 +86,12 @@ trait SignableTrait {
 
     // Prepare signed properties
     $signTime = is_null($this->signTime) ? time() : $this->signTime;
-    $certData = openssl_x509_parse($this->publicKey);
-    $certIssuer = array();
+    $certData = openssl_x509_parse($this->publicChain[0]);
+    $certIssuer = [];
     foreach ($certData['issuer'] as $item=>$value) {
-      $certIssuer[] = $item . '=' . $value;
+      $certIssuer[] = "$item=$value";
     }
-    $certIssuer = implode(',', $certIssuer);
+    $certIssuer = implode(',', array_reverse($certIssuer));
 
     // Generate signed properties
     $prop = '<xades:SignedProperties Id="Signature' . $this->signatureID .
@@ -101,8 +101,8 @@ trait SignableTrait {
                 '<xades:SigningCertificate>' .
                   '<xades:Cert>' .
                     '<xades:CertDigest>' .
-                      '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>' .
-                      '<ds:DigestValue>' . $tools->getCertDigest($this->publicKey) . '</ds:DigestValue>' .
+                      '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
+                      '<ds:DigestValue>' . $tools->getCertDigest($this->publicChain[0]) . '</ds:DigestValue>' .
                     '</xades:CertDigest>' .
                     '<xades:IssuerSerial>' .
                       '<ds:X509IssuerName>' . $certIssuer . '</ds:X509IssuerName>' .
@@ -131,6 +131,9 @@ trait SignableTrait {
               '<xades:SignedDataObjectProperties>' .
                 '<xades:DataObjectFormat ObjectReference="#Reference-ID-' . $this->referenceID . '">' .
                   '<xades:Description>Factura electrónica</xades:Description>' .
+                  '<xades:ObjectIdentifier>' .
+                    '<xades:Identifier Qualifier="OIDAsURN">urn:oid:1.2.840.10003.5.109.10</xades:Identifier>' .
+                  '</xades:ObjectIdentifier>' .
                   '<xades:MimeType>text/xml</xades:MimeType>' .
                 '</xades:DataObjectFormat>' .
               '</xades:SignedDataObjectProperties>' .
@@ -143,11 +146,13 @@ trait SignableTrait {
     $exponent = base64_encode($privateData['rsa']['e']);
 
     // Generate KeyInfo
-    $kInfo = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' . "\n" .
-               '<ds:X509Data>' . "\n" .
-                 '<ds:X509Certificate>' . "\n" . $tools->getCert($this->publicKey) . '</ds:X509Certificate>' . "\n" .
-               '</ds:X509Data>' . "\n" .
-               '<ds:KeyValue>' . "\n" .
+    $kInfo  = '<ds:KeyInfo Id="Certificate' . $this->certificateID . '">' . "\n" .
+                '<ds:X509Data>' . "\n";
+    foreach ($this->publicChain as $pemCertificate) {
+      $kInfo .=   '<ds:X509Certificate>' . "\n" . $tools->getCert($pemCertificate) . '</ds:X509Certificate>' . "\n";
+    }
+    $kInfo .=   '</ds:X509Data>' . "\n" .
+              '<ds:KeyValue>' . "\n" .
                  '<ds:RSAKeyValue>' . "\n" .
                    '<ds:Modulus>' . "\n" . $modulus . '</ds:Modulus>' . "\n" .
                    '<ds:Exponent>' . $exponent . '</ds:Exponent>' . "\n" .
@@ -171,21 +176,22 @@ trait SignableTrait {
                'Type="http://uri.etsi.org/01903#SignedProperties" ' .
                'URI="#Signature' . $this->signatureID . '-SignedProperties' .
                $this->signatureSignedPropertiesID . '">' . "\n" .
-                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
                  '</ds:DigestMethod>' . "\n" .
                  '<ds:DigestValue>' . $propDigest . '</ds:DigestValue>' . "\n" .
                '</ds:Reference>' . "\n" .
                '<ds:Reference URI="#Certificate' . $this->certificateID . '">' . "\n" .
-                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
                  '</ds:DigestMethod>' . "\n" .
                  '<ds:DigestValue>' . $kInfoDigest . '</ds:DigestValue>' . "\n" .
                '</ds:Reference>' . "\n" .
-               '<ds:Reference Id="Reference-ID-' . $this->referenceID . '" URI="">' . "\n" .
+               '<ds:Reference Id="Reference-ID-' . $this->referenceID . '" ' .
+               'Type="http://www.w3.org/2000/09/xmldsig#Object" URI="">' . "\n" .
                  '<ds:Transforms>' . "\n" .
                    '<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature">' .
                    '</ds:Transform>' . "\n" .
                  '</ds:Transforms>' . "\n" .
-                 '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">' .
+                 '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
                  '</ds:DigestMethod>' . "\n" .
                  '<ds:DigestValue>' . $documentDigest . '</ds:DigestValue>' . "\n" .
                '</ds:Reference>' . "\n" .

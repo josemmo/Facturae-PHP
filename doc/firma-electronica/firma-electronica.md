@@ -31,6 +31,12 @@ Desde la versión 1.0.5 de Facturae-PHP ya es posible cargar un banco de certifi
 $fac->sign("certificado.pfx", null, "passphrase");
 ```
 
+> #### NOTA
+> Al utilizar un banco PKCS#12, Facturae-PHP incluirá la cadena completa de certificados en la factura al firmarla.
+>
+> Aunque en la mayoría de los casos esto no supone ninguna diferencia con respecto a firmar desde ficheros PEM, el validador del Gobierno de España **presenta problemas para verificar firmas de certificados expedidos recientemente por la FNMT**.
+> Dicho problema se soluciona cuando se incluyen los certificados raíz e intermedios de la Entidad de Certificación, por lo que es recomendable usar este método de firma con Facturae-PHP.
+
 ---
 
 ## Fecha de la firma

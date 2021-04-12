@@ -20,6 +20,7 @@ trait PropertiesTrait {
     "dueDate" => null,
     "startDate" => null,
     "endDate" => null,
+    "assignmentClauses" => null,
     "paymentMethod" => null,
     "paymentIBAN" => null,
     "paymentBIC" => null,
@@ -31,6 +32,7 @@ trait PropertiesTrait {
     "additionalInformation" => null
   );
   protected $parties = array(
+    "assignee" => null,
     "seller" => null,
     "buyer" => null
   );
@@ -67,6 +69,46 @@ trait PropertiesTrait {
    */
   public function getSchemaVersion() {
     return $this->version;
+  }
+
+
+  /**
+   * Set assignee
+   * @param  FacturaeParty $assignee Assignee information
+   * @return Facturae                Invoice instance
+   */
+  public function setAssignee($assignee) {
+    $this->parties['assignee'] = $assignee;
+    return $this;
+  }
+
+
+  /**
+   * Get assignee
+   * @return FacturaeParty|null Assignee information
+   */
+  public function getAssignee() {
+    return $this->parties['assignee'];
+  }
+
+
+  /**
+   * Set assignment clauses
+   * @param  string   $clauses Assignment clauses
+   * @return Facturae          Invoice instance
+   */
+  public function setAssignmentClauses($clauses) {
+    $this->header['assignmentClauses'] = $clauses;
+    return $this;
+  }
+
+
+  /**
+   * Get assignment clauses
+   * @return string|null Assignment clauses
+   */
+  public function getAssignmentClauses() {
+    return $this->header['assignmentClauses'];
   }
 
 
@@ -584,14 +626,19 @@ trait PropertiesTrait {
           if (!isset($totals[$taxGroup][$type])) {
             $totals[$taxGroup][$type] = array();
           }
-          if (!isset($totals[$taxGroup][$type][$tax['rate']])) {
-            $totals[$taxGroup][$type][$tax['rate']] = array(
+          $taxKey = $tax['rate'] . ":" . $tax['surcharge'];
+          if (!isset($totals[$taxGroup][$type][$taxKey])) {
+            $totals[$taxGroup][$type][$taxKey] = array(
               "base" => 0,
-              "amount" => 0
+              "rate" => $tax['rate'],
+              "surcharge" => $tax['surcharge'],
+              "amount" => 0,
+              "surchargeAmount" => 0
             );
           }
-          $totals[$taxGroup][$type][$tax['rate']]['base'] += $tax['base'];
-          $totals[$taxGroup][$type][$tax['rate']]['amount'] += $tax['amount'];
+          $totals[$taxGroup][$type][$taxKey]['base'] += $tax['base'];
+          $totals[$taxGroup][$type][$taxKey]['amount'] += $tax['amount'];
+          $totals[$taxGroup][$type][$taxKey]['surchargeAmount'] += $tax['surchargeAmount'];
         }
       }
     }

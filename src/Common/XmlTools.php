@@ -82,46 +82,45 @@ class XmlTools {
 
 
   /**
-   * Get digest
+   * Get digest in SHA-512
    * @param  string  $input  Input string
    * @param  boolean $pretty Pretty Base64 response
    * @return string          Digest
    */
   public function getDigest($input, $pretty=false) {
-    return $this->toBase64(sha1($input, true), $pretty);
+    return $this->toBase64(hash("sha512", $input, true), $pretty);
   }
 
 
   /**
    * Get certificate
-   * @param  string  $publicKey Public Key
-   * @param  boolean $pretty    Pretty Base64 response
-   * @return string             Base64 Certificate
+   * @param  string  $pem    Certificate for the public key in PEM format
+   * @param  boolean $pretty Pretty Base64 response
+   * @return string          Base64 Certificate
    */
-  public function getCert($publicKey, $pretty=true) {
-    openssl_x509_export($publicKey, $publicPEM);
-    $publicPEM = str_replace("-----BEGIN CERTIFICATE-----", "", $publicPEM);
-    $publicPEM = str_replace("-----END CERTIFICATE-----", "", $publicPEM);
-    $publicPEM = str_replace("\n", "", str_replace("\r", "", $publicPEM));
-    if ($pretty) $publicPEM = $this->prettify($publicPEM);
-    return $publicPEM;
+  public function getCert($pem, $pretty=true) {
+    $pem = str_replace("-----BEGIN CERTIFICATE-----", "", $pem);
+    $pem = str_replace("-----END CERTIFICATE-----", "", $pem);
+    $pem = str_replace("\n", "", str_replace("\r", "", $pem));
+    if ($pretty) $pem = $this->prettify($pem);
+    return $pem;
   }
 
 
   /**
-   * Get certificate digest
+   * Get certificate digest in SHA-512
    * @param  string  $publicKey Public Key
    * @param  boolean $pretty    Pretty Base64 response
    * @return string             Base64 Digest
    */
   public function getCertDigest($publicKey, $pretty=false) {
-    $digest = openssl_x509_fingerprint($publicKey, "sha1", true);
+    $digest = openssl_x509_fingerprint($publicKey, "sha512", true);
     return $this->toBase64($digest, $pretty);
   }
 
 
   /**
-   * Get signature
+   * Get signature in SHA-1
    * @param  string  $payload    Data to sign
    * @param  string  $privateKey Private Key
    * @param  boolean $pretty     Pretty Base64 response

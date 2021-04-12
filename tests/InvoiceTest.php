@@ -145,6 +145,17 @@ final class InvoiceTest extends AbstractTest {
       )
     ]));
 
+    // Un producto con IVA con recargo de equivalencia e IRPF
+    $fac->addItem(new FacturaeItem([
+      "name" => "Llevo IVA con recargo de equivalencia",
+      "quantity" => 1,
+      "unitPrice" => 10,
+      "taxes" => [
+        Facturae::TAX_IVA  => ["rate"=>21, "surcharge"=>5.2],
+        Facturae::TAX_IRPF => 19
+      ]
+    ]));
+
     // Para terminar, añadimos 3 bombillas LED con un coste de 6,50 € ...
     // ... pero con los impuestos NO INCLUÍDOS en el precio unitario
     $fac->addItem(new FacturaeItem([
@@ -163,10 +174,21 @@ final class InvoiceTest extends AbstractTest {
     $fac->addDiscount('A mitad de precio', 50);
     $fac->addCharge('Recargo del 50%', 50);
 
-    // Establecemos un método de pago (por coverage, solo en algunos casos)
-    if (!$isPfx) {
-      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER,
-        "ES7620770024003102575766", "CAHMESMM");
+    // Establecemos un método de pago con cesión de crédito (solo en algunos casos)
+    if ($isPfx) {
+      $fac->setAssignee(new FacturaeParty([
+        "taxNumber" => "B00000000",
+        "name"      => "Cesionario S.L.",
+        "address"   => "C/ Falsa, 321",
+        "postCode"  => "02001",
+        "town"      => "Albacete",
+        "province"  => "Albacete",
+        "phone"     => "967000000",
+        "fax"       => "967000001",
+        "email"     => "cesionario@ejemplo.com"
+      ]));
+      $fac->setAssignmentClauses('Cláusula de cesión');
+      $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766", "CAHMESMM");
       $fac->setDueDate("2017-12-31");
     }
 
@@ -181,7 +203,7 @@ final class InvoiceTest extends AbstractTest {
 
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
-      $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
+      $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
     } else {
       $fac->sign(self::CERTS_DIR . "/facturae-public.pem",
                  self::CERTS_DIR . "/facturae-private.pem", self::FACTURAE_CERT_PASS);
@@ -191,7 +213,7 @@ final class InvoiceTest extends AbstractTest {
     // ... exportarlo a un archivo ...
     $isPfxStr = $isPfx ? "PKCS12" : "X509";
     $outputPath = str_replace("*", "$schemaVersion-$isPfxStr", self::FILE_PATH);
-    $res = $fac->export($outputPath);
+    $fac->export($outputPath);
 
     // ... y validar la factura
     $this->validateInvoiceXML($outputPath, true);

@@ -60,7 +60,7 @@ final class ExtensionsTest extends AbstractTest {
     $disclaimer->enable();
 
     // Exportamos la factura
-    $fac->sign(self::CERTS_DIR . "/facturae.pfx", null, self::FACTURAE_CERT_PASS);
+    $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
     $success = ($fac->export(self::FILE_PATH) !== false);
     $this->assertTrue($success);
 

@@ -6,23 +6,31 @@ namespace josemmo\Facturae\Common;
  * file (X.509 certificate).
  */
 class KeyPairReader {
+  private $publicChain = [];
+  private $privateKey = null;
 
-  private $publicKey;
-  private $privateKey;
+
+  /**
+   * Get public certificates chain from child to top CA
+   * @return string[] Array of PEM strings
+   */
+  public function getPublicChain() {
+    return $this->publicChain;
+  }
 
 
   /**
    * Get public key
-   * @return string|null Public Key
+   * @return string|null Certificate for the Public Key in PEM format
    */
   public function getPublicKey() {
-    return $this->publicKey;
+    return empty($this->publicChain) ? null : $this->publicChain[0];
   }
 
 
   /**
    * Get private key
-   * @return string|null Private Key
+   * @return \OpenSSLAsymmetricKey|resource|null Decrypted Private Key
    */
   public function getPrivateKey() {
     return $this->privateKey;
@@ -54,11 +62,15 @@ class KeyPairReader {
    */
   private function readX509($publicPath, $privatePath, $passphrase) {
     if (!is_file($publicPath) || !is_file($privatePath)) return;
-    $this->publicKey = openssl_x509_read(file_get_contents($publicPath));
-    $this->privateKey = openssl_pkey_get_private(
-      file_get_contents($privatePath),
-      $passphrase
-    );
+
+    // Validate and normalize public key
+    $publicKey = openssl_x509_read(file_get_contents($publicPath));
+    if (empty($publicKey)) return;
+    openssl_x509_export($publicKey, $publicKeyPem);
+    $this->publicChain = array($publicKeyPem);
+
+    // Decrypt private key
+    $this->privateKey = openssl_pkey_get_private(file_get_contents($privatePath), $passphrase);
   }
 
 
@@ -69,10 +81,14 @@ class KeyPairReader {
    * @param string $passphrase Password for unlocking the PKCS#12 file
    */
   private function readPkcs12($certPath, $passphrase) {
-    if (!is_file($certPath)) return false;
-    if (openssl_pkcs12_read(file_get_contents($certPath), $certs, $passphrase)) {
-      $this->publicKey = openssl_x509_read($certs['cert']);
-      $this->privateKey = openssl_pkey_get_private($certs['pkey']);
+    if (!is_file($certPath)) return;
+    if (openssl_pkcs12_read(file_get_contents($certPath), $store, $passphrase)) {
+      $this->publicChain = array($store['cert']);
+      if (!empty($store['extracerts'])) {
+        $this->publicChain = array_merge($this->publicChain, $store['extracerts']);
+      }
+      $this->privateKey = openssl_pkey_get_private($store['pkey']);
+      unset($store);
     }
   }
 
