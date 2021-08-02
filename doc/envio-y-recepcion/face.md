@@ -38,6 +38,17 @@ Todas las llamadas a FACe desde `FaceClient` devuelven un objeto `SimpleXMLEleme
 
 ---
 
+## Cliente personalizado
+Algunas administraciones públicas optan por desplegar su propio FACe en vez de utilizar el punto central de recepción de facturas a nivel nacional. Para estos casos, Facturae-PHP dispone de la clase `CustomFaceClient` que permite especificar la URL del servicio con el que nos queremos comunicar.
+
+Un ejemplo de este caso de uso es el [PGEFe de la Diputación Foral de Gipuzkoa](https://egoitza.gipuzkoa.eus/WAS/HACI/HFAPortalProveedorWEB/estatico/doc/ServiciosSistemasAutomatizadosProveedores.pdf), que dispone de su web service donde implementa el WSDL de FACe:
+```php
+$endpointUrl = "https://w390w.gipuzkoa.net/WAS/HACI/HFAServiciosProveedoresWEB/services/FacturaSSPPWebServiceProxyPort";
+$face = new CustomFaceClient($endpointUrl, "certificado.pfx", null, "passphrase");
+```
+
+---
+
 ## Listado de métodos
 A continuación se incluyen los métodos de `FaceClient` para llamar al servicio web FACe junto a una vista previa en JSON de la respuesta que devuelven.
 

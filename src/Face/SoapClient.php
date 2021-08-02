@@ -11,7 +11,6 @@ abstract class SoapClient {
 
   private $publicKey;
   private $privateKey;
-  protected $production = true;
 
 
   /**
@@ -41,24 +40,6 @@ abstract class SoapClient {
    * @return string Web namespace
    */
   protected abstract function getWebNamespace();
-
-
-  /**
-   * Set production environment
-   * @param boolean $production Is production
-   */
-  public function setProduction($production) {
-    $this->production = $production;
-  }
-
-
-  /**
-   * Is production
-   * @return boolean Is production
-   */
-  public function isProduction() {
-    return $this->production;
-  }
 
 
   /**
