@@ -125,7 +125,7 @@ final class WebservicesTest extends AbstractTest {
     $fac = $this->getWsBaseInvoice();
     $fac->setBuyer(new FacturaeParty([
       "taxNumber" => "A78923125",
-      "name"      => "Teléfonica Móviles España, S.A.U.",
+      "name"      => "Telefónica Móviles España, S.A.U.",
       "address"   => "Calle Gran Vía, 28",
       "postCode"  => "28013",
       "town"      => "Madrid",
