@@ -133,6 +133,10 @@ abstract class SoapClient {
     $req = $tools->injectNamespaces($req, $ns);
     $req = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $req;
 
+    // Extract SOAP action from "<web:ACTION></web:ACTION>"
+    $soapAction = substr($body, 5, strpos($body, '>')-5);
+    $soapAction = $this->getWebNamespace() . "#$soapAction";
+
     // Send request
     $ch = curl_init();
     curl_setopt_array($ch, array(
@@ -142,7 +146,10 @@ abstract class SoapClient {
       CURLOPT_TIMEOUT => 30,
       CURLOPT_POST => 1,
       CURLOPT_POSTFIELDS => $req,
-      CURLOPT_HTTPHEADER => array("Content-Type: text/xml"),
+      CURLOPT_HTTPHEADER => array(
+        "Content-Type: text/xml",
+        "SOAPAction: $soapAction"
+      ),
       CURLOPT_USERAGENT => Facturae::USER_AGENT
     ));
     $res = curl_exec($ch);
