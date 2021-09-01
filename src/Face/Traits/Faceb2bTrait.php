@@ -15,8 +15,8 @@ trait Faceb2bTrait {
 
   /**
    * Send invoice
-   * @param  FacturaeFile     $invoice     Invoice
-   * @param  FacturaeFile     $attachment  Attachment
+   * @param  FacturaeFile      $invoice    Invoice
+   * @param  FacturaeFile|null $attachment Optional attachment
    * @return SimpleXMLElement              Response
    */
   public function sendInvoice($invoice, $attachment=null) {
@@ -58,14 +58,16 @@ trait Faceb2bTrait {
    * Request invoice cancellation
    * @param  string           $regId   Registry number
    * @param  string           $reason  Reason code
-   * @param  string           $comment Additional comments
+   * @param  string|null      $comment Optional comments
    * @return SimpleXMLElement          Response
    */
   public function requestInvoiceCancellation($regId, $reason, $comment=null) {
     $req = '<web:RequestInvoiceCancellation><request>';
     $req .= '<registryNumber>' . $regId . '</registryNumber>';
     $req .= '<reason>' . $reason . '</reason>';
-    if (empty($comment)) $req .= '<comment>' . $comment . '</comment>';
+    if (!is_null($comment)) {
+      $req .= '<comment>' . $comment . '</comment>';
+    }
     $req .= '</request></web:RequestInvoiceCancellation>';
     return $this->request($req);
   }
@@ -73,7 +75,7 @@ trait Faceb2bTrait {
 
   /**
    * Get registered invoices
-   * @param  string           $receivingUnit Receiving unit code
+   * @param  string|null      $receivingUnit Receiving unit code
    * @return SimpleXMLElement                Response
    */
   public function getRegisteredInvoices($receivingUnit=null) {
@@ -129,14 +131,16 @@ trait Faceb2bTrait {
    * Reject invoice
    * @param  string           $regId   Registry number
    * @param  string           $reason  Reason code
-   * @param  string           $comment Additional comments
+   * @param  string|null      $comment Optional comments
    * @return SimpleXMLElement          Response
    */
   public function rejectInvoice($regId, $reason, $comment=null) {
     $req = '<web:RejectInvoice><request>';
     $req .= '<registryNumber>' . $regId . '</registryNumber>';
     $req .= '<reason>' . $reason . '</reason>';
-    if (empty($comment)) $req .= '<comment>' . $comment . '</comment>';
+    if (!is_null($comment)) {
+      $req .= '<comment>' . $comment . '</comment>';
+    }
     $req .= '</request></web:RejectInvoice>';
     return $this->request($req);
   }
@@ -148,9 +152,9 @@ trait Faceb2bTrait {
    * @return SimpleXMLElement          Response
    */
   public function markInvoiceAsPaid($regId) {
-    return $this->request('<web:MarkInvoiceAsPaid>><request>' .
+    return $this->request('<web:MarkInvoiceAsPaid><request>' .
       '<registryNumber>' . $regId . '</registryNumber>' .
-      '</request></web:MarkInvoiceAsPaid>>');
+      '</request></web:MarkInvoiceAsPaid>');
   }
 
 
@@ -169,7 +173,7 @@ trait Faceb2bTrait {
   /**
    * Reject invoice cancellation
    * @param  string           $regId   Registry number
-   * @param  string           $comment Commment
+   * @param  string           $comment Comment
    * @return SimpleXMLElement          Response
    */
   public function rejectInvoiceCancellation($regId, $comment) {
