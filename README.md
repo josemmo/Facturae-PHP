@@ -1,7 +1,7 @@
 # Facturae-PHP
 [![CI](https://github.com/josemmo/Facturae-PHP/workflows/Tests/badge.svg)](https://github.com/josemmo/Facturae-PHP/actions)
-[![Codacy](https://api.codacy.com/project/badge/Grade/ff163f2711a44e31b19a8181c15726f5)](https://www.codacy.com/app/josemmo/Facturae-PHP)
-[![Coverage](https://api.codacy.com/project/badge/Coverage/ff163f2711a44e31b19a8181c15726f5)](https://www.codacy.com/app/josemmo/Facturae-PHP)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7c45d5ebdf9a4e88b0fe6b0e12d720b1)](https://www.codacy.com/gh/josemmo/Facturae-PHP)
+[![Coverage](https://app.codacy.com/project/badge/Coverage/7c45d5ebdf9a4e88b0fe6b0e12d720b1)](https://www.codacy.com/gh/josemmo/Facturae-PHP)
 [![Última versión estable](https://img.shields.io/packagist/v/josemmo/facturae-php)](https://packagist.org/packages/josemmo/facturae-php)
 [![Versión de PHP](https://img.shields.io/badge/php-%3E%3D5.6%20%7C%7C%20%3E%3D7.0%20%7C%7C%20%3E%3D8.0-8892BF)](composer.json)
 [![Documentación](https://img.shields.io/badge/docs-online-blue.svg?longCache=true)](https://josemmo.github.io/Facturae-PHP/)

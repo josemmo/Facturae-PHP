@@ -36,7 +36,7 @@ jobs:
       - name: Run tests
         env:
           TEST_WEBSERVICES: ${{ !startsWith(github.ref, 'refs/pull/') && matrix.test-ws || false }}
-        run: composer install && vendor/bin/simple-phpunit
+        run: composer install && vendor/bin/simple-phpunit --testdox
 
       # Send coverage
       - name: Send coverage
