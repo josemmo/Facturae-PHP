@@ -75,7 +75,7 @@ class FacturaeItem {
       }
 
       // Adjust discounts and charges according to taxes
-      foreach (['discounts', 'charges'] as $i=>$groupTag) {
+      foreach (['discounts', 'charges'] as $groupTag) {
         foreach ($this->{$groupTag} as &$group) {
           if (isset($group['rate'])) continue;
           $hasTaxes = isset($group['hasTaxes']) ? $group['hasTaxes'] : true;
@@ -137,8 +137,8 @@ class FacturaeItem {
       foreach ($this->{$taxesGroup} as $type=>$tax) {
         $taxRate = $fac->pad($tax['rate'], 'Tax/Rate');
         $surcharge = $fac->pad($tax['surcharge'], 'Tax/Surcharge');
-        $taxAmount = $fac->pad($grossAmount * ($taxRate / 100), 'Tax/Amount');
-        $surchargeAmount = $fac->pad($grossAmount * ($surcharge / 100), 'Tax/SurchargeAmount');
+        $taxAmount = $fac->pad($grossAmount * ($taxRate / 100), 'Tax/Rate');
+        $surchargeAmount = $fac->pad($grossAmount * ($surcharge / 100), 'Tax/Surcharge');
         $addProps[$taxesGroup][$type] = array(
           "base" => $fac->pad($grossAmount, 'Tax/Base'),
           "rate" => $taxRate,
