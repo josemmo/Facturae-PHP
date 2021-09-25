@@ -115,24 +115,35 @@ class Facturae {
     self::SCHEMA_3_2_2 => "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
   );
   protected static $DECIMALS = array(
-    null => [
-      null => ["min"=>2, "max"=>2],
-      "Item/Quantity" => ["min"=>2, "max"=>8],
-      "Item/UnitPriceWithoutTax" => ["min"=>2, "max"=>8],
-      "Item/GrossAmount" => ["min"=>2, "max"=>8],
-      "Tax/Rate" => ["min"=>2, "max"=>8],
-      "Discount/Rate" => ["min"=>2, "max"=>8],
-      "Discount/Amount" => ["min"=>2, "max"=>2]
+    '' => [
+      '' => ['min'=>2, 'max'=>2],
+      // 'InvoiceTotal'                => ['min'=>2, 'max'=>8],
+      // 'TotalGrossAmount'            => ['min'=>2, 'max'=>8],
+      // 'TotalGrossAmountBeforeTaxes' => ['min'=>2, 'max'=>8],
+      // 'TotalGeneralDiscounts'       => ['min'=>2, 'max'=>8],
+      // 'TotalGeneralSurcharges'      => ['min'=>2, 'max'=>8],
+      // 'TotalTaxOutputs'             => ['min'=>2, 'max'=>8],
+      // 'TotalTaxesWithheld'          => ['min'=>2, 'max'=>8],
+      'Tax/TaxRate'                    => ['min'=>2, 'max'=>8],
+      // 'Tax/TaxableBase'                => ['min'=>2, 'max'=>8],
+      // 'Tax/TaxAmount'                  => ['min'=>2, 'max'=>8],
+      'Tax/EquivalenceSurchargeAmount' => ['min'=>2, 'max'=>8],
+      'DiscountCharge/Rate'   => ['min'=>2, 'max'=>8],
+      // 'DiscountCharge/Amount' => ['min'=>2, 'max'=>8],
+      'Item/Quantity'            => ['min'=>0, 'max'=>8],
+      'Item/UnitPriceWithoutTax' => ['min'=>2, 'max'=>8],
+      // 'Item/TotalCost'           => ['min'=>2, 'max'=>8],
+      // 'Item/GrossAmount'         => ['min'=>2, 'max'=>8],
     ],
     self::SCHEMA_3_2 => [
-      null => ["min"=>2, "max"=>2],
-      "Item/Quantity" => ["min"=>2, "max"=>6],
-      "Item/TotalAmountWithoutTax" => ["min"=>6, "max"=>6],
-      "Item/UnitPriceWithoutTax" => ["min"=>6, "max"=>6],
-      "Item/GrossAmount" => ["min"=>6, "max"=>6],
-      "Discount/Rate" => ["min"=>4, "max"=>4],
-      "Discount/Amount" => ["min"=>6, "max"=>6]
-    ]
+      '' => ['min'=>2, 'max'=>2],
+      'DiscountCharge/Rate'   => ['min'=>4, 'max'=>4],
+      'DiscountCharge/Amount' => ['min'=>6, 'max'=>6],
+      'Item/Quantity'            => ['min'=>0, 'max'=>8],
+      'Item/UnitPriceWithoutTax' => ['min'=>6, 'max'=>6],
+      'Item/TotalCost'           => ['min'=>6, 'max'=>6],
+      'Item/GrossAmount'         => ['min'=>6, 'max'=>6],
+    ],
   );
 
   use PropertiesTrait;

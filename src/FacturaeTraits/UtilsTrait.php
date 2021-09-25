@@ -20,23 +20,22 @@ trait UtilsTrait {
 
   /**
    * Pad amount
-   * @param  float       $val   Input value
-   * @param  string|null $field Field
-   * @return string             Padded value
+   * @param  float  $val   Input value
+   * @param  string $field Field
+   * @return string        Padded value
    */
-  public function pad($val, $field=null) {
+  public function pad($val, $field) {
     // Get decimals
-    $vKey = isset(self::$DECIMALS[$this->version]) ? $this->version : null;
-    $decimals = self::$DECIMALS[$vKey];
-    if (!isset($decimals[$field])) $field = null;
-    $decimals = $decimals[$field];
+    $decimals = isset(self::$DECIMALS[$this->version]) ? self::$DECIMALS[$this->version] : self::$DECIMALS[''];
+    $decimals = isset($decimals[$field]) ? $decimals[$field] : $decimals[''];
 
     // Pad value
-    $res = number_format(round($val, $decimals['max']), $decimals['max'], ".", "");
+    $res = number_format($val, $decimals['max'], '.', '');
     for ($i=0; $i<$decimals['max']-$decimals['min']; $i++) {
       if (substr($res, -1) !== "0") break;
       $res = substr($res, 0, -1);
     }
+    $res = rtrim($res, '.');
     return $res;
   }
 

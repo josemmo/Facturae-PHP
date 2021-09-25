@@ -75,7 +75,7 @@ class FacturaeItem {
       }
 
       // Adjust discounts and charges according to taxes
-      foreach (['discounts', 'charges'] as $i=>$groupTag) {
+      foreach (['discounts', 'charges'] as $groupTag) {
         foreach ($this->{$groupTag} as &$group) {
           if (isset($group['rate'])) continue;
           $hasTaxes = isset($group['hasTaxes']) ? $group['hasTaxes'] : true;
@@ -92,10 +92,9 @@ class FacturaeItem {
   /**
    * Get data for this item fixing decimals to match invoice settings
    *
-   * @param  Facturae $fac Invoice instance
-   * @return array         Item data
+   * @return array Item data
    */
-  public function getData($fac) {
+  public function getData() {
     $addProps = [
       'taxesOutputs' => [],
       'taxesWithheld' => [],
@@ -103,9 +102,9 @@ class FacturaeItem {
       'charges' => []
     ];
 
-    $quantity = $fac->pad($this->quantity, 'Item/Quantity');
-    $unitPriceWithoutTax = $fac->pad($this->unitPriceWithoutTax, 'Item/UnitPriceWithoutTax');
-    $totalAmountWithoutTax = $fac->pad($quantity * $unitPriceWithoutTax, 'Item/TotalAmountWithoutTax');
+    $quantity = $this->quantity;
+    $unitPriceWithoutTax = $this->unitPriceWithoutTax;
+    $totalAmountWithoutTax = $quantity * $unitPriceWithoutTax;
 
     // Process charges and discounts
     $grossAmount = $totalAmountWithoutTax;
@@ -113,13 +112,12 @@ class FacturaeItem {
       $factor = ($i == 0) ? -1 : 1;
       foreach ($this->{$groupTag} as $group) {
         if (isset($group['rate'])) {
-          $rate = $fac->pad($group['rate'], 'Discount/Rate');
+          $rate = $group['rate'];
           $amount = $totalAmountWithoutTax * ($rate / 100);
         } else {
           $rate = null;
           $amount = $group['amount'];
         }
-        $amount = $fac->pad($amount, 'Discount/Amount');
         $addProps[$groupTag][] = array(
           "reason" => $group['reason'],
           "rate" => $rate,
@@ -128,19 +126,18 @@ class FacturaeItem {
         $grossAmount += $amount * $factor;
       }
     }
-    $grossAmount = $fac->pad($grossAmount, 'Item/GrossAmount');
 
     // Get taxes
     $totalTaxesOutputs = 0;
     $totalTaxesWithheld = 0;
     foreach (['taxesOutputs', 'taxesWithheld'] as $i=>$taxesGroup) {
       foreach ($this->{$taxesGroup} as $type=>$tax) {
-        $taxRate = $fac->pad($tax['rate'], 'Tax/Rate');
-        $surcharge = $fac->pad($tax['surcharge'], 'Tax/Surcharge');
-        $taxAmount = $fac->pad($grossAmount * ($taxRate / 100), 'Tax/Amount');
-        $surchargeAmount = $fac->pad($grossAmount * ($surcharge / 100), 'Tax/SurchargeAmount');
+        $taxRate = $tax['rate'];
+        $surcharge = $tax['surcharge'];
+        $taxAmount = $grossAmount * ($taxRate / 100);
+        $surchargeAmount = $grossAmount * ($surcharge / 100);
         $addProps[$taxesGroup][$type] = array(
-          "base" => $fac->pad($grossAmount, 'Tax/Base'),
+          "base" => $grossAmount,
           "rate" => $taxRate,
           "surcharge" => $surcharge,
           "amount" => $taxAmount,
@@ -155,20 +152,21 @@ class FacturaeItem {
     }
 
     // Fix decimals
-    if (!is_null($this->unitPrice)) {
-      $expectedTotal = $this->unitPrice * $this->quantity;
-      $generatedTotal = $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld;
-      $diffAmount = $fac->pad($expectedTotal - $generatedTotal, 'Tax/Amount');
-      if (abs($diffAmount) == 0.01) {
-        foreach (['taxesOutputs', 'taxesWithheld'] as $taxesGroup) {
-          foreach ($addProps[$taxesGroup] as &$taxItem) {
-            $taxItem['amount'] += $diffAmount;
-            ${'total' . ucfirst($taxesGroup)} += $diffAmount;
-            break 2;
-          }
-        }
-      }
-    }
+    // TODO: remove, is this no longer necessary?
+    // if (!is_null($this->unitPrice)) {
+    //   $expectedTotal = $this->unitPrice * $this->quantity;
+    //   $generatedTotal = $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld;
+    //   $diffAmount = $expectedTotal - $generatedTotal;
+    //   if (abs($diffAmount) == 0.01) {
+    //     foreach (['taxesOutputs', 'taxesWithheld'] as $taxesGroup) {
+    //       foreach ($addProps[$taxesGroup] as &$taxItem) {
+    //         $taxItem['amount'] += $diffAmount;
+    //         ${'total' . ucfirst($taxesGroup)} += $diffAmount;
+    //         break 2;
+    //       }
+    //     }
+    //   }
+    // }
 
     // Add rest of properties
     $addProps['quantity'] = $quantity;

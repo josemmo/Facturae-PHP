@@ -615,7 +615,7 @@ trait PropertiesTrait {
 
     // Run through every item
     foreach ($this->items as $itemObj) {
-      $item = $itemObj->getData($this);
+      $item = $itemObj->getData();
       $totals['grossAmount'] += $item['grossAmount'];
       $totals['totalTaxesOutputs'] += $item['totalTaxesOutputs'];
       $totals['totalTaxesWithheld'] += $item['totalTaxesWithheld'];
@@ -643,9 +643,6 @@ trait PropertiesTrait {
       }
     }
 
-    // Normalize gross amount (needed for next step)
-    $totals['grossAmount'] = $this->pad($totals['grossAmount']);
-
     // Get general discounts and charges
     foreach (['discounts', 'charges'] as $groupTag) {
       foreach ($this->{$groupTag} as $item) {
@@ -653,10 +650,9 @@ trait PropertiesTrait {
           $rate = null;
           $amount = $item['amount'];
         } else {
-          $rate = $this->pad($item['rate'], 'Discount/Rate');
+          $rate = $item['rate'];
           $amount = $totals['grossAmount'] * ($rate / 100);
         }
-        $amount = $this->pad($amount, 'Discount/Amount');
         $totals['general' . ucfirst($groupTag)][] = array(
           "reason" => $item['reason'],
           "rate" => $rate,
@@ -666,17 +662,9 @@ trait PropertiesTrait {
       }
     }
 
-    // Normalize rest of values
-    $totals['totalTaxesOutputs'] = $this->pad($totals['totalTaxesOutputs']);
-    $totals['totalTaxesWithheld'] = $this->pad($totals['totalTaxesWithheld']);
-    $totals['totalGeneralDiscounts'] = $this->pad($totals['totalGeneralDiscounts']);
-    $totals['totalGeneralCharges'] = $this->pad($totals['totalGeneralCharges']);
-
     // Fill missing values
-    $totals['grossAmountBeforeTaxes'] = $this->pad($totals['grossAmount'] -
-      $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges']);
-    $totals['invoiceAmount'] = $this->pad($totals['grossAmountBeforeTaxes'] +
-      $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld']);
+    $totals['grossAmountBeforeTaxes'] = $totals['grossAmount'] - $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges'];
+    $totals['invoiceAmount'] = $totals['grossAmountBeforeTaxes'] + $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld'];
 
     return $totals;
   }
