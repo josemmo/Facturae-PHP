@@ -71,43 +71,4 @@ final class DecimalsTest extends AbstractTest {
     $this->assertEquals($totalCount, $successCount);
   }
 
-
-  /**
-   * Test autofix decimals
-   */
-  public function testAutofixDecimals() {
-    $fac = $this->getBaseInvoice();
-
-    // Add items
-    $amounts = [671, 69, 11.21];
-    foreach ($amounts as $i=>$itemAmount) {
-      $fac->addItem(new FacturaeItem([
-        "name"      => "Tengo un importe peculiar #" . ($i+1),
-        "quantity"  => $i+1.54321,
-        "unitPrice" => $itemAmount / ($i+1.54321),
-        "taxes"     => [Facturae::TAX_IVA => 12.3456]
-      ]));
-    }
-    $fac->addItem(new FacturaeItem([
-      "name"      => "Importe redondo",
-      "quantity"  => 5,
-      "unitPrice" => 100,
-      "taxes"     => [Facturae::TAX_IVA => 21]
-    ]));
-
-    // Add discounts & charges
-    $fac->addDiscount('Un descuento', 34.1234);
-    $fac->addCharge('Un cargo', 34.1234);
-
-    // Export invoice
-    $outputPath = self::OUTPUT_DIR . "/salida-autodecimales.xml";
-    $fac->export($outputPath);
-    $invoiceXml = new \SimpleXMLElement(file_get_contents($outputPath));
-
-    // Validate invoice
-    $invoiceTotal = (float) $invoiceXml->Invoices->Invoice[0]->InvoiceTotals->InvoiceTotal;
-    $this->assertEquals($invoiceTotal, array_sum($amounts)+500);
-    $this->validateInvoiceXML($outputPath);
-  }
-
 }

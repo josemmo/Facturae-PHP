@@ -151,23 +151,6 @@ class FacturaeItem {
       }
     }
 
-    // Fix decimals
-    // TODO: remove, is this no longer necessary?
-    // if (!is_null($this->unitPrice)) {
-    //   $expectedTotal = $this->unitPrice * $this->quantity;
-    //   $generatedTotal = $totalAmountWithoutTax + $totalTaxesOutputs - $totalTaxesWithheld;
-    //   $diffAmount = $expectedTotal - $generatedTotal;
-    //   if (abs($diffAmount) == 0.01) {
-    //     foreach (['taxesOutputs', 'taxesWithheld'] as $taxesGroup) {
-    //       foreach ($addProps[$taxesGroup] as &$taxItem) {
-    //         $taxItem['amount'] += $diffAmount;
-    //         ${'total' . ucfirst($taxesGroup)} += $diffAmount;
-    //         break 2;
-    //       }
-    //     }
-    //   }
-    // }
-
     // Add rest of properties
     $addProps['quantity'] = $quantity;
     $addProps['unitPriceWithoutTax'] = $unitPriceWithoutTax;
