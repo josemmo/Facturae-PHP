@@ -8,6 +8,7 @@ final class DecimalsTest extends AbstractTest {
 
   const NUM_OF_TESTS = 1000;
   const ITEMS_PER_INVOICE = 3;
+  const CHARGES_PER_INVOICE = 3;
 
   const PRICE_DECIMALS = 8;
   const QUANTITY_DECIMALS = 6;
@@ -40,6 +41,10 @@ final class DecimalsTest extends AbstractTest {
           Facturae::TAX_OTHER => $specialTax
         ]
       ]));
+    }
+    for ($i=0; $i<self::CHARGES_PER_INVOICE; $i++) {
+      $charge = mt_rand(1, $pricePow*10) / $pricePow;
+      $fac->addCharge("Cargo #$i", $charge);
     }
 
     // Validate invoice totals

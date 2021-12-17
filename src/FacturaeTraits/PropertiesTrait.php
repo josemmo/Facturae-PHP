@@ -662,8 +662,18 @@ trait PropertiesTrait {
       }
     }
 
+    // Pre-round some total values (needed to create a sum-reasonable invoice total)
+    $totals['totalTaxesOutputs'] = $this->pad($totals['totalTaxesOutputs'], 'TotalTaxOutputs');
+    $totals['totalTaxesWithheld'] = $this->pad($totals['totalTaxesWithheld'], 'TotalTaxesWithheld');
+    $totals['totalGeneralDiscounts'] = $this->pad($totals['totalGeneralDiscounts'], 'TotalGeneralDiscounts');
+    $totals['totalGeneralCharges'] = $this->pad($totals['totalGeneralCharges'], 'TotalGeneralSurcharges');
+    $totals['grossAmount'] = $this->pad($totals['grossAmount'], 'TotalGrossAmount');
+
     // Fill missing values
-    $totals['grossAmountBeforeTaxes'] = $totals['grossAmount'] - $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges'];
+    $totals['grossAmountBeforeTaxes'] = $this->pad(
+      $totals['grossAmount'] - $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges'],
+      'TotalGrossAmountBeforeTaxes'
+    );
     $totals['invoiceAmount'] = $totals['grossAmountBeforeTaxes'] + $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld'];
 
     return $totals;
