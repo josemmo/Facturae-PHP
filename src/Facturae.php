@@ -117,8 +117,7 @@ class Facturae {
   protected static $DECIMALS = array(
     '' => [
       '' => ['min'=>2, 'max'=>2],
-      'Tax/TaxRate'                    => ['min'=>2, 'max'=>8],
-      'Tax/EquivalenceSurchargeAmount' => ['min'=>2, 'max'=>8],
+      'Tax/TaxRate' => ['min'=>2, 'max'=>8],
       'DiscountCharge/Rate' => ['min'=>2, 'max'=>8],
       'Item/Quantity'            => ['min'=>0, 'max'=>8],
       'Item/UnitPriceWithoutTax' => ['min'=>2, 'max'=>8],
