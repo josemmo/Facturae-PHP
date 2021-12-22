@@ -13,6 +13,7 @@ trait PropertiesTrait {
   protected $currency = "EUR";
   protected $language = "es";
   protected $version = null;
+  protected $precision = self::PRECISION_LINE;
   protected $header = array(
     "serie" => null,
     "number" => null,
@@ -69,6 +70,26 @@ trait PropertiesTrait {
    */
   public function getSchemaVersion() {
     return $this->version;
+  }
+
+
+  /**
+   * Get rounding precision
+   * @return int Rounding precision
+   */
+  public function getPrecision() {
+    return $this->precision;
+  }
+
+
+  /**
+   * Set rounding precision
+   * @param  int      $precision Rounding precision
+   * @return Facturae            Invoice instance
+   */
+  public function setPrecision($precision) {
+    $this->precision = $precision;
+    return $this;
   }
 
 
@@ -615,7 +636,7 @@ trait PropertiesTrait {
 
     // Run through every item
     foreach ($this->items as $itemObj) {
-      $item = $itemObj->getData();
+      $item = $itemObj->getData($this);
       $totals['grossAmount'] += $item['grossAmount'];
       $totals['totalTaxesOutputs'] += $item['totalTaxesOutputs'];
       $totals['totalTaxesWithheld'] += $item['totalTaxesWithheld'];

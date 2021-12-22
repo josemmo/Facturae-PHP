@@ -20,11 +20,17 @@ trait UtilsTrait {
 
   /**
    * Pad amount
-   * @param  float  $val   Input value
-   * @param  string $field Field
-   * @return string        Padded value
+   * @param  float    $val       Input value
+   * @param  string   $field     Field
+   * @param  int|null $precision Precision on which to pad amount, `null` for always
+   * @return string              Padded value (or input value if precision unmet)
    */
-  public function pad($val, $field) {
+  public function pad($val, $field, $precision=null) {
+    // Do not pad if precision unmet
+    if (!is_null($precision) && $precision !== $this->precision) {
+      return $val;
+    }
+
     // Get decimals
     $decimals = isset(self::$DECIMALS[$this->version]) ? self::$DECIMALS[$this->version] : self::$DECIMALS[''];
     $decimals = isset($decimals[$field]) ? $decimals[$field] : $decimals[''];

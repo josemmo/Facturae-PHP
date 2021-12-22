@@ -183,7 +183,7 @@ trait ExportableTrait {
     // Add invoice items
     $xml .= '<Items>';
     foreach ($this->items as $itemObj) {
-      $item = $itemObj->getData();
+      $item = $itemObj->getData($this);
       $xml .= '<InvoiceLine>';
 
       // Add optional fields

@@ -92,9 +92,10 @@ class FacturaeItem {
   /**
    * Get data for this item fixing decimals to match invoice settings
    *
-   * @return array Item data
+   * @param  Facturae $fac Invoice instance
+   * @return array         Item data
    */
-  public function getData() {
+  public function getData($fac) {
     $addProps = [
       'taxesOutputs' => [],
       'taxesWithheld' => [],
@@ -152,12 +153,12 @@ class FacturaeItem {
     }
 
     // Add rest of properties
-    $addProps['quantity'] = $quantity;
-    $addProps['unitPriceWithoutTax'] = $unitPriceWithoutTax;
-    $addProps['totalAmountWithoutTax'] = $totalAmountWithoutTax;
-    $addProps['grossAmount'] = $grossAmount;
-    $addProps['totalTaxesOutputs'] = $totalTaxesOutputs;
-    $addProps['totalTaxesWithheld'] = $totalTaxesWithheld;
+    $addProps['quantity'] = $fac->pad($quantity, 'Item/Quantity', Facturae::PRECISION_LINE);
+    $addProps['unitPriceWithoutTax'] = $fac->pad($unitPriceWithoutTax, 'Item/UnitPriceWithoutTax', Facturae::PRECISION_LINE);
+    $addProps['totalAmountWithoutTax'] = $fac->pad($totalAmountWithoutTax, 'Item/TotalCost', Facturae::PRECISION_LINE);
+    $addProps['grossAmount'] = $fac->pad($grossAmount, 'Item/GrossAmount', Facturae::PRECISION_LINE);
+    $addProps['totalTaxesOutputs'] = $fac->pad($totalTaxesOutputs, 'TotalTaxOutputs', Facturae::PRECISION_LINE);
+    $addProps['totalTaxesWithheld'] = $fac->pad($totalTaxesWithheld, 'TotalTaxesWithheld', Facturae::PRECISION_LINE);
     return array_merge(get_object_vars($this), $addProps);
   }
 
