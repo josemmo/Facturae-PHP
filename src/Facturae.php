@@ -10,7 +10,7 @@ use josemmo\Facturae\FacturaeTraits\ExportableTrait;
  * Class for creating electronic invoices that comply with the Spanish FacturaE format.
  */
 class Facturae {
-  const VERSION = "1.6.1";
+  const VERSION = "1.7.0";
   const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
   const SCHEMA_3_2 = "3.2";
@@ -21,6 +21,9 @@ class Facturae {
     "url" => "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
     "digest" => "Ohixl6upD6av8N7pEvDABhEL6hM="
   );
+
+  const PRECISION_LINE = 1;
+  const PRECISION_INVOICE = 2;
 
   const PAYMENT_CASH = "01";
   const PAYMENT_DEBIT = "02";
@@ -115,24 +118,22 @@ class Facturae {
     self::SCHEMA_3_2_2 => "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
   );
   protected static $DECIMALS = array(
-    null => [
-      null => ["min"=>2, "max"=>2],
-      "Item/Quantity" => ["min"=>2, "max"=>8],
-      "Item/UnitPriceWithoutTax" => ["min"=>2, "max"=>8],
-      "Item/GrossAmount" => ["min"=>2, "max"=>8],
-      "Tax/Rate" => ["min"=>2, "max"=>8],
-      "Discount/Rate" => ["min"=>2, "max"=>8],
-      "Discount/Amount" => ["min"=>2, "max"=>2]
+    '' => [
+      '' => ['min'=>2, 'max'=>2],
+      'Tax/TaxRate' => ['min'=>2, 'max'=>8],
+      'DiscountCharge/Rate' => ['min'=>2, 'max'=>8],
+      'Item/Quantity'            => ['min'=>0, 'max'=>8],
+      'Item/UnitPriceWithoutTax' => ['min'=>2, 'max'=>8],
     ],
     self::SCHEMA_3_2 => [
-      null => ["min"=>2, "max"=>2],
-      "Item/Quantity" => ["min"=>2, "max"=>6],
-      "Item/TotalAmountWithoutTax" => ["min"=>6, "max"=>6],
-      "Item/UnitPriceWithoutTax" => ["min"=>6, "max"=>6],
-      "Item/GrossAmount" => ["min"=>6, "max"=>6],
-      "Discount/Rate" => ["min"=>4, "max"=>4],
-      "Discount/Amount" => ["min"=>6, "max"=>6]
-    ]
+      '' => ['min'=>2, 'max'=>2],
+      'DiscountCharge/Rate'   => ['min'=>4, 'max'=>4],
+      'DiscountCharge/Amount' => ['min'=>6, 'max'=>6],
+      'Item/Quantity'            => ['min'=>0, 'max'=>8],
+      'Item/UnitPriceWithoutTax' => ['min'=>6, 'max'=>6],
+      'Item/TotalCost'           => ['min'=>6, 'max'=>6],
+      'Item/GrossAmount'         => ['min'=>6, 'max'=>6],
+    ],
   );
 
   use PropertiesTrait;

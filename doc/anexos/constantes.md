@@ -18,6 +18,15 @@ permalink: /anexos/constantes.html
 
 ---
 
+## Modos de precisión
+
+|Constante|Descripción|
+|--------:|:----------|
+|`Facturae::PRECISION_LINE`|Precisión a nivel de línea|
+|`Facturae::PRECISION_INVOICE`|Precisión a nivel de factura|
+
+---
+
 ## Formas de pago
 
 |Constante|Descripción|

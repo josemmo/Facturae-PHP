@@ -21,7 +21,7 @@
         "lib-libxml": "For parsing SOAP XML responses for FACe and FACeB2B"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^5.2"
+        "symfony/phpunit-bridge": "*"
     },
     "autoload-dev": {
         "psr-4": {
