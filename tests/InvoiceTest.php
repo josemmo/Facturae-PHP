@@ -22,6 +22,9 @@ final class InvoiceTest extends AbstractTest {
   public function testCreateInvoice($schemaVersion, $isPfx) {
     // Creamos la factura
     $fac = new Facturae($schemaVersion);
+    if ($isPfx) {
+      $fac->setPrecision(Facturae::PRECISION_INVOICE);
+    }
 
     // Asignamos el número EMP2017120003 a la factura
     // Nótese que Facturae debe recibir el lote y el
@@ -156,7 +159,7 @@ final class InvoiceTest extends AbstractTest {
       ]
     ]));
 
-    // Para terminar, añadimos 3 bombillas LED con un coste de 6,50 € ...
+    // Añadimos 3 bombillas LED con un coste de 6,50 € ...
     // ... pero con los impuestos NO INCLUÍDOS en el precio unitario
     $fac->addItem(new FacturaeItem([
       "name" => "Bombilla LED",
@@ -164,6 +167,10 @@ final class InvoiceTest extends AbstractTest {
       "unitPriceWithoutTax" => 6.5, // NOTA: no confundir con unitPrice
       "taxes" => array(Facturae::TAX_IVA => 21)
     ]));
+
+    // Añadimos varias líneas para jugar con la precisión
+    $fac->addItem("Para precisión #1", 37.76, 1, Facturae::TAX_IVA, 21);
+    $fac->addItem("Para precisión #2", 21.67, 1, Facturae::TAX_IVA, 21);
 
     // Añadimos una declaración responsable
     $fac->addLegalLiteral("Este es un mensaje de prueba que se incluirá " .

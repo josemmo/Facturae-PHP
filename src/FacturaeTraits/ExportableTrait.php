@@ -57,13 +57,13 @@ trait ExportableTrait {
                 '<BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
                 '<InvoicesCount>1</InvoicesCount>' .
                 '<TotalInvoicesAmount>' .
-                  '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalInvoicesAmount>' .
                 '<TotalOutstandingAmount>' .
-                  '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalOutstandingAmount>' .
                 '<TotalExecutableAmount>' .
-                  '<TotalAmount>' . $totals['invoiceAmount'] . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalExecutableAmount>' .
                 '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
               '</Batch>';
@@ -126,17 +126,17 @@ trait ExportableTrait {
         foreach ($taxRows as $tax) {
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
-                    '<TaxRate>' . $this->pad($tax['rate'], 'Tax/Rate') . '</TaxRate>' .
+                    '<TaxRate>' . $this->pad($tax['rate'], 'Tax/TaxRate') . '</TaxRate>' .
                     '<TaxableBase>' .
-                      '<TotalAmount>' . $this->pad($tax['base'], 'Tax/Base') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['base'], 'Tax/TaxableBase') . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/Amount') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/TaxAmount') . '</TotalAmount>' .
                     '</TaxAmount>';
           if ($tax['surcharge'] != 0) {
-            $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/Surcharge') . '</EquivalenceSurcharge>' .
+            $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/EquivalenceSurcharge') . '</EquivalenceSurcharge>' .
                     '<EquivalenceSurchargeAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/SurchargeAmount') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/EquivalenceSurchargeAmount') . '</TotalAmount>' .
                     '</EquivalenceSurchargeAmount>';
           }
           $xml .= '</Tax>';
@@ -147,7 +147,7 @@ trait ExportableTrait {
 
     // Add invoice totals
     $xml .= '<InvoiceTotals>';
-    $xml .= '<TotalGrossAmount>' . $totals['grossAmount'] . '</TotalGrossAmount>';
+    $xml .= '<TotalGrossAmount>' . $this->pad($totals['grossAmount'], 'TotalGrossAmount') . '</TotalGrossAmount>';
 
     // Add general discounts and charges
     $generalGroups = array(
@@ -162,22 +162,22 @@ trait ExportableTrait {
         $xml .= "<$xmlTag>";
         $xml .= "<${xmlTag}Reason>" . $tools->escape($elem['reason']) . "</${xmlTag}Reason>";
         if (!is_null($elem['rate'])) {
-          $xml .= "<${xmlTag}Rate>" . $elem['rate'] . "</${xmlTag}Rate>";
+          $xml .= "<${xmlTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</${xmlTag}Rate>";
         }
-        $xml .="<${xmlTag}Amount>" . $elem['amount'] . "</${xmlTag}Amount>";
+        $xml .="<${xmlTag}Amount>" . $this->pad($elem['amount'], 'DiscountCharge/Amount') . "</${xmlTag}Amount>";
         $xml .= "</$xmlTag>";
       }
       $xml .= '</' . $generalGroups[$g][0] . '>';
     }
 
-    $xml .= '<TotalGeneralDiscounts>' . $totals['totalGeneralDiscounts'] . '</TotalGeneralDiscounts>';
-    $xml .= '<TotalGeneralSurcharges>' . $totals['totalGeneralCharges'] . '</TotalGeneralSurcharges>';
-    $xml .= '<TotalGrossAmountBeforeTaxes>' . $totals['grossAmountBeforeTaxes'] . '</TotalGrossAmountBeforeTaxes>';
-    $xml .= '<TotalTaxOutputs>' . $totals['totalTaxesOutputs'] . '</TotalTaxOutputs>';
-    $xml .= '<TotalTaxesWithheld>' . $totals['totalTaxesWithheld'] . '</TotalTaxesWithheld>';
-    $xml .= '<InvoiceTotal>' . $totals['invoiceAmount'] . '</InvoiceTotal>';
-    $xml .= '<TotalOutstandingAmount>' . $totals['invoiceAmount'] . '</TotalOutstandingAmount>';
-    $xml .= '<TotalExecutableAmount>' . $totals['invoiceAmount'] . '</TotalExecutableAmount>';
+    $xml .= '<TotalGeneralDiscounts>' . $this->pad($totals['totalGeneralDiscounts'], 'TotalGeneralDiscounts') . '</TotalGeneralDiscounts>';
+    $xml .= '<TotalGeneralSurcharges>' . $this->pad($totals['totalGeneralCharges'], 'TotalGeneralSurcharges') . '</TotalGeneralSurcharges>';
+    $xml .= '<TotalGrossAmountBeforeTaxes>' . $this->pad($totals['grossAmountBeforeTaxes'], 'TotalGrossAmountBeforeTaxes') . '</TotalGrossAmountBeforeTaxes>';
+    $xml .= '<TotalTaxOutputs>' . $this->pad($totals['totalTaxesOutputs'], 'TotalTaxOutputs') . '</TotalTaxOutputs>';
+    $xml .= '<TotalTaxesWithheld>' . $this->pad($totals['totalTaxesWithheld'], 'TotalTaxesWithheld') . '</TotalTaxesWithheld>';
+    $xml .= '<InvoiceTotal>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</InvoiceTotal>';
+    $xml .= '<TotalOutstandingAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalOutstandingAmount>';
+    $xml .= '<TotalExecutableAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalExecutableAmount>';
     $xml .= '</InvoiceTotals>';
 
     // Add invoice items
@@ -197,10 +197,10 @@ trait ExportableTrait {
 
       // Add required fields
       $xml .= '<ItemDescription>' . $tools->escape($item['name']) . '</ItemDescription>' .
-        '<Quantity>' . $item['quantity'] . '</Quantity>' .
+        '<Quantity>' . $this->pad($item['quantity'], 'Item/Quantity') . '</Quantity>' .
         '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
-        '<UnitPriceWithoutTax>' . $item['unitPriceWithoutTax'] . '</UnitPriceWithoutTax>' .
-        '<TotalCost>' . $item['totalAmountWithoutTax'] . '</TotalCost>';
+        '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'Item/UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
+        '<TotalCost>' . $this->pad($item['totalAmountWithoutTax'], 'Item/TotalCost') . '</TotalCost>';
 
       // Add discounts and charges
       $itemGroups = array(
@@ -215,16 +215,16 @@ trait ExportableTrait {
           $xml .= "<$groupTag>";
           $xml .= "<${groupTag}Reason>" . $tools->escape($elem['reason']) . "</${groupTag}Reason>";
           if (!is_null($elem['rate'])) {
-            $xml .= "<${groupTag}Rate>" . $elem['rate'] . "</${groupTag}Rate>";
+            $xml .= "<${groupTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</${groupTag}Rate>";
           }
-          $xml .="<${groupTag}Amount>" . $elem['amount'] . "</${groupTag}Amount>";
+          $xml .="<${groupTag}Amount>" . $this->pad($elem['amount'], 'DiscountCharge/Amount') . "</${groupTag}Amount>";
           $xml .= "</$groupTag>";
         }
         $xml .= '</' . $itemGroups[$g][0] . '>';
       }
 
       // Add gross amount
-      $xml .= '<GrossAmount>' . $item['grossAmount'] . '</GrossAmount>';
+      $xml .= '<GrossAmount>' . $this->pad($item['grossAmount'], 'Item/GrossAmount') . '</GrossAmount>';
 
       // Add item taxes
       // NOTE: As you can see here, taxesWithheld is before taxesOutputs.
@@ -237,17 +237,17 @@ trait ExportableTrait {
         foreach ($item[$taxesGroup] as $type=>$tax) {
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
-                    '<TaxRate>' . $this->pad($tax['rate'], 'Tax/Rate') . '</TaxRate>' .
+                    '<TaxRate>' . $this->pad($tax['rate'], 'Tax/TaxRate') . '</TaxRate>' .
                     '<TaxableBase>' .
-                      '<TotalAmount>' . $this->pad($tax['base'], 'Tax/Base') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['base'], 'Tax/TaxableBase') . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/Amount') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/TaxAmount') . '</TotalAmount>' .
                     '</TaxAmount>';
           if ($tax['surcharge'] != 0) {
-            $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/Surcharge') . '</EquivalenceSurcharge>' .
+            $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/EquivalenceSurcharge') . '</EquivalenceSurcharge>' .
                     '<EquivalenceSurchargeAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/SurchargeAmount') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/EquivalenceSurchargeAmount') . '</TotalAmount>' .
                     '</EquivalenceSurchargeAmount>';
           }
           $xml .= '</Tax>';
@@ -310,7 +310,7 @@ trait ExportableTrait {
     $xml  = '<PaymentDetails>';
     $xml .= '<Installment>';
     $xml .= '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>';
-    $xml .= '<InstallmentAmount>' . $totals['invoiceAmount'] . '</InstallmentAmount>';
+    $xml .= '<InstallmentAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</InstallmentAmount>';
     $xml .= '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
     if (!is_null($this->header['paymentIBAN'])) {
       $accountType = ($this->header['paymentMethod'] == self::PAYMENT_DEBIT) ? "AccountToBeDebited" : "AccountToBeCredited";

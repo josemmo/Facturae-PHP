@@ -13,6 +13,7 @@ trait PropertiesTrait {
   protected $currency = "EUR";
   protected $language = "es";
   protected $version = null;
+  protected $precision = self::PRECISION_LINE;
   protected $header = array(
     "serie" => null,
     "number" => null,
@@ -69,6 +70,26 @@ trait PropertiesTrait {
    */
   public function getSchemaVersion() {
     return $this->version;
+  }
+
+
+  /**
+   * Get rounding precision
+   * @return int Rounding precision
+   */
+  public function getPrecision() {
+    return $this->precision;
+  }
+
+
+  /**
+   * Set rounding precision
+   * @param  int      $precision Rounding precision
+   * @return Facturae            Invoice instance
+   */
+  public function setPrecision($precision) {
+    $this->precision = $precision;
+    return $this;
   }
 
 
@@ -643,9 +664,6 @@ trait PropertiesTrait {
       }
     }
 
-    // Normalize gross amount (needed for next step)
-    $totals['grossAmount'] = $this->pad($totals['grossAmount']);
-
     // Get general discounts and charges
     foreach (['discounts', 'charges'] as $groupTag) {
       foreach ($this->{$groupTag} as $item) {
@@ -653,10 +671,9 @@ trait PropertiesTrait {
           $rate = null;
           $amount = $item['amount'];
         } else {
-          $rate = $this->pad($item['rate'], 'Discount/Rate');
+          $rate = $item['rate'];
           $amount = $totals['grossAmount'] * ($rate / 100);
         }
-        $amount = $this->pad($amount, 'Discount/Amount');
         $totals['general' . ucfirst($groupTag)][] = array(
           "reason" => $item['reason'],
           "rate" => $rate,
@@ -666,17 +683,19 @@ trait PropertiesTrait {
       }
     }
 
-    // Normalize rest of values
-    $totals['totalTaxesOutputs'] = $this->pad($totals['totalTaxesOutputs']);
-    $totals['totalTaxesWithheld'] = $this->pad($totals['totalTaxesWithheld']);
-    $totals['totalGeneralDiscounts'] = $this->pad($totals['totalGeneralDiscounts']);
-    $totals['totalGeneralCharges'] = $this->pad($totals['totalGeneralCharges']);
+    // Pre-round some total values (needed to create a sum-reasonable invoice total)
+    $totals['totalTaxesOutputs'] = $this->pad($totals['totalTaxesOutputs'], 'TotalTaxOutputs');
+    $totals['totalTaxesWithheld'] = $this->pad($totals['totalTaxesWithheld'], 'TotalTaxesWithheld');
+    $totals['totalGeneralDiscounts'] = $this->pad($totals['totalGeneralDiscounts'], 'TotalGeneralDiscounts');
+    $totals['totalGeneralCharges'] = $this->pad($totals['totalGeneralCharges'], 'TotalGeneralSurcharges');
+    $totals['grossAmount'] = $this->pad($totals['grossAmount'], 'TotalGrossAmount');
 
     // Fill missing values
-    $totals['grossAmountBeforeTaxes'] = $this->pad($totals['grossAmount'] -
-      $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges']);
-    $totals['invoiceAmount'] = $this->pad($totals['grossAmountBeforeTaxes'] +
-      $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld']);
+    $totals['grossAmountBeforeTaxes'] = $this->pad(
+      $totals['grossAmount'] - $totals['totalGeneralDiscounts'] + $totals['totalGeneralCharges'],
+      'TotalGrossAmountBeforeTaxes'
+    );
+    $totals['invoiceAmount'] = $totals['grossAmountBeforeTaxes'] + $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld'];
 
     return $totals;
   }
