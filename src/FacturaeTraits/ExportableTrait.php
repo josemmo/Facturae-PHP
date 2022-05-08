@@ -160,11 +160,11 @@ trait ExportableTrait {
       $xml .= '<' . $generalGroups[$g][0] . '>';
       foreach ($totals[$groupTag] as $elem) {
         $xml .= "<$xmlTag>";
-        $xml .= "<${xmlTag}Reason>" . $tools->escape($elem['reason']) . "</${xmlTag}Reason>";
+        $xml .= "<{$xmlTag}Reason>" . $tools->escape($elem['reason']) . "</{$xmlTag}Reason>";
         if (!is_null($elem['rate'])) {
-          $xml .= "<${xmlTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</${xmlTag}Rate>";
+          $xml .= "<{$xmlTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</{$xmlTag}Rate>";
         }
-        $xml .="<${xmlTag}Amount>" . $this->pad($elem['amount'], 'DiscountCharge/Amount') . "</${xmlTag}Amount>";
+        $xml .="<{$xmlTag}Amount>" . $this->pad($elem['amount'], 'DiscountCharge/Amount') . "</{$xmlTag}Amount>";
         $xml .= "</$xmlTag>";
       }
       $xml .= '</' . $generalGroups[$g][0] . '>';
@@ -213,11 +213,11 @@ trait ExportableTrait {
         $xml .= '<' . $itemGroups[$g][0] . '>';
         foreach ($item[$group] as $elem) {
           $xml .= "<$groupTag>";
-          $xml .= "<${groupTag}Reason>" . $tools->escape($elem['reason']) . "</${groupTag}Reason>";
+          $xml .= "<{$groupTag}Reason>" . $tools->escape($elem['reason']) . "</{$groupTag}Reason>";
           if (!is_null($elem['rate'])) {
-            $xml .= "<${groupTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</${groupTag}Rate>";
+            $xml .= "<{$groupTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</{$groupTag}Rate>";
           }
-          $xml .="<${groupTag}Amount>" . $this->pad($elem['amount'], 'DiscountCharge/Amount') . "</${groupTag}Amount>";
+          $xml .="<{$groupTag}Amount>" . $this->pad($elem['amount'], 'DiscountCharge/Amount') . "</{$groupTag}Amount>";
           $xml .= "</$groupTag>";
         }
         $xml .= '</' . $itemGroups[$g][0] . '>';
