@@ -50,9 +50,9 @@ class FacturaeParty {
    * @param array $properties Party properties as an array
    */
   public function __construct($properties=array()) {
-    foreach ($properties as $key=>$value) $this->{$key} = $value;
-    if (isset($this->merchantRegister)) {
-      $this->registerOfCompaniesLocation = $this->merchantRegister;
+    foreach ($properties as $key=>$value) {
+      if ($key === "merchantRegister") $key = "registerOfCompaniesLocation";
+      $this->{$key} = $value;
     }
   }
 

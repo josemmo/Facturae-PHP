@@ -17,6 +17,15 @@ trait SignableTrait {
   private $publicChain = [];
   private $privateKey = null;
 
+  private $signatureID;
+  private $signedInfoID;
+  private $signedPropertiesID;
+  private $signatureValueID;
+  private $certificateID;
+  private $referenceID;
+  private $signatureSignedPropertiesID;
+  private $signatureObjectID;
+
   /**
    * Set sign time
    * @param int|string $time Time of the signature
