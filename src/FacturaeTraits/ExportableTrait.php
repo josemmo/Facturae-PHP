@@ -235,19 +235,24 @@ trait ExportableTrait {
         $xmlTag = ucfirst($taxesGroup); // Just capitalize variable name
         $xml .= "<$xmlTag>";
         foreach ($item[$taxesGroup] as $type=>$tax) {
+          $initialBase = $totals['totalGeneralCharges'] - $totals['totalGeneralDiscounts'];
+          $initialAmount = $initialBase * ($tax['rate'] / 100);
           $xml .= '<Tax>' .
                     '<TaxTypeCode>' . $type . '</TaxTypeCode>' .
                     '<TaxRate>' . $this->pad($tax['rate'], 'Tax/TaxRate') . '</TaxRate>' .
                     '<TaxableBase>' .
-                      '<TotalAmount>' . $this->pad($tax['base'], 'Tax/TaxableBase') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($initialBase+$tax['base'], 'Tax/TaxableBase') . '</TotalAmount>' .
                     '</TaxableBase>' .
                     '<TaxAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['amount'], 'Tax/TaxAmount') . '</TotalAmount>' .
+                      '<TotalAmount>' . $this->pad($initialAmount+$tax['amount'], 'Tax/TaxAmount') . '</TotalAmount>' .
                     '</TaxAmount>';
           if ($tax['surcharge'] != 0) {
+            $initialSurcharge = $initialBase * ($tax['surcharge'] / 100);
             $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/EquivalenceSurcharge') . '</EquivalenceSurcharge>' .
                     '<EquivalenceSurchargeAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/EquivalenceSurchargeAmount') . '</TotalAmount>' .
+                      '<TotalAmount>' .
+                        $this->pad($initialSurcharge+$tax['surchargeAmount'], 'Tax/EquivalenceSurchargeAmount') .
+                      '</TotalAmount>' .
                     '</EquivalenceSurchargeAmount>';
           }
           $xml .= '</Tax>';
