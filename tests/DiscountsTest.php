@@ -116,7 +116,7 @@ final class DiscountsTest extends AbstractTest {
     $invoiceTotal = floatval($invoiceXml->InvoiceTotals->InvoiceTotal);
     $this->assertEqualsWithDelta($totalDiscounts,  39.20, 0.00001);
     $this->assertEqualsWithDelta($totalCharges,    14.00, 0.00001);
-    $this->assertEqualsWithDelta($invoiceTotal,   134.60, 0.00001);
+    $this->assertEqualsWithDelta($invoiceTotal,   138.81, 0.00001);
   }
 
 }

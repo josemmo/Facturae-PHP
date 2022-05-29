@@ -660,6 +660,7 @@ trait PropertiesTrait {
         $totals['totalGeneral' . ucfirst($groupTag)] += $amount;
       }
     }
+    $effectiveGeneralCharge = $totals['totalGeneralCharges'] - $totals['totalGeneralDiscounts'];
 
     // Run through every item
     foreach ($items as &$item) {
@@ -674,21 +675,33 @@ trait PropertiesTrait {
           }
           $taxKey = $tax['rate'] . ":" . $tax['surcharge'];
           if (!isset($totals[$taxGroup][$type][$taxKey])) {
-            $initialBase = $totals['totalGeneralCharges'] - $totals['totalGeneralDiscounts'];
-            $initialAmount = $initialBase * ($tax['rate'] / 100);
-            $initialSurcharge = $initialBase * ($tax['surcharge'] / 100);
             $totals[$taxGroup][$type][$taxKey] = array(
-              "base" => $initialBase,
+              "base" => 0,
               "rate" => $tax['rate'],
               "surcharge" => $tax['surcharge'],
-              "amount" => $initialAmount,
-              "surchargeAmount" => $initialSurcharge
+              "amount" => 0,
+              "surchargeAmount" => 0
             );
-            $totals['total' . ucfirst($taxGroup)] += $initialAmount + $initialSurcharge;
           }
           $totals[$taxGroup][$type][$taxKey]['base'] += $tax['base'];
           $totals[$taxGroup][$type][$taxKey]['amount'] += $tax['amount'];
           $totals[$taxGroup][$type][$taxKey]['surchargeAmount'] += $tax['surchargeAmount'];
+        }
+      }
+    }
+
+    // Apply effective general discounts and charges to total taxes
+    if ($effectiveGeneralCharge != 0) {
+      foreach (["taxesOutputs", "taxesWithheld"] as $taxGroup) {
+        $totals['total' . ucfirst($taxGroup)] = 0; // Reset total (needs to be recalculated)
+        foreach ($totals[$taxGroup] as $type=>&$taxes) {
+          foreach ($taxes as &$tax) {
+            $proportion = $tax['base'] / $totals['grossAmount'];
+            $tax['base'] += $effectiveGeneralCharge * $proportion;
+            $tax['amount'] = $tax['base'] * ($tax['rate'] / 100);
+            $tax['surchargeAmount'] = $tax['base'] * ($tax['surcharge'] / 100);
+            $totals['total' . ucfirst($taxGroup)] += $tax['amount'] + $tax['surchargeAmount'];
+          }
         }
       }
     }
