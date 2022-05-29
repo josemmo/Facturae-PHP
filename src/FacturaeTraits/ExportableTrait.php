@@ -260,6 +260,14 @@ trait ExportableTrait {
         $xml .= "</$xmlTag>";
       }
 
+      // Add line period dates
+      if (!empty($item['periodStart']) && !empty($item['periodEnd'])) {
+        $xml .= '<LineItemPeriod>';
+        $xml .= '<StartDate>' . $tools->escape($item['periodStart']) . '</StartDate>';
+        $xml .= '<EndDate>' . $tools->escape($item['periodEnd']) . '</EndDate>';
+        $xml .= '</LineItemPeriod>';
+      }
+
       // Add more optional fields
       $xml .= $this->addOptionalFields($item, [
         "description" => "AdditionalLineItemInformation",
