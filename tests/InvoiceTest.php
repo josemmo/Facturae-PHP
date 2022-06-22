@@ -130,7 +130,9 @@ final class InvoiceTest extends AbstractTest {
       "receiverTransactionDate" => "2010-03-10",
       "fileReference" => "000298172",
       "fileDate" => "2010-03-10",
-      "sequenceNumber" => "1.0"
+      "sequenceNumber" => "1.0",
+      "periodStart" => "2022-01-01",
+      "periodEnd" => "2022-01-31"
     ]));
 
     // Por defecto, Facturae-PHP asume que el IRPF es un impuesto retenido y el

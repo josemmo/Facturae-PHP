@@ -31,6 +31,8 @@ class FacturaeItem {
   private $fileReference = null;
   private $fileDate = null;
   private $sequenceNumber = null;
+  private $periodStart = null;
+  private $periodEnd = null;
 
 
   /**

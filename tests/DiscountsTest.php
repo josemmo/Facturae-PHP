@@ -90,10 +90,23 @@ final class DiscountsTest extends AbstractTest {
    */
   public function testGeneralDiscounts() {
     $fac = $this->getBaseInvoice();
-    $fac->addItem('Test item', 100, 1, Facturae::TAX_IVA, 25);
-    $fac->addDiscount('Half price', 50);
-    $fac->addDiscount('5€ off', 5, false);
-    $fac->addCharge('Twice as much', 50);
+    $fac->addItem(new FacturaeItem([
+      "name" => "Test item #1",
+      "unitPriceWithoutTax" => 90,
+      "taxes" => [
+        Facturae::TAX_IVA => ["rate"=>21, "surcharge"=>5.2]
+      ]
+    ]));
+    $fac->addItem(new FacturaeItem([
+      "name" => "Test item #2",
+      "unitPriceWithoutTax" => 50,
+      "taxes" => [
+        Facturae::TAX_IVA => ["rate"=>10, "surcharge"=>1.4]
+      ]
+    ]));
+    $fac->addCharge('10% charge', 10);
+    $fac->addDiscount('10% discount', 10);
+    $fac->addDiscount('Fixed amount discount', 25.20, false);
 
     // Generate invoice and validate output
     $invoiceXml = new \SimpleXMLElement($fac->export());
@@ -101,12 +114,9 @@ final class DiscountsTest extends AbstractTest {
     $totalDiscounts = floatval($invoiceXml->InvoiceTotals->TotalGeneralDiscounts);
     $totalCharges = floatval($invoiceXml->InvoiceTotals->TotalGeneralSurcharges);
     $invoiceTotal = floatval($invoiceXml->InvoiceTotals->InvoiceTotal);
-    $expectedDiscounts = (100 / 1.25) * 0.5 + 5;
-    $expectedCharges = (100 / 1.25) * 0.5;
-    $expectedTotal = 100 - $expectedDiscounts + $expectedCharges;
-    $this->assertEqualsWithDelta($totalDiscounts, $expectedDiscounts, 0.00001);
-    $this->assertEqualsWithDelta($totalCharges, $expectedCharges, 0.00001);
-    $this->assertEqualsWithDelta($invoiceTotal, $expectedTotal, 0.00001);
+    $this->assertEqualsWithDelta($totalDiscounts,  39.20, 0.00001);
+    $this->assertEqualsWithDelta($totalCharges,    14.00, 0.00001);
+    $this->assertEqualsWithDelta($invoiceTotal,   138.81, 0.00001);
   }
 
 }

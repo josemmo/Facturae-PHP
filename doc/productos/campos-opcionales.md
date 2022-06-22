@@ -14,6 +14,8 @@ $fac->addItem(new FacturaeItem([
   "fileReference" => "000298172", // Referencia del expediente
   "fileDate" => "2010-03-10",     // Fecha del expediente
   "sequenceNumber" => "1.0",      // Número de secuencia o línea del pedido
+  "periodStart" => "2022-01-01",  // Inicio del periodo de prestación de un servicio
+  "periodEnd" => "2022-01-31",    // Fin del periodo de prestación de un servicio
 
   // Campos relativos al contrato del emisor
   "issuerContractReference" => "A9938281",    // Referencia

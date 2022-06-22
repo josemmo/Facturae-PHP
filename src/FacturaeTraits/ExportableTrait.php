@@ -247,12 +247,22 @@ trait ExportableTrait {
           if ($tax['surcharge'] != 0) {
             $xml .= '<EquivalenceSurcharge>' . $this->pad($tax['surcharge'], 'Tax/EquivalenceSurcharge') . '</EquivalenceSurcharge>' .
                     '<EquivalenceSurchargeAmount>' .
-                      '<TotalAmount>' . $this->pad($tax['surchargeAmount'], 'Tax/EquivalenceSurchargeAmount') . '</TotalAmount>' .
+                      '<TotalAmount>' .
+                        $this->pad($tax['surchargeAmount'], 'Tax/EquivalenceSurchargeAmount') .
+                      '</TotalAmount>' .
                     '</EquivalenceSurchargeAmount>';
           }
           $xml .= '</Tax>';
         }
         $xml .= "</$xmlTag>";
+      }
+
+      // Add line period dates
+      if (!empty($item['periodStart']) && !empty($item['periodEnd'])) {
+        $xml .= '<LineItemPeriod>';
+        $xml .= '<StartDate>' . $tools->escape($item['periodStart']) . '</StartDate>';
+        $xml .= '<EndDate>' . $tools->escape($item['periodEnd']) . '</EndDate>';
+        $xml .= '</LineItemPeriod>';
       }
 
       // Add more optional fields

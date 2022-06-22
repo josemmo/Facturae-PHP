@@ -634,10 +634,36 @@ trait PropertiesTrait {
       "totalTaxesWithheld" => 0
     );
 
-    // Run through every item
+    // Precalculate total global amount (needed for general discounts and charges)
+    $items = [];
     foreach ($this->items as $itemObj) {
       $item = $itemObj->getData($this);
       $totals['grossAmount'] += $item['grossAmount'];
+      $items[] = $item;
+    }
+
+    // Get general discounts and charges
+    foreach (['discounts', 'charges'] as $groupTag) {
+      foreach ($this->{$groupTag} as $item) {
+        if ($item['rate'] === null) {
+          $rate = null;
+          $amount = $item['amount'];
+        } else {
+          $rate = $item['rate'];
+          $amount = $totals['grossAmount'] * ($rate / 100);
+        }
+        $totals['general' . ucfirst($groupTag)][] = [
+          "reason" => $item['reason'],
+          "rate" => $rate,
+          "amount" => $amount
+        ];
+        $totals['totalGeneral' . ucfirst($groupTag)] += $amount;
+      }
+    }
+    $effectiveGeneralCharge = $totals['totalGeneralCharges'] - $totals['totalGeneralDiscounts'];
+
+    // Run through every item
+    foreach ($items as &$item) {
       $totals['totalTaxesOutputs'] += $item['totalTaxesOutputs'];
       $totals['totalTaxesWithheld'] += $item['totalTaxesWithheld'];
 
@@ -664,22 +690,19 @@ trait PropertiesTrait {
       }
     }
 
-    // Get general discounts and charges
-    foreach (['discounts', 'charges'] as $groupTag) {
-      foreach ($this->{$groupTag} as $item) {
-        if (is_null($item['rate'])) {
-          $rate = null;
-          $amount = $item['amount'];
-        } else {
-          $rate = $item['rate'];
-          $amount = $totals['grossAmount'] * ($rate / 100);
+    // Apply effective general discounts and charges to total taxes
+    if ($effectiveGeneralCharge != 0) {
+      foreach (["taxesOutputs", "taxesWithheld"] as $taxGroup) {
+        $totals['total' . ucfirst($taxGroup)] = 0; // Reset total (needs to be recalculated)
+        foreach ($totals[$taxGroup] as $type=>&$taxes) {
+          foreach ($taxes as &$tax) {
+            $proportion = $tax['base'] / $totals['grossAmount'];
+            $tax['base'] += $effectiveGeneralCharge * $proportion;
+            $tax['amount'] = $tax['base'] * ($tax['rate'] / 100);
+            $tax['surchargeAmount'] = $tax['base'] * ($tax['surcharge'] / 100);
+            $totals['total' . ucfirst($taxGroup)] += $tax['amount'] + $tax['surchargeAmount'];
+          }
         }
-        $totals['general' . ucfirst($groupTag)][] = array(
-          "reason" => $item['reason'],
-          "rate" => $rate,
-          "amount" => $amount
-        );
-        $totals['totalGeneral' . ucfirst($groupTag)] += $amount;
       }
     }
 
