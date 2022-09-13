@@ -96,7 +96,7 @@ abstract class SoapClient {
     $signedInfo = '<ds:SignedInfo>' .
         '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
         '</ds:CanonicalizationMethod>' .
-        '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></ds:SignatureMethod>' .
+        '<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"></ds:SignatureMethod>' .
         '<ds:Reference URI="#' . $timestampId . '">' .
           '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
           '<ds:DigestValue>' . $timestampDigest . '</ds:DigestValue>' .
