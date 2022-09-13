@@ -120,14 +120,14 @@ class XmlTools {
 
 
   /**
-   * Get signature in SHA-1
+   * Get signature in SHA-512
    * @param  string  $payload    Data to sign
    * @param  string  $privateKey Private Key
    * @param  boolean $pretty     Pretty Base64 response
    * @return string              Base64 Signature
    */
   public function getSignature($payload, $privateKey, $pretty=true) {
-    openssl_sign($payload, $signature, $privateKey);
+    openssl_sign($payload, $signature, $privateKey, OPENSSL_ALGO_SHA512);
     return $this->toBase64($signature, $pretty);
   }
 
