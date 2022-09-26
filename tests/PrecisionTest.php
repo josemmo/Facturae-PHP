@@ -30,7 +30,7 @@ final class PrecisionTest extends AbstractTest {
     $taxesWithheld = floatval($invoiceXml->InvoiceTotals->TotalTaxesWithheld);
     $invoiceTotal = floatval($invoiceXml->InvoiceTotals->InvoiceTotal);
     $actualTotal = floatval($beforeTaxes + $taxOutputs - $taxesWithheld);
-    $this->assertEquals($actualTotal, $invoiceTotal, 'Incorrect invoice totals element', 0.000000001);
+    $this->assertEqualsWithDelta($actualTotal, $invoiceTotal, 0.000000001, 'Incorrect invoice totals element');
 
     // Validate total invoice amount
     if ($precision === Facturae::PRECISION_INVOICE) {
@@ -40,7 +40,7 @@ final class PrecisionTest extends AbstractTest {
         return round($amount*1.21, 2);
       }, $amounts));
     }
-    $this->assertEquals($expectedTotal, $invoiceTotal, 'Incorrect total invoice amount', 0.000000001);
+    $this->assertEqualsWithDelta($expectedTotal, $invoiceTotal, 0.000000001, 'Incorrect total invoice amount');
   }
 
 
