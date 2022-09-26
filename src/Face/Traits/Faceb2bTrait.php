@@ -80,7 +80,7 @@ trait Faceb2bTrait {
    */
   public function getRegisteredInvoices($receivingUnit=null) {
     $req = '<web:GetRegisteredInvoices><request>';
-    if (is_null($receivingUnit)) {
+    if (!is_null($receivingUnit)) {
       $req .= '<receivingUnit>' . $receivingUnit . '</receivingUnit>';
     }
     $req .= '</request></web:GetRegisteredInvoices>';
