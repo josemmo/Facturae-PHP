@@ -26,6 +26,10 @@ $fac->setAssignmentClauses('Cláusula de cesión');
 
 Además, para cumplir con la especificación, es necesario establecer los datos relativos al pago tal y como se explica en [este apartado](../propiedades/datos-del-pago.md):
 ```php
-$fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766", "CAHMESMM");
-$fac->setDueDate("2017-12-31");
+$fac->addPayment(new FacturaePayment([
+  "method"  => FacturaePayment::TYPE_TRANSFER,
+  "dueDate" => "2017-12-31",
+  "iban"    => "ES7620770024003102575766",
+  "bic"     => "CAHMESMM"
+]));
 ```

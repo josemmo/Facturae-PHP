@@ -10,31 +10,67 @@ permalink: /propiedades/datos-del-pago.html
 ## Forma de pago
 Es posible indicar la forma de pago de una factura. Por ejemplo, en caso de pagarse al contado:
 ```php
-$fac->setPaymentMethod(Facturae::PAYMENT_CASH);
+$fac->addPayment(new FacturaePayment([
+  "method" => FacturaePayment::TYPE_CASH
+]));
 ```
 
 Los posibles valores que puede tomar este argumento se encuentra en la [tabla de constantes](../anexos/constantes.html#formas-de-pago) del anexo.
 
 En caso de transferencia (entre otras formas de pago) también debe indicarse la cuenta bancaria destinataria:
 ```php
-$fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766");
+$fac->addPayment(new FacturaePayment([
+  "method" => FacturaePayment::TYPE_TRANSFER,
+  "iban"   => "ES7620770024003102575766"
+]));
 ```
 
 Si fuera necesario, se puede añadir el código BIC/SWIFT junto con el IBAN en el momento de establecer la forma de pago:
 ```php
-$fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766", "CAHMESMM");
+$fac->addPayment(new FacturaePayment([
+  "method" => FacturaePayment::TYPE_TRANSFER,
+  "iban"   => "ES7620770024003102575766",
+  "bic"    => "CAHMESMM"
+]));
 ```
 
 ---
 
 ## Vencimiento
-Para establecer la fecha de vencimiento del pago:
+Por defecto, Facturae-PHP asume la fecha de emisión de la factura como la fecha de vencimiento de un pago.
+Para establecer una fecha de vencimiento concreta, esta debe indicarse junto a los datos del pago:
 ```php
-$fac->setDueDate("2017-12-31");
+$fac->addPayment(new FacturaePayment([
+  "method"  => FacturaePayment::TYPE_TRANSFER,
+  "dueDate" => "2017-12-31",
+  "iban"    => "ES7620770024003102575766",
+  "bic"     => "CAHMESMM"
+]));
 ```
 
-> #### NOTA
-> Por defecto, si se establece una forma de pago y no se indica la fecha de vencimiento se interpreta la fecha de la factura como tal.
+---
+
+## Múltiples vencimientos o formas de pago
+La especificación de FacturaE permite establecer múltiples vencimientos en una misma factura.
+Esto se consigue llamando varias veces al método `Facturae::addPayment()`:
+```php
+// Primer pago de 100,00 € al contado
+// (fecha de vencimiento = fecha de emisión)
+$fac->addPayment(new FacturaePayment([
+  "method"  => FacturaePayment::TYPE_CASH,
+  "amount"  => 100
+]));
+
+// Segundo pago de 199,90 € por transferencia bancaria
+// (fecha de vencimiento el 31/12/2017)
+$fac->addPayment(new FacturaePayment([
+  "method"  => FacturaePayment::TYPE_TRANSFER,
+  "amount"  => 199.90,
+  "dueDate" => "2017-12-31",
+  "iban"    => "ES7620770024003102575766",
+  "bic"     => "CAHMESMM"
+]));
+```
 
 ---
 

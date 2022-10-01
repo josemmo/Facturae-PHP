@@ -31,25 +31,25 @@ permalink: /anexos/constantes.html
 
 |Constante|Descripción|
 |--------:|:----------|
-|`Facturae::PAYMENT_CASH`|Al contado|
-|`Facturae::PAYMENT_DEBIT`|Recibo Domiciliado|
-|`Facturae::PAYMENT_RECEIPT`|Recibo|
-|`Facturae::PAYMENT_TRANSFER`|Transferencia|
-|`Facturae::PAYMENT_ACCEPTED_BILL_OF_EXCHANGE`|Letra Aceptada|
-|`Facturae::PAYMENT_DOCUMENTARY_CREDIT`|Crédito Documentario|
-|`Facturae::PAYMENT_CONTRACT_AWARD`|Adjudicación de contrato|
-|`Facturae::PAYMENT_BILL_OF_EXCHANGE`|Letra de cambio|
-|`Facturae::PAYMENT_TRANSFERABLE_IOU`|Pagaré a la Orden|
-|`Facturae::PAYMENT_IOU`|Pagaré No a la Orden|
-|`Facturae::PAYMENT_CHEQUE`|Cheque|
-|`Facturae::PAYMENT_REIMBURSEMENT`|Reposición|
-|`Facturae::PAYMENT_SPECIAL`|Especiales|
-|`Facturae::PAYMENT_SETOFF`|Compensación|
-|`Facturae::PAYMENT_POSTGIRO`|Giro postal|
-|`Facturae::PAYMENT_CERTIFIED_CHEQUE`|Cheque conformado|
-|`Facturae::PAYMENT_BANKERS_DRAFT`|Cheque bancario|
-|`Facturae::PAYMENT_CASH_ON_DELIVERY`|Pago contra reembolso|
-|`Facturae::PAYMENT_CARD`|Pago mediante tarjeta|
+|`FacturaePayment::TYPE_CASH`|Al contado|
+|`FacturaePayment::TYPE_DEBIT`|Recibo Domiciliado|
+|`FacturaePayment::TYPE_RECEIPT`|Recibo|
+|`FacturaePayment::TYPE_TRANSFER`|Transferencia|
+|`FacturaePayment::TYPE_ACCEPTED_BILL_OF_EXCHANGE`|Letra Aceptada|
+|`FacturaePayment::TYPE_DOCUMENTARY_CREDIT`|Crédito Documentario|
+|`FacturaePayment::TYPE_CONTRACT_AWARD`|Adjudicación de contrato|
+|`FacturaePayment::TYPE_BILL_OF_EXCHANGE`|Letra de cambio|
+|`FacturaePayment::TYPE_TRANSFERABLE_IOU`|Pagaré a la Orden|
+|`FacturaePayment::TYPE_IOU`|Pagaré No a la Orden|
+|`FacturaePayment::TYPE_CHEQUE`|Cheque|
+|`FacturaePayment::TYPE_REIMBURSEMENT`|Reposición|
+|`FacturaePayment::TYPE_SPECIAL`|Especiales|
+|`FacturaePayment::TYPE_SETOFF`|Compensación|
+|`FacturaePayment::TYPE_POSTGIRO`|Giro postal|
+|`FacturaePayment::TYPE_CERTIFIED_CHEQUE`|Cheque conformado|
+|`FacturaePayment::TYPE_BANKERS_DRAFT`|Cheque bancario|
+|`FacturaePayment::TYPE_CASH_ON_DELIVERY`|Pago contra reembolso|
+|`FacturaePayment::TYPE_CARD`|Pago mediante tarjeta|
 
 ---
 
