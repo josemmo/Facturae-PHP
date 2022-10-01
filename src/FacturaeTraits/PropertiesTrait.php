@@ -221,7 +221,7 @@ trait PropertiesTrait {
    * Set due date
    * @param  int|string $date Due date
    * @return Facturae         Invoice instance
-   * @deprecated 1.7.2 Due date is now associated to payment information.
+   * @deprecated 1.7.3 Due date is now associated to payment information.
    * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function setDueDate($date) {
@@ -236,7 +236,7 @@ trait PropertiesTrait {
   /**
    * Get due date
    * @return int|null Due timestamp
-   * @deprecated 1.7.2 Due date is now associated to payment information.
+   * @deprecated 1.7.3 Due date is now associated to payment information.
    * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getDueDate() {
@@ -279,7 +279,7 @@ trait PropertiesTrait {
    * @param  int|string $issueDate Issue date
    * @param  int|string $dueDate   Due date
    * @return Facturae              Invoice instance
-   * @deprecated 1.7.2 Due date is now associated to payment information.
+   * @deprecated 1.7.3 Due date is now associated to payment information.
    * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function setDates($issueDate, $dueDate=null) {
@@ -315,7 +315,7 @@ trait PropertiesTrait {
    * @param  string|null $iban   Bank account number (IBAN)
    * @param  string|null $bic    SWIFT/BIC code of bank account
    * @return Facturae            Invoice instance
-   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::addPayment()` instead.
+   * @deprecated 1.7.3 Invoice can now have multiple payment installments, use `Facturae::addPayment()` instead.
    * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function setPaymentMethod($method=FacturaePayment::TYPE_CASH, $iban=null, $bic=null) {
@@ -332,7 +332,7 @@ trait PropertiesTrait {
   /**
    * Get payment method
    * @return string|null Payment method
-   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
+   * @deprecated 1.7.3 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
    * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getPaymentMethod() {
@@ -343,7 +343,7 @@ trait PropertiesTrait {
   /**
    * Get payment IBAN
    * @return string|null Payment bank account IBAN
-   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
+   * @deprecated 1.7.3 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
    * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getPaymentIBAN() {
@@ -354,7 +354,7 @@ trait PropertiesTrait {
   /**
    * Get payment BIC
    * @return string|null Payment bank account BIC
-   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
+   * @deprecated 1.7.3 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
    * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getPaymentBIC() {
