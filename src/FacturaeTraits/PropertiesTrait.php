@@ -3,6 +3,7 @@ namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
+use josemmo\Facturae\FacturaePayment;
 
 /**
  * Implements all attributes and methods needed to make Facturae instantiable.
@@ -18,13 +19,9 @@ trait PropertiesTrait {
     "serie" => null,
     "number" => null,
     "issueDate" => null,
-    "dueDate" => null,
     "startDate" => null,
     "endDate" => null,
     "assignmentClauses" => null,
-    "paymentMethod" => null,
-    "paymentIBAN" => null,
-    "paymentBIC" => null,
     "description" => null,
     "receiverTransactionReference" => null,
     "fileReference" => null,
@@ -42,6 +39,8 @@ trait PropertiesTrait {
   protected $discounts = array();
   protected $charges = array();
   protected $attachments = array();
+  /** @var FacturaePayment[] */
+  protected $payments = array();
 
 
   /**
@@ -222,9 +221,14 @@ trait PropertiesTrait {
    * Set due date
    * @param  int|string $date Due date
    * @return Facturae         Invoice instance
+   * @deprecated 1.7.2 Due date is now associated to payment information.
+   * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function setDueDate($date) {
-    $this->header['dueDate'] = is_string($date) ? strtotime($date) : $date;
+    if (empty($this->payments)) {
+      $this->payments[] = new FacturaePayment();
+    }
+    $this->payments[0]->dueDate = $date;
     return $this;
   }
 
@@ -232,9 +236,13 @@ trait PropertiesTrait {
   /**
    * Get due date
    * @return int|null Due timestamp
+   * @deprecated 1.7.2 Due date is now associated to payment information.
+   * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getDueDate() {
-    return $this->header['dueDate'];
+    return empty($this->payments) ?
+      null :
+      (is_string($this->payments[0]->dueDate) ? strtotime($this->payments[0]->dueDate) : $this->payments[0]->dueDate);
   }
 
 
@@ -271,6 +279,8 @@ trait PropertiesTrait {
    * @param  int|string $issueDate Issue date
    * @param  int|string $dueDate   Due date
    * @return Facturae              Invoice instance
+   * @deprecated 1.7.2 Due date is now associated to payment information.
+   * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function setDates($issueDate, $dueDate=null) {
     $this->setIssueDate($issueDate);
@@ -280,21 +290,41 @@ trait PropertiesTrait {
 
 
   /**
+   * Add payment installment
+   * @param  FacturaePayment $payment Payment details
+   * @return Facturae                 Invoice instance
+   */
+  public function addPayment($payment) {
+    $this->payments[] = $payment;
+    return $this;
+  }
+
+
+  /**
+   * Get payment installments
+   * @return FacturaePayment[] Payment installments
+   */
+  public function getPayments() {
+    return $this->payments;
+  }
+
+
+  /**
    * Set payment method
    * @param  string      $method Payment method
    * @param  string|null $iban   Bank account number (IBAN)
    * @param  string|null $bic    SWIFT/BIC code of bank account
    * @return Facturae            Invoice instance
+   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::addPayment()` instead.
+   * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
-  public function setPaymentMethod($method=self::PAYMENT_CASH, $iban=null, $bic=null) {
-    if (!is_null($iban)) $iban = preg_replace('/[^A-Z0-9]/', '', $iban);
-    if (!is_null($bic)) {
-      $bic = preg_replace('/[^A-Z0-9]/', '', $bic);
-      $bic = str_pad($bic, 11, 'X');
+  public function setPaymentMethod($method=FacturaePayment::TYPE_CASH, $iban=null, $bic=null) {
+    if (empty($this->payments)) {
+      $this->payments[] = new FacturaePayment();
     }
-    $this->header['paymentMethod'] = $method;
-    $this->header['paymentIBAN'] = $iban;
-    $this->header['paymentBIC'] = $bic;
+    $this->payments[0]->method = $method;
+    $this->payments[0]->iban = $iban;
+    $this->payments[0]->bic = $bic;
     return $this;
   }
 
@@ -302,27 +332,33 @@ trait PropertiesTrait {
   /**
    * Get payment method
    * @return string|null Payment method
+   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
+   * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getPaymentMethod() {
-    return $this->header['paymentMethod'];
+    return empty($this->payments) ? null : $this->payments[0]->method;
   }
 
 
   /**
    * Get payment IBAN
    * @return string|null Payment bank account IBAN
+   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
+   * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getPaymentIBAN() {
-    return $this->header['paymentIBAN'];
+    return empty($this->payments) ? null : $this->payments[0]->iban;
   }
 
 
   /**
    * Get payment BIC
    * @return string|null Payment bank account BIC
+   * @deprecated 1.7.2 Invoice can now have multiple payment installments, use `Facturae::getPayments()` instead.
+   * @see https://josemmo.github.io/Facturae-PHP/propiedades/datos-del-pago.html
    */
   public function getPaymentBIC() {
-    return $this->header['paymentBIC'];
+    return empty($this->payments) ? null : $this->payments[0]->bic;
   }
 
 

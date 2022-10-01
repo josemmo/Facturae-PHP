@@ -2,6 +2,7 @@
 namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\XmlTools;
+use josemmo\Facturae\FacturaePayment;
 
 /**
  * Allows a Facturae instance to be exported to XML.
@@ -314,24 +315,30 @@ trait ExportableTrait {
    * @return string         Payment details XML, empty string if not available
    */
   private function getPaymentDetailsXML($totals) {
-    if (is_null($this->header['paymentMethod'])) return "";
+    if (empty($this->payments)) return "";
 
-    $dueDate = is_null($this->header['dueDate']) ? $this->header['issueDate'] : $this->header['dueDate'];
     $xml  = '<PaymentDetails>';
-    $xml .= '<Installment>';
-    $xml .= '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>';
-    $xml .= '<InstallmentAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</InstallmentAmount>';
-    $xml .= '<PaymentMeans>' . $this->header['paymentMethod'] . '</PaymentMeans>';
-    if (!is_null($this->header['paymentIBAN'])) {
-      $accountType = ($this->header['paymentMethod'] == self::PAYMENT_DEBIT) ? "AccountToBeDebited" : "AccountToBeCredited";
-      $xml .= "<$accountType>";
-      $xml .= '<IBAN>' . $this->header['paymentIBAN'] . '</IBAN>';
-      if (!is_null($this->header['paymentBIC'])) {
-        $xml .= '<BIC>' . $this->header['paymentBIC'] . '</BIC>';
+    /** @var FacturaePayment $payment */
+    foreach ($this->payments as $payment) {
+      $dueDate = is_null($payment->dueDate) ?
+        $this->header['issueDate'] :
+        (is_string($payment->dueDate) ? strtotime($payment->dueDate) : $payment->dueDate);
+      $amount = is_null($payment->amount) ? $totals['invoiceAmount'] : $payment->amount;
+      $xml .= '<Installment>';
+      $xml .= '<InstallmentDueDate>' . date('Y-m-d', $dueDate) . '</InstallmentDueDate>';
+      $xml .= '<InstallmentAmount>' . $this->pad($amount, 'InvoiceTotal') . '</InstallmentAmount>';
+      $xml .= '<PaymentMeans>' . $payment->method . '</PaymentMeans>';
+      if (!is_null($payment->iban)) {
+        $accountType = ($payment->method == FacturaePayment::TYPE_DEBIT) ? "AccountToBeDebited" : "AccountToBeCredited";
+        $xml .= "<$accountType>";
+        $xml .= '<IBAN>' . preg_replace('/[^A-Z0-9]/', '', $payment->iban) . '</IBAN>';
+        if (!is_null($payment->bic)) {
+          $xml .= '<BIC>' . str_pad(preg_replace('/[^A-Z0-9]/', '', $payment->bic), 11, 'X') . '</BIC>';
+        }
+        $xml .= "</$accountType>";
       }
-      $xml .= "</$accountType>";
+      $xml .= '</Installment>';
     }
-    $xml .= '</Installment>';
     $xml .= '</PaymentDetails>';
 
     return $xml;

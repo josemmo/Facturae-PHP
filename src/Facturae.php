@@ -25,24 +25,43 @@ class Facturae {
   const PRECISION_LINE = 1;
   const PRECISION_INVOICE = 2;
 
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_CASH = "01";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_DEBIT = "02";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_RECEIPT = "03";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_TRANSFER = "04";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_ACCEPTED_BILL_OF_EXCHANGE = "05";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_DOCUMENTARY_CREDIT = "06";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_CONTRACT_AWARD = "07";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_BILL_OF_EXCHANGE = "08";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_TRANSFERABLE_IOU = "09";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_IOU = "10";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_CHEQUE = "11";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_REIMBURSEMENT = "12";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_SPECIAL = "13";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_SETOFF = "14";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_POSTGIRO = "15";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_CERTIFIED_CHEQUE = "16";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_BANKERS_DRAFT = "17";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_CASH_ON_DELIVERY = "18";
+  /** @deprecated 1.7.2 Use constants from @see{FacturaePayment} class instead. */
   const PAYMENT_CARD = "19";
 
   const TAX_IVA = "01";
