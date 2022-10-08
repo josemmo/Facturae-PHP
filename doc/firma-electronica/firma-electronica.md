@@ -37,6 +37,15 @@ $fac->sign("certificado.pfx", null, "passphrase");
 > Aunque en la mayoría de los casos esto no supone ninguna diferencia con respecto a firmar desde ficheros PEM, el validador del Gobierno de España **presenta problemas para verificar firmas de certificados expedidos recientemente por la FNMT**.
 > Dicho problema se soluciona cuando se incluyen los certificados raíz e intermedios de la Entidad de Certificación, por lo que es recomendable usar este método de firma con Facturae-PHP.
 
+> #### NOTA
+> A partir de OpenSSL v3.0.0, algunos algoritmos de digest como RC4 fueron [marcados como obsoletos](https://www.openssl.org/docs/man3.0/man7/migration_guide.html#Deprecated-low-level-encryption-functions).
+> Esto puede suponer un problema para bancos de certificados exportados desde el Gestor de Certificados de Windows.
+> Se recomienda validar estos ficheros antes de usarlos en la librería:
+>
+> ```
+> openssl pkcs12 -in certificado.pfx -info -nokeys -nocerts
+> ```
+
 ---
 
 ## Fecha de la firma
