@@ -5,6 +5,7 @@ use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
+use josemmo\Facturae\FacturaePayment;
 use josemmo\Facturae\FacturaeCentre;
 
 final class InvoiceTest extends AbstractTest {
@@ -183,7 +184,7 @@ final class InvoiceTest extends AbstractTest {
     $fac->addDiscount('A mitad de precio', 50);
     $fac->addCharge('Recargo del 50%', 50);
 
-    // Establecemos un método de pago con cesión de crédito (solo en algunos casos)
+    // Establecemos un un cesionario (solo en algunos casos)
     if ($isPfx) {
       $fac->setAssignee(new FacturaeParty([
         "taxNumber" => "B00000000",
@@ -197,6 +198,22 @@ final class InvoiceTest extends AbstractTest {
         "email"     => "cesionario@ejemplo.com"
       ]));
       $fac->setAssignmentClauses('Cláusula de cesión');
+    }
+
+    // Establecemos el/los método(s) de pago
+    if ($isPfx) {
+      $fac->addPayment(new FacturaePayment([
+        "method"  => FacturaePayment::TYPE_CASH,
+        "amount"  => 100
+      ]));
+      $fac->addPayment(new FacturaePayment([
+        "method"  => FacturaePayment::TYPE_TRANSFER,
+        "amount"  => 199.90002,
+        "dueDate" => "2017-12-31",
+        "iban"    => "ES7620770024003102575766",
+        "bic"     => "CAHMESMM"
+      ]));
+    } else {
       $fac->setPaymentMethod(Facturae::PAYMENT_TRANSFER, "ES7620770024003102575766", "CAHMESMM");
       $fac->setDueDate("2017-12-31");
     }

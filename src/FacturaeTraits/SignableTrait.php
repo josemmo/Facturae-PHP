@@ -179,7 +179,7 @@ trait SignableTrait {
     $sInfo = '<ds:SignedInfo Id="Signature-SignedInfo' . $this->signedInfoID . '">' . "\n" .
                '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
                '</ds:CanonicalizationMethod>' . "\n" .
-               '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1">' .
+               '<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512">' .
                '</ds:SignatureMethod>' . "\n" .
                '<ds:Reference Id="SignedPropertiesID' . $this->signedPropertiesID . '" ' .
                'Type="http://uri.etsi.org/01903#SignedProperties" ' .
@@ -248,11 +248,10 @@ trait SignableTrait {
     $payload = '<ds:SignatureValue' . $payload . '</ds:SignatureValue>';
     $payload = $tools->injectNamespaces($payload, $this->getNamespaces());
 
-    // Create TimeStampQuery in ASN1 using SHA-1
-    $tsq = "302c0201013021300906052b0e03021a05000414";
-    $tsq .= hash('sha1', $payload);
-    $tsq .= "0201000101ff";
-    $tsq = hex2bin($tsq);
+    // Create TimeStampQuery in ASN1 using SHA-512
+    $tsq  = "\x30\x59\x02\x01\x01\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40";
+    $tsq .= hash('sha512', $payload, true);
+    $tsq .= "\x01\x01\xff";
 
     // Await TimeStampRequest
     $chOpts = array(
@@ -280,7 +279,7 @@ trait SignableTrait {
 
     // Validate TimeStampRequest
     $responseCode = substr($tsr, 6, 3);
-    if ($responseCode !== "\02\01\00") { // Bytes for INTEGER 0 in ASN1
+    if ($responseCode !== "\x02\x01\x00") { // Bytes for INTEGER 0 in ASN1
       throw new \Exception('Invalid TSR response code');
     }
 
