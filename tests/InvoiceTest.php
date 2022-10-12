@@ -230,11 +230,11 @@ final class InvoiceTest extends AbstractTest {
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
       $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
+      $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
     } else {
       $fac->sign(self::CERTS_DIR . "/facturae-public.pem",
                  self::CERTS_DIR . "/facturae-private.pem", self::FACTURAE_CERT_PASS);
     }
-    $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
 
     // ... exportarlo a un archivo ...
     $isPfxStr = $isPfx ? "PKCS12" : "X509";

@@ -86,6 +86,17 @@ final class FacturaeSigner {
 
 
   /**
+   * Can sign
+   * @return boolean Whether instance is ready to sign XML documents
+   */
+  public function canSign() {
+    return ($this->keypairReader !== null) &&
+      !empty($this->keypairReader->getPublicChain()) &&
+      !empty($this->keypairReader->getPrivateKey());
+  }
+
+
+  /**
    * Set timestamp server
    * @param  string      $server Timestamp Authority URL
    * @param  string|null $user   TSA User
@@ -97,6 +108,15 @@ final class FacturaeSigner {
     $this->tsaUsername = $user;
     $this->tsaPassword = $pass;
     return $this;
+  }
+
+
+  /**
+   * Can timestamp
+   * @return boolean Whether instance is ready to timestamp signed XML documents
+   */
+  public function canTimestamp() {
+    return ($this->tsaEndpoint !== null);
   }
 
 

@@ -43,8 +43,7 @@ trait ExportableTrait {
     foreach ($this->extensions as $ext) $ext->__onBeforeExport();
 
     // Prepare document
-    $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
-           'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
+    $xml = '<fe:Facturae xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
     $totals = $this->getTotals();
     $paymentDetailsXML = $this->getPaymentDetailsXML($totals);
 
@@ -296,8 +295,8 @@ trait ExportableTrait {
     $xml .= '</Invoice></Invoices></fe:Facturae>';
     foreach ($this->extensions as $ext) $xml = $ext->__onBeforeSign($xml);
 
-    // Add signature
-    $xml = $this->injectSignature($xml);
+    // Add signature and timestamp
+    $xml = $this->injectSignatureAndTimestamp($xml);
     foreach ($this->extensions as $ext) $xml = $ext->__onAfterSign($xml);
 
     // Prepend content type
