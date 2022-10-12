@@ -1,6 +1,7 @@
 <?php
 namespace josemmo\Facturae\Common;
 
+use josemmo\Facturae\Facturae;
 use RuntimeException;
 
 /**
@@ -40,6 +41,8 @@ final class FacturaeSigner {
   public $signatureSignedPropertiesId;
   /** @var string */
   public $signatureObjectId;
+  /** @var string */
+  public $timestampId;
 
   /**
    * Class constuctor
@@ -54,6 +57,7 @@ final class FacturaeSigner {
     $this->referenceId = 'Reference-ID-' . $tools->randomId();
     $this->signatureSignedPropertiesId = $this->signatureId . '-SignedProperties' . $tools->randomId();
     $this->signatureObjectId = $this->signatureId . '-Object' . $tools->randomId();
+    $this->timestampId = 'Timestamp-' . $tools->randomId();
   }
 
 
@@ -272,7 +276,99 @@ final class FacturaeSigner {
    * @throws RuntimeException if failed to timestamp document
    */
   public function timestamp($xml) {
-    // TODO: not implemented
+    $tools = new XmlTools();
+
+    // Validate TSA endpoint
+    if ($this->tsaEndpoint === null) {
+      throw new RuntimeException('Missing Timestamp Authority URL');
+    }
+
+    // Extract root element
+    $rootOpenTagPosition = mb_strpos($xml, '<fe:Facturae ');
+    if ($rootOpenTagPosition === false) {
+      throw new RuntimeException('Signed XML document is missing <fe:Facturae /> element');
+    }
+    $rootCloseTagPosition = mb_strpos($xml, '</fe:Facturae>');
+    if ($rootCloseTagPosition === false) {
+      throw new RuntimeException('Signed XML document is missing </fe:Facturae> closing tag');
+    }
+    $rootCloseTagPosition += 14;
+    $xmlRoot = mb_substr($xml, $rootOpenTagPosition, $rootCloseTagPosition-$rootOpenTagPosition);
+
+    // Verify <xades:QualifyingProperties /> element is present
+    if (mb_strpos($xmlRoot, '</xades:QualifyingProperties>') === false) {
+      throw new RuntimeException('Signed XML document is missing <xades:QualifyingProperties /> element');
+    }
+
+    // Extract <ds:SignatureValue /> element
+    $signatureOpenTagPosition = mb_strpos($xmlRoot, '<ds:SignatureValue ');
+    if ($signatureOpenTagPosition === false) {
+      throw new RuntimeException('Signed XML document is missing <ds:SignatureValue /> element');
+    }
+    $signatureCloseTagPosition = mb_strpos($xmlRoot, '</ds:SignatureValue>');
+    if ($signatureCloseTagPosition === false) {
+      throw new RuntimeException('Signed XML document is missing </ds:SignatureValue> closing tag');
+    }
+    $signatureCloseTagPosition += 20;
+    $dsSignatureValue = mb_substr($xmlRoot, $signatureOpenTagPosition, $signatureCloseTagPosition-$signatureOpenTagPosition);
+
+    // Canonicalize <ds:SignatureValue /> element
+    $xmlns = $tools->getNamespaces($xmlRoot);
+    $xmlns['xmlns:xades'] = self::XMLNS_XADES;
+    $dsSignatureValue = $tools->injectNamespaces($dsSignatureValue, $xmlns);
+
+    // Build TimeStampQuery in ASN1 using SHA-512
+    $tsq  = "\x30\x59\x02\x01\x01\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40";
+    $tsq .= hash('sha512', $dsSignatureValue, true);
+    $tsq .= "\x01\x01\xff";
+
+    // Send query to TSA endpoint
+    $chOpts = [
+      CURLOPT_URL => $this->tsaEndpoint,
+      CURLOPT_RETURNTRANSFER => 1,
+      CURLOPT_SSL_VERIFYPEER => 0,
+      CURLOPT_FOLLOWLOCATION => 1,
+      CURLOPT_CONNECTTIMEOUT => 0,
+      CURLOPT_TIMEOUT => 10, // 10 seconds timeout
+      CURLOPT_POST => 1,
+      CURLOPT_POSTFIELDS => $tsq,
+      CURLOPT_HTTPHEADER => ['Content-Type: application/timestamp-query'],
+      CURLOPT_USERAGENT => Facturae::USER_AGENT
+    ];
+    if ($this->tsaUsername !== null && $this->tsaPassword !== null) {
+      $chOpts[CURLOPT_USERPWD] = $this->tsaUsername . ':' . $this->tsaPassword;
+    }
+    $ch = curl_init();
+    curl_setopt_array($ch, $chOpts);
+    $tsr = curl_exec($ch);
+    if ($tsr === false) {
+      throw new RuntimeException('Failed to get TSR from server: ' . curl_error($ch));
+    }
+    curl_close($ch);
+    unset($ch);
+
+    // Validate TimeStampReply
+    $responseCode = substr($tsr, 6, 3);
+    if ($responseCode !== "\x02\x01\x00") { // Bytes for INTEGER 0 in ASN1
+      throw new RuntimeException('Invalid TSR response code: 0x' . bin2hex($responseCode));
+    }
+
+    // Build new <xades:UnsignedProperties /> element
+    $timestamp = $tools->toBase64(substr($tsr, 9), true);
+    $xadesUnsignedProperties = '<xades:UnsignedProperties>' .
+      '<xades:UnsignedSignatureProperties>' .
+        '<xades:SignatureTimeStamp Id="' . $this->timestampId . '">' .
+          '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
+          '</ds:CanonicalizationMethod>' .
+          '<xades:EncapsulatedTimeStamp>' . "\n" . $timestamp . '</xades:EncapsulatedTimeStamp>' .
+        '</xades:SignatureTimeStamp>' .
+      '</xades:UnsignedSignatureProperties>' .
+    '</xades:UnsignedProperties>';
+
+    // Build new document
+    $xmlRoot = str_replace('</xades:QualifyingProperties>', "$xadesUnsignedProperties</xades:QualifyingProperties>", $xmlRoot);
+    $xml = mb_substr($xml, 0, $rootOpenTagPosition) . $xmlRoot . mb_substr($xml, $rootCloseTagPosition);
+
     return $xml;
   }
 }
