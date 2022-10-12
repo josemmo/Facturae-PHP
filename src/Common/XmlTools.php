@@ -28,6 +28,28 @@ class XmlTools {
 
 
   /**
+   * Get namespaces from root element
+   * @param  string               $xml XML document
+   * @return array<string,string>      Namespaces in the form of <name, value>
+   */
+  public function getNamespaces($xml) {
+    $namespaces = [];
+
+    $xml = explode('>', $xml, 2);
+    $rawNamespaces = explode(' ', preg_replace('/\s+/', ' ', $xml[0]));
+    array_shift($rawNamespaces);
+    foreach ($rawNamespaces as $part) {
+      list($name, $value) = explode('=', $part, 2);
+      if (mb_strpos($name, 'xmlns:') === 0) {
+        $namespaces[$name] = mb_substr($value, 1, -1);
+      }
+    }
+
+    return $namespaces;
+  }
+
+
+  /**
    * Inject namespaces
    * @param  string               $xml        Input XML
    * @param  array<string,string> $namespaces Namespaces to inject in the form of <name, value>

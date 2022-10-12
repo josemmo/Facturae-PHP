@@ -7,6 +7,8 @@ use RuntimeException;
  * Class for signing FacturaE XML documents.
  */
 final class FacturaeSigner {
+  const XMLNS_DS = 'http://www.w3.org/2000/09/xmldsig#';
+  const XMLNS_XADES = 'http://uri.etsi.org/01903/v1.3.2#';
   const SIGN_POLICY_NAME = 'Política de Firma FacturaE v3.1';
   const SIGN_POLICY_URL = 'http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf';
   const SIGN_POLICY_DIGEST = 'Ohixl6upD6av8N7pEvDABhEL6hM=';
@@ -130,15 +132,12 @@ final class FacturaeSigner {
 
     // Inject XMLDSig namespace
     $xmlRoot = $tools->injectNamespaces($xmlRoot, [
-      'xmlns:ds' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns:ds' => self::XMLNS_DS
     ]);
 
-    // TODO: get this dynamically from XML root
-    $xmlns = [
-      'xmlns:ds' => 'http://www.w3.org/2000/09/xmldsig#',
-      'xmlns:fe' => 'http://www.facturae.es/Facturae/2014/v3.2.1/Facturae',
-      'xmlns:xades' => 'http://uri.etsi.org/01903/v1.3.2#'
-    ];
+    // Build list of all namespaces for C14N
+    $xmlns = $tools->getNamespaces($xmlRoot);
+    $xmlns['xmlns:xades'] = self::XMLNS_XADES;
 
     // Build <xades:SignedProperties /> element
     $signingTime = ($this->signingTime === null) ? time() : $this->signingTime;
@@ -245,7 +244,7 @@ final class FacturaeSigner {
     '</ds:SignedInfo>';
 
     // Build <ds:Signature /> element
-    $dsSignature = '<ds:Signature xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="' . $this->signatureId . '">' . "\n" .
+    $dsSignature = '<ds:Signature xmlns:xades="' . self::XMLNS_XADES . '" Id="' . $this->signatureId . '">' . "\n" .
       $dsSignedInfo . "\n" .
       '<ds:SignatureValue Id="' . $this->signatureValueId . '">' . "\n" .
         $tools->getSignature($tools->injectNamespaces($dsSignedInfo, $xmlns), $privateKey) .
@@ -259,7 +258,7 @@ final class FacturaeSigner {
     '</ds:Signature>';
 
     // Build new document
-    $xmlRoot = str_replace('</fe:Facturae>', $dsSignature . '</fe:Facturae>', $xmlRoot);
+    $xmlRoot = str_replace('</fe:Facturae>', "$dsSignature</fe:Facturae>", $xmlRoot);
     $xml = mb_substr($xml, 0, $openTagPosition) . $xmlRoot . mb_substr($xml, $closeTagPosition);
 
     return $xml;
