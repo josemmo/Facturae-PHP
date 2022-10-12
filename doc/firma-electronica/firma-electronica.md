@@ -51,7 +51,7 @@ $fac->sign("certificado.pfx", null, "passphrase");
 ## Fecha de la firma
 Por defecto, al firmar una factura se utilizan la fecha y hora actuales como sello de tiempo. Si se quiere indicar otro valor, se debe utilizar el siguiente método:
 ```php
-$fac->setSignTime("2017-01-01T12:34:56+02:00");
+$fac->setSigningTime("2017-01-01T12:34:56+02:00");
 ```
 
 > #### NOTA

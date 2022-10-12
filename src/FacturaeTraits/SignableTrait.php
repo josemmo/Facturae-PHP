@@ -27,11 +27,25 @@ trait SignableTrait {
   private $signatureObjectID;
 
   /**
-   * Set sign time
-   * @param int|string $time Time of the signature
+   * Set signing time
+   * @param  int|string $time Time of the signature
+   * @return self             This instance
+   */
+  public function setSigningTime($time) {
+    $this->signTime = is_string($time) ? strtotime($time) : $time;
+    return $this;
+  }
+
+
+  /**
+   * Set signing time
+   *
+   * Same as `Facturae::setSigningTime()` for backwards compatibility
+   * @param  int|string $time Time of the signature
+   * @return self             This instance
    */
   public function setSignTime($time) {
-    $this->signTime = is_string($time) ? strtotime($time) : $time;
+    return $this->setSigningTime($time);
   }
 
 
