@@ -48,16 +48,15 @@ final class FacturaeSigner {
    * Class constuctor
    */
   public function __construct() {
-    $tools = new XmlTools();
-    $this->signatureId = 'Signature' . $tools->randomId();
-    $this->signedInfoId = 'Signature-SignedInfo' . $tools->randomId();
-    $this->signedPropertiesId = 'SignedPropertiesID' . $tools->randomId();
-    $this->signatureValueId = 'SignatureValue' . $tools->randomId();
-    $this->certificateId = 'Certificate' . $tools->randomId();
-    $this->referenceId = 'Reference-ID-' . $tools->randomId();
-    $this->signatureSignedPropertiesId = $this->signatureId . '-SignedProperties' . $tools->randomId();
-    $this->signatureObjectId = $this->signatureId . '-Object' . $tools->randomId();
-    $this->timestampId = 'Timestamp-' . $tools->randomId();
+    $this->signatureId = 'Signature' . XmlTools::randomId();
+    $this->signedInfoId = 'Signature-SignedInfo' . XmlTools::randomId();
+    $this->signedPropertiesId = 'SignedPropertiesID' . XmlTools::randomId();
+    $this->signatureValueId = 'SignatureValue' . XmlTools::randomId();
+    $this->certificateId = 'Certificate' . XmlTools::randomId();
+    $this->referenceId = 'Reference-ID-' . XmlTools::randomId();
+    $this->signatureSignedPropertiesId = $this->signatureId . '-SignedProperties' . XmlTools::randomId();
+    $this->signatureObjectId = $this->signatureId . '-Object' . XmlTools::randomId();
+    $this->timestampId = 'Timestamp-' . XmlTools::randomId();
   }
 
 
@@ -127,8 +126,6 @@ final class FacturaeSigner {
    * @throws RuntimeException if failed to sign document
    */
   public function sign($xml) {
-    $tools = new XmlTools();
-
     // Validate signing key material
     if ($this->keypairReader === null) {
       throw new RuntimeException('Missing signing key material');
@@ -155,12 +152,12 @@ final class FacturaeSigner {
     $xmlRoot = mb_substr($xml, $openTagPosition, $closeTagPosition-$openTagPosition);
 
     // Inject XMLDSig namespace
-    $xmlRoot = $tools->injectNamespaces($xmlRoot, [
+    $xmlRoot = XmlTools::injectNamespaces($xmlRoot, [
       'xmlns:ds' => self::XMLNS_DS
     ]);
 
     // Build list of all namespaces for C14N
-    $xmlns = $tools->getNamespaces($xmlRoot);
+    $xmlns = XmlTools::getNamespaces($xmlRoot);
     $xmlns['xmlns:xades'] = self::XMLNS_XADES;
 
     // Build <xades:SignedProperties /> element
@@ -178,7 +175,7 @@ final class FacturaeSigner {
           '<xades:Cert>' .
             '<xades:CertDigest>' .
               '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
-              '<ds:DigestValue>' . $tools->getCertDigest($publicChain[0]) . '</ds:DigestValue>' .
+              '<ds:DigestValue>' . XmlTools::getCertDigest($publicChain[0]) . '</ds:DigestValue>' .
             '</xades:CertDigest>' .
             '<xades:IssuerSerial>' .
               '<ds:X509IssuerName>' . $certIssuer . '</ds:X509IssuerName>' .
@@ -222,7 +219,7 @@ final class FacturaeSigner {
     $exponent = base64_encode($privateData['rsa']['e']);
     $dsKeyInfo = '<ds:KeyInfo Id="' . $this->certificateId . '">' . "\n" . '<ds:X509Data>' . "\n";
     foreach ($publicChain as $pemCertificate) {
-      $dsKeyInfo .= '<ds:X509Certificate>' . "\n" . $tools->getCert($pemCertificate) . '</ds:X509Certificate>' . "\n";
+      $dsKeyInfo .= '<ds:X509Certificate>' . "\n" . XmlTools::getCert($pemCertificate) . '</ds:X509Certificate>' . "\n";
     }
     $dsKeyInfo .= '</ds:X509Data>' . "\n" .
       '<ds:KeyValue>' . "\n" .
@@ -245,14 +242,14 @@ final class FacturaeSigner {
         '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
         '</ds:DigestMethod>' . "\n" .
         '<ds:DigestValue>' .
-          $tools->getDigest($tools->injectNamespaces($xadesSignedProperties, $xmlns)) .
+          XmlTools::getDigest(XmlTools::injectNamespaces($xadesSignedProperties, $xmlns)) .
         '</ds:DigestValue>' . "\n" .
       '</ds:Reference>' . "\n" .
       '<ds:Reference URI="#' . $this->certificateId . '">' . "\n" .
         '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
         '</ds:DigestMethod>' . "\n" .
         '<ds:DigestValue>' .
-          $tools->getDigest($tools->injectNamespaces($dsKeyInfo, $xmlns)) .
+          XmlTools::getDigest(XmlTools::injectNamespaces($dsKeyInfo, $xmlns)) .
         '</ds:DigestValue>' . "\n" .
       '</ds:Reference>' . "\n" .
       '<ds:Reference Id="' . $this->referenceId . '" ' .
@@ -263,7 +260,7 @@ final class FacturaeSigner {
         '</ds:Transforms>' . "\n" .
         '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512">' .
         '</ds:DigestMethod>' . "\n" .
-        '<ds:DigestValue>' . $tools->getDigest($tools->c14n($xmlRoot)) . '</ds:DigestValue>' . "\n" .
+        '<ds:DigestValue>' . XmlTools::getDigest(XmlTools::c14n($xmlRoot)) . '</ds:DigestValue>' . "\n" .
       '</ds:Reference>' . "\n" .
     '</ds:SignedInfo>';
 
@@ -271,7 +268,7 @@ final class FacturaeSigner {
     $dsSignature = '<ds:Signature xmlns:xades="' . self::XMLNS_XADES . '" Id="' . $this->signatureId . '">' . "\n" .
       $dsSignedInfo . "\n" .
       '<ds:SignatureValue Id="' . $this->signatureValueId . '">' . "\n" .
-        $tools->getSignature($tools->injectNamespaces($dsSignedInfo, $xmlns), $privateKey) .
+        XmlTools::getSignature(XmlTools::injectNamespaces($dsSignedInfo, $xmlns), $privateKey) .
       '</ds:SignatureValue>' . "\n" .
       $dsKeyInfo . "\n" .
       '<ds:Object Id="' . $this->signatureObjectId . '">' .
@@ -296,8 +293,6 @@ final class FacturaeSigner {
    * @throws RuntimeException if failed to timestamp document
    */
   public function timestamp($xml) {
-    $tools = new XmlTools();
-
     // Validate TSA endpoint
     if ($this->tsaEndpoint === null) {
       throw new RuntimeException('Missing Timestamp Authority URL');
@@ -333,9 +328,9 @@ final class FacturaeSigner {
     $dsSignatureValue = mb_substr($xmlRoot, $signatureOpenTagPosition, $signatureCloseTagPosition-$signatureOpenTagPosition);
 
     // Canonicalize <ds:SignatureValue /> element
-    $xmlns = $tools->getNamespaces($xmlRoot);
+    $xmlns = XmlTools::getNamespaces($xmlRoot);
     $xmlns['xmlns:xades'] = self::XMLNS_XADES;
-    $dsSignatureValue = $tools->injectNamespaces($dsSignatureValue, $xmlns);
+    $dsSignatureValue = XmlTools::injectNamespaces($dsSignatureValue, $xmlns);
 
     // Build TimeStampQuery in ASN1 using SHA-512
     $tsq  = "\x30\x59\x02\x01\x01\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40";
@@ -374,7 +369,7 @@ final class FacturaeSigner {
     }
 
     // Build new <xades:UnsignedProperties /> element
-    $timestamp = $tools->toBase64(substr($tsr, 9), true);
+    $timestamp = XmlTools::toBase64(substr($tsr, 9), true);
     $xadesUnsignedProperties = '<xades:UnsignedProperties>' .
       '<xades:UnsignedSignatureProperties>' .
         '<xades:SignatureTimeStamp Id="' . $this->timestampId . '">' .

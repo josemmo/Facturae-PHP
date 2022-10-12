@@ -16,14 +16,12 @@ trait ExportableTrait {
    * @return string           Output XML
    */
   private function addOptionalFields($item, $fields) {
-    $tools = new XmlTools();
-
     $res = "";
     foreach ($fields as $key=>$name) {
       if (is_int($key)) $key = $name; // Allow $item to have a different property name
       if (!empty($item[$key])) {
         $xmlTag = ucfirst($name);
-        $res .= "<$xmlTag>" . $tools->escape($item[$key]) . "</$xmlTag>";
+        $res .= "<$xmlTag>" . XmlTools::escape($item[$key]) . "</$xmlTag>";
       }
     }
     return $res;
@@ -37,8 +35,6 @@ trait ExportableTrait {
    * @return string|int           XML data|Written file bytes
    */
   public function export($filePath=null) {
-    $tools = new XmlTools();
-
     // Notify extensions
     foreach ($this->extensions as $ext) $ext->__onBeforeExport();
 
@@ -75,7 +71,7 @@ trait ExportableTrait {
       $xml .= $paymentDetailsXML;
       if (!is_null($this->header['assignmentClauses'])) {
         $xml .= '<FactoringAssignmentClauses>' .
-                  $tools->escape($this->header['assignmentClauses']) .
+                  XmlTools::escape($this->header['assignmentClauses']) .
                 '</FactoringAssignmentClauses>';
       }
       $xml .= '</FactoringAssignmentData>';
@@ -160,7 +156,7 @@ trait ExportableTrait {
       $xml .= '<' . $generalGroups[$g][0] . '>';
       foreach ($totals[$groupTag] as $elem) {
         $xml .= "<$xmlTag>";
-        $xml .= "<{$xmlTag}Reason>" . $tools->escape($elem['reason']) . "</{$xmlTag}Reason>";
+        $xml .= "<{$xmlTag}Reason>" . XmlTools::escape($elem['reason']) . "</{$xmlTag}Reason>";
         if (!is_null($elem['rate'])) {
           $xml .= "<{$xmlTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</{$xmlTag}Rate>";
         }
@@ -196,7 +192,7 @@ trait ExportableTrait {
       ]);
 
       // Add required fields
-      $xml .= '<ItemDescription>' . $tools->escape($item['name']) . '</ItemDescription>' .
+      $xml .= '<ItemDescription>' . XmlTools::escape($item['name']) . '</ItemDescription>' .
         '<Quantity>' . $this->pad($item['quantity'], 'Item/Quantity') . '</Quantity>' .
         '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
         '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'Item/UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
@@ -213,7 +209,7 @@ trait ExportableTrait {
         $xml .= '<' . $itemGroups[$g][0] . '>';
         foreach ($item[$group] as $elem) {
           $xml .= "<$groupTag>";
-          $xml .= "<{$groupTag}Reason>" . $tools->escape($elem['reason']) . "</{$groupTag}Reason>";
+          $xml .= "<{$groupTag}Reason>" . XmlTools::escape($elem['reason']) . "</{$groupTag}Reason>";
           if (!is_null($elem['rate'])) {
             $xml .= "<{$groupTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</{$groupTag}Rate>";
           }
@@ -260,8 +256,8 @@ trait ExportableTrait {
       // Add line period dates
       if (!empty($item['periodStart']) && !empty($item['periodEnd'])) {
         $xml .= '<LineItemPeriod>';
-        $xml .= '<StartDate>' . $tools->escape($item['periodStart']) . '</StartDate>';
-        $xml .= '<EndDate>' . $tools->escape($item['periodEnd']) . '</EndDate>';
+        $xml .= '<StartDate>' . XmlTools::escape($item['periodStart']) . '</StartDate>';
+        $xml .= '<EndDate>' . XmlTools::escape($item['periodEnd']) . '</EndDate>';
         $xml .= '</LineItemPeriod>';
       }
 
@@ -283,7 +279,7 @@ trait ExportableTrait {
     if (count($this->legalLiterals) > 0) {
       $xml .= '<LegalLiterals>';
       foreach ($this->legalLiterals as $reference) {
-        $xml .= '<LegalReference>' . $tools->escape($reference) . '</LegalReference>';
+        $xml .= '<LegalReference>' . XmlTools::escape($reference) . '</LegalReference>';
       }
       $xml .= '</LegalLiterals>';
     }
@@ -362,9 +358,8 @@ trait ExportableTrait {
     if (!$hasData) return "";
 
     // Generate initial XML block
-    $tools = new XmlTools();
     $xml = '<AdditionalData>';
-    if (!empty($relInvoice)) $xml .= '<RelatedInvoice>' . $tools->escape($relInvoice) . '</RelatedInvoice>';
+    if (!empty($relInvoice)) $xml .= '<RelatedInvoice>' . XmlTools::escape($relInvoice) . '</RelatedInvoice>';
 
     // Add attachments
     if (!empty($this->attachments)) {
@@ -374,9 +369,9 @@ trait ExportableTrait {
         $type = end($type);
         $xml .= '<Attachment>';
         $xml .= '<AttachmentCompressionAlgorithm>NONE</AttachmentCompressionAlgorithm>';
-        $xml .= '<AttachmentFormat>' . $tools->escape($type) . '</AttachmentFormat>';
+        $xml .= '<AttachmentFormat>' . XmlTools::escape($type) . '</AttachmentFormat>';
         $xml .= '<AttachmentEncoding>BASE64</AttachmentEncoding>';
-        $xml .= '<AttachmentDescription>' . $tools->escape($att['description']) . '</AttachmentDescription>';
+        $xml .= '<AttachmentDescription>' . XmlTools::escape($att['description']) . '</AttachmentDescription>';
         $xml .= '<AttachmentData>' . base64_encode($att['file']->getData()) . '</AttachmentData>';
         $xml .= '</Attachment>';
       }
@@ -385,7 +380,7 @@ trait ExportableTrait {
 
     // Add additional information
     if (!empty($additionalInfo)) {
-      $xml .= '<InvoiceAdditionalInformation>' . $tools->escape($additionalInfo) . '</InvoiceAdditionalInformation>';
+      $xml .= '<InvoiceAdditionalInformation>' . XmlTools::escape($additionalInfo) . '</InvoiceAdditionalInformation>';
     }
 
     // Add extensions data
