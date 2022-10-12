@@ -48,14 +48,14 @@ trait UtilsTrait {
 
   /**
    * Get XML Namespaces
-   * @return string[] XML Namespaces
+   * @return array<string,string> XML Namespaces
    */
   protected function getNamespaces() {
-    $xmlns = array();
-    $xmlns[] = 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"';
-    $xmlns[] = 'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '"';
-    $xmlns[] = 'xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"';
-    return $xmlns;
+    return [
+      'xmlns:ds' => 'http://www.w3.org/2000/09/xmldsig#',
+      'xmlns:fe' => self::$SCHEMA_NS[$this->version],
+      'xmlns:xades' => 'http://uri.etsi.org/01903/v1.3.2#'
+    ];
   }
 
 

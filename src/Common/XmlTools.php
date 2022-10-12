@@ -29,32 +29,49 @@ class XmlTools {
 
   /**
    * Inject namespaces
-   * @param  string          $xml   Input XML
-   * @param  string|string[] $newNs Namespaces
-   * @return string                 Canonicalized XML with new namespaces
+   * @param  string               $xml        Input XML
+   * @param  array<string,string> $namespaces Namespaces to inject in the form of <name, value>
+   * @return string                           Canonicalized XML with new namespaces
    */
-  public function injectNamespaces($xml, $newNs) {
-    if (!is_array($newNs)) $newNs = array($newNs);
-    $xml = explode(">", $xml, 2);
-    $oldNs = explode(" ", $xml[0]);
-    $elementName = array_shift($oldNs);
+  public function injectNamespaces($xml, $namespaces) {
+    $xml = explode('>', $xml, 2);
+    $rawNamespaces = explode(' ', preg_replace('/\s+/', ' ', $xml[0]));
+    $elementName = array_shift($rawNamespaces);
 
-    // Combine and sort namespaces
-    $xmlns = array();
-    $attributes = array();
-    foreach (array_merge($oldNs, $newNs) as $name) {
-      if (strpos($name, 'xmlns:') === 0) {
-        $xmlns[] = $name;
-      } else {
-        $attributes[] = $name;
+    // Include missing previous namespaces
+    foreach ($rawNamespaces as $part) {
+      list($name, $value) = explode('=', $part, 2);
+      if (!isset($namespaces[$name])) {
+        $namespaces[$name] = mb_substr($value, 1, -1);
       }
     }
-    sort($xmlns);
-    sort($attributes);
-    $ns = array_merge($xmlns, $attributes);
+    ksort($namespaces);
+
+    // Prepare new XML element parts
+    $xmlns = [];
+    $attributes = [];
+    foreach ($namespaces as $name=>$value) {
+      if (mb_strpos($name, 'xmlns:') === 0) {
+        $xmlns[] = "$name=\"$value\"";
+      } else {
+        $attributes[] = "$name=\"$value\"";
+      }
+    }
 
     // Generate new XML element
-    $xml = $elementName . " " . implode(' ', $ns) . ">" . $xml[1];
+    $xml = $elementName . " " . implode(' ', array_merge($xmlns, $attributes)) . ">" . $xml[1];
+    return $xml;
+  }
+
+
+  /**
+   * Canonicalize XML document
+   * @param  string $xml Input XML
+   * @return string      Canonicalized XML
+   */
+  public function c14n($xml) {
+    $xml = str_replace("\r", '', $xml);
+    // TODO: add missing transformations
     return $xml;
   }
 

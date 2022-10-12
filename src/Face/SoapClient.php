@@ -16,9 +16,9 @@ abstract class SoapClient {
   /**
    * SoapClient constructor
    *
-   * @param string $publicPath  Path to public key in PEM or PKCS#12 file
-   * @param string $privatePath Path to private key (null for PKCS#12)
-   * @param string $passphrase  Private key passphrase
+   * @param string      $publicPath  Path to public key in PEM or PKCS#12 file
+   * @param string|null $privatePath Path to private key (null for PKCS#12)
+   * @param string      $passphrase  Private key passphrase
    */
   public function __construct($publicPath, $privatePath=null, $passphrase="") {
     $reader = new KeyPairReader($publicPath, $privatePath, $passphrase);
@@ -58,14 +58,14 @@ abstract class SoapClient {
     $timestampId = "TimestampId-" . $tools->randomId();
     $sigId = "SignatureId-" . $tools->randomId();
 
-    // Define namespaces array
-    $ns = array(
-      "soapenv" => 'xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"',
-      "web" => 'xmlns:web="' . $this->getWebNamespace() . '"',
-      "ds" => 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"',
-      "wsu" => 'xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"',
-      "wsse" => 'xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"'
-    );
+    // Define namespaces
+    $ns = [
+      'xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/',
+      'xmlns:web'     => $this->getWebNamespace(),
+      'xmlns:ds'      => 'http://www.w3.org/2000/09/xmldsig#',
+      'xmlns:wsu'     => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd',
+      'xmlns:wsse'    => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+    ];
 
     // Generate request body
     $reqBody = '<soapenv:Body wsu:Id="' . $bodyId . '">' . $body . '</soapenv:Body>';
