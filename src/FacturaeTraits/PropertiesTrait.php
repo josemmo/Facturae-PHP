@@ -4,6 +4,7 @@ namespace josemmo\Facturae\FacturaeTraits;
 use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaePayment;
+use josemmo\Facturae\FacturaeParty;
 
 /**
  * Implements all attributes and methods needed to make Facturae instantiable.
