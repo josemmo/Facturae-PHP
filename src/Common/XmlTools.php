@@ -35,14 +35,15 @@ class XmlTools {
   public static function getNamespaces($xml) {
     $namespaces = [];
 
+    // Extract element opening tag
     $xml = explode('>', $xml, 2);
-    $rawNamespaces = explode(' ', preg_replace('/\s+/', ' ', $xml[0]));
-    array_shift($rawNamespaces);
-    foreach ($rawNamespaces as $part) {
-      list($name, $value) = explode('=', $part, 2);
-      if (mb_strpos($name, 'xmlns:') === 0) {
-        $namespaces[$name] = mb_substr($value, 1, -1);
-      }
+    $xml = $xml[0];
+
+    // Extract namespaces
+    $matches = [];
+    preg_match_all('/\s(xmlns:[0-9a-z]+)=["\'](.+?)["\']/i', $xml, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      $namespaces[$match[1]] = $match[2];
     }
 
     return $namespaces;
@@ -57,14 +58,16 @@ class XmlTools {
    */
   public static function injectNamespaces($xml, $namespaces) {
     $xml = explode('>', $xml, 2);
-    $rawNamespaces = explode(' ', preg_replace('/\s+/', ' ', $xml[0]));
-    $elementName = array_shift($rawNamespaces);
 
-    // Include missing previous namespaces
-    foreach ($rawNamespaces as $part) {
-      list($name, $value) = explode('=', $part, 2);
-      if (!isset($namespaces[$name])) {
-        $namespaces[$name] = mb_substr($value, 1, -1);
+    // Get element name (in the form of "<name")
+    $elementName = preg_split('/\s/', $xml[0], 2)[0];
+
+    // Include missing previous namespaces and attributes
+    $matches = [];
+    preg_match_all('/\s([0-9a-z:]+)=["\'](.+?)["\']/i', $xml[0], $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      if (!isset($namespaces[$match[1]])) {
+        $namespaces[$match[1]] = $match[2];
       }
     }
     ksort($namespaces);
@@ -93,7 +96,10 @@ class XmlTools {
    */
   public static function c14n($xml) {
     $xml = str_replace("\r", '', $xml);
-    // TODO: add missing transformations
+    $xml = preg_replace_callback('/<!\[CDATA\[(.*?)\]\]>/', function($match) {
+      return self::escape($match[1]);
+    }, $xml);
+    $xml = preg_replace('/<([0-9a-z:]+?) ?\/>/i', '<$1></$1>', $xml);
     return $xml;
   }
 
