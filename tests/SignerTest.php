@@ -18,6 +18,19 @@ final class SignerTest extends AbstractTest {
   }
 
 
+  public function testCanRegenerateIds() {
+    $signer = new FacturaeSigner();
+
+    $oldSignatureId = $signer->signatureId;
+    $signer->regenerateIds();
+    $this->assertNotEquals($oldSignatureId, $signer->signatureId);
+
+    $oldSignatureId = $signer->signatureId;
+    $signer->regenerateIds();
+    $this->assertNotEquals($oldSignatureId, $signer->signatureId);
+  }
+
+
   public function testCannotSignWithoutKey() {
     $this->expectException(RuntimeException::class);
     $signer = new FacturaeSigner();

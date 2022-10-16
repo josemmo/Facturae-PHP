@@ -48,6 +48,15 @@ final class FacturaeSigner {
    * Class constuctor
    */
   public function __construct() {
+    $this->regenerateIds();
+  }
+
+
+  /**
+   * Regenerate random element IDs
+   * @return self This instance
+   */
+  public function regenerateIds() {
     $this->signatureId = 'Signature' . XmlTools::randomId();
     $this->signedInfoId = 'Signature-SignedInfo' . XmlTools::randomId();
     $this->signedPropertiesId = 'SignedPropertiesID' . XmlTools::randomId();
@@ -57,6 +66,7 @@ final class FacturaeSigner {
     $this->signatureSignedPropertiesId = $this->signatureId . '-SignedProperties' . XmlTools::randomId();
     $this->signatureObjectId = $this->signatureId . '-Object' . XmlTools::randomId();
     $this->timestampId = 'Timestamp-' . XmlTools::randomId();
+    return $this;
   }
 
 
