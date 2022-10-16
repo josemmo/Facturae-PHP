@@ -41,6 +41,17 @@ $fac->sign("certificado.pfx", null, "passphrase");
 $fac->export("mi-factura.xsig");
 ```
 
+También permite firmar facturas que hayan sido generadas con otro programa:
+
+```php
+$signer = new FacturaeSigner();
+$signer->setSigningKey("certificado.pfx", null, "passphrase");
+
+$xml = file_get_contents(__DIR__ . "/factura.xml");
+$signedXml = $signer->sign($xml);
+file_put_contents(__DIR__ . "/factura.xsig", $signedXml);
+```
+
 ## Requisitos
   - PHP 5.6 o superior
   - OpenSSL (solo para firmar facturas)
