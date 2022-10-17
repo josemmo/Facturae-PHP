@@ -14,7 +14,7 @@ use RuntimeException;
 
 // Creación y configuración de la instancia
 $signer = new FacturaeSigner();
-$signer->setSigningKey("certificado.pfx", null, "passphrase");
+$signer->loadPkcs12("certificado.pfx", "passphrase");
 $signer->setTimestampServer("https://www.safestamper.com/tsa", "usuario", "contraseña");
 
 // Firma electrónica

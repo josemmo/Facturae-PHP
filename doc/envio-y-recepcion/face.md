@@ -29,6 +29,9 @@ Al igual que al firmar una factura electrónica, puedes usar un solo archivo `.p
 $face = new FaceClient("certificado.pfx", null, "passphrase");
 ```
 
+> #### NOTA
+> Para más información sobre qué otros valores pueden tomar los parámetros del constructor, consulta la documentación de [firma electrónica](../firma-electronica/).
+
 Por defecto, `FaceClient` se comunica con el entorno de producción de FACe. Para usar el entorno de pruebas (*staging*) puedes utilizar el siguiente método:
 ```php
 $face->setProduction(false);

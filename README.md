@@ -45,7 +45,7 @@ También permite firmar facturas que hayan sido generadas con otro programa:
 
 ```php
 $signer = new FacturaeSigner();
-$signer->setSigningKey("certificado.pfx", null, "passphrase");
+$signer->loadPkcs12("certificado.pfx", "passphrase");
 
 $xml = file_get_contents(__DIR__ . "/factura.xml");
 $signedXml = $signer->sign($xml);

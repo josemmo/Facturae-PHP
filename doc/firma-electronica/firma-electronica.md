@@ -10,9 +10,16 @@ Aunque es posible exportar las facturas sin firmarlas, es un paso obligatorio pa
 Para firmar facturas se necesita un certificado electrónico (generalmente expedido por la FNMT) del que extraer su clave pública y su clave privada.
 
 ## Firmado con clave pública y privada X.509
-Si se tienen las clave pública y privada en archivos independientes se debe utilizar este método con los siguientes argumentos:
+Si se tiene la clave pública (un certificado) y la clave privada en archivos independientes, se debe utilizar este método con los siguientes argumentos:
 ```php
 $fac->sign("clave_publica.pem", "clave_privada.pem", "passphrase");
+```
+
+También se pueden pasar como parámetros los bytes de ambos ficheros en vez de sus rutas, o instancias de `OpenSSLCertificate` y `OpenSSLAsymmetricKey`, respectivamente:
+```php
+$publicKey = openssl_x509_read("clave_publica.pem");
+$encryptedPrivateKey = file_get_contents("clave_privada.pem");
+$fac->sign($publicKey, $encryptedPrivateKey, "passphrase");
 ```
 
 > #### NOTA
@@ -29,6 +36,12 @@ $fac->sign("clave_publica.pem", "clave_privada.pem", "passphrase");
 Desde la versión 1.0.5 de Facturae-PHP ya es posible cargar un banco de certificados desde un archivo `.pfx` o `.p12` sin necesidad de convertirlo previamente a X.509:
 ```php
 $fac->sign("certificado.pfx", null, "passphrase");
+```
+
+También se pueden pasar como parámetro los bytes del banco PKCS#12:
+```php
+$encryptedStore = file_get_contents("certificado.pfx");
+$fac->sign($encryptedStore, null, "passphrase");
 ```
 
 > #### NOTA
