@@ -2,29 +2,29 @@
 namespace josemmo\Facturae\Face;
 
 use josemmo\Facturae\Facturae;
-use josemmo\Facturae\Common\KeyPairReader;
+use josemmo\Facturae\Common\KeyPairReaderTrait;
 use josemmo\Facturae\Common\XmlTools;
 
 abstract class SoapClient {
 
   const REQUEST_EXPIRATION = 60; // In seconds
 
-  private $publicKey;
-  private $privateKey;
-
+  use KeyPairReaderTrait;
 
   /**
    * SoapClient constructor
    *
-   * @param string      $publicPath  Path to public key in PEM or PKCS#12 file
-   * @param string|null $privatePath Path to private key (null for PKCS#12)
-   * @param string      $passphrase  Private key passphrase
+   * @param \OpenSSLAsymmetricKey|\OpenSSLCertificate|resource|string      $storeOrCertificate Certificate or PKCS#12 store
+   * @param \OpenSSLAsymmetricKey|\OpenSSLCertificate|resource|string|null $privateKey         Private key (`null` for PKCS#12)
+   * @param string                                                         $passphrase         Store or private key passphrase
    */
-  public function __construct($publicPath, $privatePath=null, $passphrase="") {
-    $reader = new KeyPairReader($publicPath, $privatePath, $passphrase);
-    $this->publicKey = $reader->getPublicKey();
-    $this->privateKey = $reader->getPrivateKey();
-    unset($reader);
+  public function __construct($storeOrCertificate, $privateKey=null, $passphrase='') {
+    if ($privateKey === null) {
+      $this->loadPkcs12($storeOrCertificate, $passphrase);
+    } else {
+      $this->addCertificate($storeOrCertificate);
+      $this->setPrivateKey($privateKey, $passphrase);
+    }
   }
 
 
@@ -87,7 +87,7 @@ abstract class SoapClient {
       'EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ' .
       'wsu:Id="' . $certId . '" ' .
       'ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3">' .
-        XmlTools::getCert($this->publicKey, false) .
+        XmlTools::getCert($this->publicChain[0], false) .
       '</wsse:BinarySecurityToken>';
 
     // Generate signed info

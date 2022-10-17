@@ -14,8 +14,8 @@ final class FacturaeSigner {
   const SIGN_POLICY_URL = 'http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf';
   const SIGN_POLICY_DIGEST = 'Ohixl6upD6av8N7pEvDABhEL6hM=';
 
-  /** @var KeyPairReader|null */
-  private $keypairReader = null;
+  use KeyPairReaderTrait;
+
   /** @var int|null */
   private $signingTime = null;
   /** @var string|null */
@@ -82,26 +82,11 @@ final class FacturaeSigner {
 
 
   /**
-   * Set signing key material
-   * @param  string      $publicPath  Path to public key PEM file or PKCS#12 certificate store
-   * @param  string|null $privatePath Path to private key PEM file (should be null in case of PKCS#12)
-   * @param  string      $passphrase  Private key passphrase
-   * @return self                     This instance
-   */
-  public function setSigningKey($publicPath, $privatePath=null, $passphrase='') {
-    $this->keypairReader = new KeyPairReader($publicPath, $privatePath, $passphrase);
-    return $this;
-  }
-
-
-  /**
    * Can sign
    * @return boolean Whether instance is ready to sign XML documents
    */
   public function canSign() {
-    return ($this->keypairReader !== null) &&
-      !empty($this->keypairReader->getPublicChain()) &&
-      !empty($this->keypairReader->getPrivateKey());
+    return !empty($this->publicChain) && !empty($this->privateKey);
   }
 
 
@@ -137,15 +122,10 @@ final class FacturaeSigner {
    */
   public function sign($xml) {
     // Validate signing key material
-    if ($this->keypairReader === null) {
-      throw new RuntimeException('Missing signing key material');
-    }
-    $publicChain = $this->keypairReader->getPublicChain();
-    if (empty($publicChain)) {
+    if (empty($this->publicChain)) {
       throw new RuntimeException('Invalid signing key material: chain of certificates is empty');
     }
-    $privateKey = $this->keypairReader->getPrivateKey();
-    if (empty($privateKey)) {
+    if (empty($this->privateKey)) {
       throw new RuntimeException('Invalid signing key material: failed to read private key');
     }
 
@@ -172,7 +152,7 @@ final class FacturaeSigner {
 
     // Build <xades:SignedProperties /> element
     $signingTime = ($this->signingTime === null) ? time() : $this->signingTime;
-    $certData = openssl_x509_parse($publicChain[0]);
+    $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
     foreach ($certData['issuer'] as $item=>$value) {
       $certIssuer[] = "$item=$value";
@@ -185,7 +165,7 @@ final class FacturaeSigner {
           '<xades:Cert>' .
             '<xades:CertDigest>' .
               '<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>' .
-              '<ds:DigestValue>' . XmlTools::getCertDigest($publicChain[0]) . '</ds:DigestValue>' .
+              '<ds:DigestValue>' . XmlTools::getCertDigest($this->publicChain[0]) . '</ds:DigestValue>' .
             '</xades:CertDigest>' .
             '<xades:IssuerSerial>' .
               '<ds:X509IssuerName>' . $certIssuer . '</ds:X509IssuerName>' .
@@ -223,12 +203,12 @@ final class FacturaeSigner {
     '</xades:SignedProperties>';
 
     // Build <ds:KeyInfo /> element
-    $privateData = openssl_pkey_get_details($privateKey);
+    $privateData = openssl_pkey_get_details($this->privateKey);
     $modulus = chunk_split(base64_encode($privateData['rsa']['n']), 76);
     $modulus = str_replace("\r", '', $modulus);
     $exponent = base64_encode($privateData['rsa']['e']);
     $dsKeyInfo = '<ds:KeyInfo Id="' . $this->certificateId . '">' . "\n" . '<ds:X509Data>' . "\n";
-    foreach ($publicChain as $pemCertificate) {
+    foreach ($this->publicChain as $pemCertificate) {
       $dsKeyInfo .= '<ds:X509Certificate>' . "\n" . XmlTools::getCert($pemCertificate) . '</ds:X509Certificate>' . "\n";
     }
     $dsKeyInfo .= '</ds:X509Data>' . "\n" .
@@ -278,7 +258,7 @@ final class FacturaeSigner {
     $dsSignature = '<ds:Signature xmlns:xades="' . self::XMLNS_XADES . '" Id="' . $this->signatureId . '">' . "\n" .
       $dsSignedInfo . "\n" .
       '<ds:SignatureValue Id="' . $this->signatureValueId . '">' . "\n" .
-        XmlTools::getSignature(XmlTools::injectNamespaces($dsSignedInfo, $xmlns), $privateKey) .
+        XmlTools::getSignature(XmlTools::injectNamespaces($dsSignedInfo, $xmlns), $this->privateKey) .
       '</ds:SignatureValue>' . "\n" .
       $dsKeyInfo . "\n" .
       '<ds:Object Id="' . $this->signatureObjectId . '">' .

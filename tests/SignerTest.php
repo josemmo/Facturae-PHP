@@ -12,9 +12,24 @@ final class SignerTest extends AbstractTest {
    */
   private function getSigner() {
     $signer = new FacturaeSigner();
-    $signer->setSigningKey(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $signer->loadPkcs12(self::CERTS_DIR . '/facturae.p12', self::FACTURAE_CERT_PASS);
     $signer->setTimestampServer('http://tss.accv.es:8318/tsa');
     return $signer;
+  }
+
+
+  public function testCanLoadPemStrings() {
+    $signer = new FacturaeSigner();
+    $signer->addCertificate(file_get_contents(self::CERTS_DIR . '/facturae-public.pem'));
+    $signer->setPrivateKey(file_get_contents(self::CERTS_DIR . '/facturae-private.pem'), self::FACTURAE_CERT_PASS);
+    $this->assertTrue($signer->canSign());
+  }
+
+
+  public function testCanLoadStoreBytes() {
+    $signer = new FacturaeSigner();
+    $signer->loadPkcs12(file_get_contents(self::CERTS_DIR . '/facturae.p12'), self::FACTURAE_CERT_PASS);
+    $this->assertTrue($signer->canSign());
   }
 
 

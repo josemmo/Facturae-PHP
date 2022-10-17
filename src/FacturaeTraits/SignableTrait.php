@@ -60,14 +60,19 @@ trait SignableTrait {
 
   /**
    * Sign
-   * @param  string      $publicPath  Path to public key PEM file or PKCS#12 certificate store
-   * @param  string|null $privatePath Path to private key PEM file (should be null in case of PKCS#12)
-   * @param  string      $passphrase  Private key passphrase
-   * @return boolean                  Success
+   * @param  \OpenSSLAsymmetricKey|\OpenSSLCertificate|resource|string      $storeOrCertificate Certificate or PKCS#12 store
+   * @param  \OpenSSLAsymmetricKey|\OpenSSLCertificate|resource|string|null $privateKey         Private key (`null` for PKCS#12)
+   * @param  string                                                         $passphrase         Store or private key passphrase
+   * @return boolean                                                                            Success
    */
-  public function sign($publicPath, $privatePath=null, $passphrase="") {
+  public function sign($storeOrCertificate, $privateKey=null, $passphrase='') {
     $signer = $this->getSigner();
-    $signer->setSigningKey($publicPath, $privatePath, $passphrase);
+    if ($privateKey === null) {
+      $signer->loadPkcs12($storeOrCertificate, $passphrase);
+    } else {
+      $signer->addCertificate($storeOrCertificate);
+      $signer->setPrivateKey($privateKey, $passphrase);
+    }
     return $signer->canSign();
   }
 
