@@ -4,6 +4,7 @@ namespace josemmo\Facturae\FacturaeTraits;
 use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaePayment;
+use josemmo\Facturae\ReimbursableExpense;
 
 /**
  * Implements all attributes and methods needed to make Facturae instantiable.
@@ -34,6 +35,8 @@ trait PropertiesTrait {
     "seller" => null,
     "buyer" => null
   );
+  /** @var ReimbursableExpense[] */
+  protected $reimbursableExpenses = array();
   protected $items = array();
   protected $legalLiterals = array();
   protected $discounts = array();
@@ -652,6 +655,36 @@ trait PropertiesTrait {
 
 
   /**
+   * Add reimbursable expense
+   * @param  ReimbursableExpense $item Reimbursable expense
+   * @return Facturae                  Invoice instance
+   */
+  public function addReimbursableExpense($item) {
+    $this->reimbursableExpenses[] = $item;
+    return $this;
+  }
+
+
+  /**
+   * Get reimbursable expenses
+   * @return ReimbursableExpense[] Reimbursable expenses
+   */
+  public function getReimbursableExpenses() {
+    return $this->reimbursableExpenses;
+  }
+
+
+  /**
+   * Clear reimbursable expenses
+   * @return Facturae Invoice instance
+   */
+  public function clearReimbursableExpenses() {
+    $this->reimbursableExpenses = array();
+    return $this;
+  }
+
+
+  /**
    * Get totals
    * @return array Invoice totals
    */
@@ -667,7 +700,10 @@ trait PropertiesTrait {
       "totalGeneralDiscounts" => 0,
       "totalGeneralCharges" => 0,
       "totalTaxesOutputs" => 0,
-      "totalTaxesWithheld" => 0
+      "totalTaxesWithheld" => 0,
+      "totalReimbursableExpenses" => 0,
+      "totalOutstandingAmount" => 0,
+      "totalExecutableAmount" => 0
     );
 
     // Precalculate total global amount (needed for general discounts and charges)
@@ -742,11 +778,19 @@ trait PropertiesTrait {
       }
     }
 
+    // Get total reimbursable expenses amount
+    if (!empty($this->reimbursableExpenses)) {
+      foreach ($this->reimbursableExpenses as $expense) {
+        $totals['totalReimbursableExpenses'] += $expense->amount;
+      }
+    }
+
     // Pre-round some total values (needed to create a sum-reasonable invoice total)
     $totals['totalTaxesOutputs'] = $this->pad($totals['totalTaxesOutputs'], 'TotalTaxOutputs');
     $totals['totalTaxesWithheld'] = $this->pad($totals['totalTaxesWithheld'], 'TotalTaxesWithheld');
     $totals['totalGeneralDiscounts'] = $this->pad($totals['totalGeneralDiscounts'], 'TotalGeneralDiscounts');
     $totals['totalGeneralCharges'] = $this->pad($totals['totalGeneralCharges'], 'TotalGeneralSurcharges');
+    $totals['totalReimbursableExpenses'] = $this->pad($totals['totalReimbursableExpenses'], 'TotalReimbursableExpenses');
     $totals['grossAmount'] = $this->pad($totals['grossAmount'], 'TotalGrossAmount');
 
     // Fill missing values
@@ -755,6 +799,8 @@ trait PropertiesTrait {
       'TotalGrossAmountBeforeTaxes'
     );
     $totals['invoiceAmount'] = $totals['grossAmountBeforeTaxes'] + $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld'];
+    $totals['totalOutstandingAmount'] = $totals['invoiceAmount'];
+    $totals['totalExecutableAmount'] = $totals['invoiceAmount'] + $totals['totalReimbursableExpenses'];
 
     return $totals;
   }

@@ -3,6 +3,7 @@ namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\XmlTools;
 use josemmo\Facturae\FacturaePayment;
+use josemmo\Facturae\ReimbursableExpense;
 
 /**
  * Allows a Facturae instance to be exported to XML.
@@ -56,10 +57,10 @@ trait ExportableTrait {
                   '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalInvoicesAmount>' .
                 '<TotalOutstandingAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['totalOutstandingAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalOutstandingAmount>' .
                 '<TotalExecutableAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['totalExecutableAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalExecutableAmount>' .
                 '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
               '</Batch>';
@@ -166,14 +167,51 @@ trait ExportableTrait {
       $xml .= '</' . $generalGroups[$g][0] . '>';
     }
 
+    // Add some total amounts
     $xml .= '<TotalGeneralDiscounts>' . $this->pad($totals['totalGeneralDiscounts'], 'TotalGeneralDiscounts') . '</TotalGeneralDiscounts>';
     $xml .= '<TotalGeneralSurcharges>' . $this->pad($totals['totalGeneralCharges'], 'TotalGeneralSurcharges') . '</TotalGeneralSurcharges>';
     $xml .= '<TotalGrossAmountBeforeTaxes>' . $this->pad($totals['grossAmountBeforeTaxes'], 'TotalGrossAmountBeforeTaxes') . '</TotalGrossAmountBeforeTaxes>';
     $xml .= '<TotalTaxOutputs>' . $this->pad($totals['totalTaxesOutputs'], 'TotalTaxOutputs') . '</TotalTaxOutputs>';
     $xml .= '<TotalTaxesWithheld>' . $this->pad($totals['totalTaxesWithheld'], 'TotalTaxesWithheld') . '</TotalTaxesWithheld>';
     $xml .= '<InvoiceTotal>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</InvoiceTotal>';
-    $xml .= '<TotalOutstandingAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalOutstandingAmount>';
-    $xml .= '<TotalExecutableAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalExecutableAmount>';
+
+    // Add reimbursable expenses
+    if (!empty($this->reimbursableExpenses)) {
+      $xml .= '<ReimbursableExpenses>';
+      foreach ($this->reimbursableExpenses as $expense) { /** @var ReimbursableExpense $expense */
+        $xml .= '<ReimbursableExpenses>';
+        if ($expense->seller !== null) {
+          $xml .= '<ReimbursableExpensesSellerParty>';
+          $xml .= $expense->seller->getReimbursableExpenseXML();
+          $xml .= '</ReimbursableExpensesSellerParty>';
+        }
+        if ($expense->buyer !== null) {
+          $xml .= '<ReimbursableExpensesBuyerParty>';
+          $xml .= $expense->buyer->getReimbursableExpenseXML();
+          $xml .= '</ReimbursableExpensesBuyerParty>';
+        }
+        if ($expense->issueDate !== null) {
+          $issueDate = is_string($expense->issueDate) ? strtotime($expense->issueDate) : $expense->issueDate;
+          $xml .= '<IssueDate>' . date('Y-m-d', $issueDate) . '</IssueDate>';
+        }
+        if ($expense->invoiceNumber !== null) {
+          $xml .= '<InvoiceNumber>' . XmlTools::escape($expense->invoiceNumber) . '</InvoiceNumber>';
+        }
+        if ($expense->invoiceSeriesCode !== null) {
+          $xml .= '<InvoiceSeriesCode>' . XmlTools::escape($expense->invoiceSeriesCode) . '</InvoiceSeriesCode>';
+        }
+        $xml .= '<ReimbursableExpensesAmount>' . $this->pad($expense->amount, 'ReimbursableExpense/Amount') . '</ReimbursableExpensesAmount>';
+        $xml .= '</ReimbursableExpenses>';
+      }
+      $xml .= '</ReimbursableExpenses>';
+    }
+
+    // Add more total amounts
+    $xml .= '<TotalOutstandingAmount>' . $this->pad($totals['totalOutstandingAmount'], 'TotalOutstandingAmount') . '</TotalOutstandingAmount>';
+    $xml .= '<TotalExecutableAmount>' . $this->pad($totals['totalExecutableAmount'], 'TotalExecutableAmount') . '</TotalExecutableAmount>';
+    if (!empty($this->reimbursableExpenses)) {
+      $xml .= '<TotalReimbursableExpenses>' . $this->pad($totals['totalReimbursableExpenses'], 'TotalReimbursableExpenses') . '</TotalReimbursableExpenses>';
+    }
     $xml .= '</InvoiceTotals>';
 
     // Add invoice items

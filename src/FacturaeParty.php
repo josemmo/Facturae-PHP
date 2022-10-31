@@ -12,6 +12,7 @@ use josemmo\Facturae\Common\XmlTools;
 class FacturaeParty {
 
   public $isLegalEntity = true; // By default is a company and not a person
+  public $isEuropeanUnionResident = true; // By default resides in the EU
   public $taxNumber = null;
   public $name = null;
 
@@ -215,6 +216,19 @@ class FacturaeParty {
     }
     $xml .= '</ContactDetails>';
 
+    return $xml;
+  }
+
+
+  /**
+   * Get item XML for reimbursable expense node
+   *
+   * @return string Reimbursable expense XML
+   */
+  public function getReimbursableExpenseXML() {
+    $xml  = '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>';
+    $xml .= '<ResidenceTypeCode>' . ($this->isEuropeanUnionResident ? 'R' : 'E') . '</ResidenceTypeCode>';
+    $xml .= '<TaxIdentificationNumber>' . XmlTools::escape($this->taxNumber) . '</TaxIdentificationNumber>';
     return $xml;
   }
 

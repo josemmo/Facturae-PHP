@@ -7,6 +7,7 @@ use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaePayment;
 use josemmo\Facturae\FacturaeCentre;
+use josemmo\Facturae\ReimbursableExpense;
 
 final class InvoiceTest extends AbstractTest {
 
@@ -183,6 +184,16 @@ final class InvoiceTest extends AbstractTest {
     // Añadimos recargos y descuentos sobre el total de la factura
     $fac->addDiscount('A mitad de precio', 50);
     $fac->addCharge('Recargo del 50%', 50);
+
+    // Añadimos un suplido
+    $fac->addReimbursableExpense(new ReimbursableExpense([
+      "seller"            => new FacturaeParty(["taxNumber" => "00000000A"]),
+      "buyer"             => new FacturaeParty(["taxNumber" => "12-3456789", "isEuropeanUnionResident" => false]),
+      "issueDate"         => "2017-11-27",
+      "invoiceNumber"     => "EX-19912",
+      "invoiceSeriesCode" => "156A",
+      "amount"            => 99.9991172
+    ]));
 
     // Establecemos un un cesionario (solo en algunos casos)
     if ($isPfx) {
