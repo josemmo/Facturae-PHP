@@ -7,6 +7,7 @@ use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaePayment;
 use josemmo\Facturae\FacturaeCentre;
+use josemmo\Facturae\ReimbursableExpense;
 
 final class InvoiceTest extends AbstractTest {
 
@@ -184,6 +185,16 @@ final class InvoiceTest extends AbstractTest {
     $fac->addDiscount('A mitad de precio', 50);
     $fac->addCharge('Recargo del 50%', 50);
 
+    // Añadimos un suplido
+    $fac->addReimbursableExpense(new ReimbursableExpense([
+      "seller"            => new FacturaeParty(["taxNumber" => "00000000A"]),
+      "buyer"             => new FacturaeParty(["taxNumber" => "12-3456789", "isEuropeanUnionResident" => false]),
+      "issueDate"         => "2017-11-27",
+      "invoiceNumber"     => "EX-19912",
+      "invoiceSeriesCode" => "156A",
+      "amount"            => 99.9991172
+    ]));
+
     // Establecemos un un cesionario (solo en algunos casos)
     if ($isPfx) {
       $fac->setAssignee(new FacturaeParty([
@@ -230,11 +241,11 @@ final class InvoiceTest extends AbstractTest {
     // Ya solo queda firmar la factura ...
     if ($isPfx) {
       $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
+      $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
     } else {
       $fac->sign(self::CERTS_DIR . "/facturae-public.pem",
                  self::CERTS_DIR . "/facturae-private.pem", self::FACTURAE_CERT_PASS);
     }
-    $fac->setTimestampServer("http://tss.accv.es:8318/tsa");
 
     // ... exportarlo a un archivo ...
     $isPfxStr = $isPfx ? "PKCS12" : "X509";

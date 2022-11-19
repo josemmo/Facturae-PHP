@@ -2,29 +2,29 @@
 namespace josemmo\Facturae\Face;
 
 use josemmo\Facturae\Facturae;
-use josemmo\Facturae\Common\KeyPairReader;
+use josemmo\Facturae\Common\KeyPairReaderTrait;
 use josemmo\Facturae\Common\XmlTools;
 
 abstract class SoapClient {
 
   const REQUEST_EXPIRATION = 60; // In seconds
 
-  private $publicKey;
-  private $privateKey;
-
+  use KeyPairReaderTrait;
 
   /**
    * SoapClient constructor
    *
-   * @param string $publicPath  Path to public key in PEM or PKCS#12 file
-   * @param string $privatePath Path to private key (null for PKCS#12)
-   * @param string $passphrase  Private key passphrase
+   * @param \OpenSSLAsymmetricKey|\OpenSSLCertificate|resource|string      $storeOrCertificate Certificate or PKCS#12 store
+   * @param \OpenSSLAsymmetricKey|\OpenSSLCertificate|resource|string|null $privateKey         Private key (`null` for PKCS#12)
+   * @param string                                                         $passphrase         Store or private key passphrase
    */
-  public function __construct($publicPath, $privatePath=null, $passphrase="") {
-    $reader = new KeyPairReader($publicPath, $privatePath, $passphrase);
-    $this->publicKey = $reader->getPublicKey();
-    $this->privateKey = $reader->getPrivateKey();
-    unset($reader);
+  public function __construct($storeOrCertificate, $privateKey=null, $passphrase='') {
+    if ($privateKey === null) {
+      $this->loadPkcs12($storeOrCertificate, $passphrase);
+    } else {
+      $this->addCertificate($storeOrCertificate);
+      $this->setPrivateKey($privateKey, $passphrase);
+    }
   }
 
 
@@ -48,28 +48,26 @@ abstract class SoapClient {
    * @return SimpleXMLElement       Response
    */
   protected function request($body) {
-    $tools = new XmlTools();
-
     // Generate random IDs for this request
-    $bodyId = "BodyId-" . $tools->randomId();
-    $certId = "CertId-" . $tools->randomId();
-    $keyId = "KeyId-" . $tools->randomId();
-    $strId = "SecTokId-" . $tools->randomId();
-    $timestampId = "TimestampId-" . $tools->randomId();
-    $sigId = "SignatureId-" . $tools->randomId();
+    $bodyId = "BodyId-" . XmlTools::randomId();
+    $certId = "CertId-" . XmlTools::randomId();
+    $keyId = "KeyId-" . XmlTools::randomId();
+    $strId = "SecTokId-" . XmlTools::randomId();
+    $timestampId = "TimestampId-" . XmlTools::randomId();
+    $sigId = "SignatureId-" . XmlTools::randomId();
 
-    // Define namespaces array
-    $ns = array(
-      "soapenv" => 'xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"',
-      "web" => 'xmlns:web="' . $this->getWebNamespace() . '"',
-      "ds" => 'xmlns:ds="http://www.w3.org/2000/09/xmldsig#"',
-      "wsu" => 'xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"',
-      "wsse" => 'xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"'
-    );
+    // Define namespaces
+    $ns = [
+      'xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/',
+      'xmlns:web'     => $this->getWebNamespace(),
+      'xmlns:ds'      => 'http://www.w3.org/2000/09/xmldsig#',
+      'xmlns:wsu'     => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd',
+      'xmlns:wsse'    => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+    ];
 
     // Generate request body
     $reqBody = '<soapenv:Body wsu:Id="' . $bodyId . '">' . $body . '</soapenv:Body>';
-    $bodyDigest = $tools->getDigest($tools->injectNamespaces($reqBody, $ns));
+    $bodyDigest = XmlTools::getDigest(XmlTools::injectNamespaces($reqBody, $ns));
 
     // Generate timestamp
     $timeCreated = time();
@@ -78,8 +76,8 @@ abstract class SoapClient {
         '<wsu:Created>' . date('c', $timeCreated) . '</wsu:Created>' .
         '<wsu:Expires>' . date('c', $timeExpires) . '</wsu:Expires>' .
       '</wsu:Timestamp>';
-    $timestampDigest = $tools->getDigest(
-      $tools->injectNamespaces($reqTimestamp, $ns)
+    $timestampDigest = XmlTools::getDigest(
+      XmlTools::injectNamespaces($reqTimestamp, $ns)
     );
 
     // Generate request header
@@ -89,7 +87,7 @@ abstract class SoapClient {
       'EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ' .
       'wsu:Id="' . $certId . '" ' .
       'ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3">' .
-        $tools->getCert($this->publicKey, false) .
+        XmlTools::getCert($this->publicChain[0], false) .
       '</wsse:BinarySecurityToken>';
 
     // Generate signed info
@@ -106,13 +104,13 @@ abstract class SoapClient {
           '<ds:DigestValue>' . $bodyDigest . '</ds:DigestValue>' .
         '</ds:Reference>' .
       '</ds:SignedInfo>';
-    $signedInfoPayload = $tools->injectNamespaces($signedInfo, $ns);
+    $signedInfoPayload = XmlTools::injectNamespaces($signedInfo, $ns);
 
     // Add signature and KeyInfo to header
     $reqHeader .= '<ds:Signature Id="' . $sigId . '">' .
       $signedInfo .
       '<ds:SignatureValue>' .
-        $tools->getSignature($signedInfoPayload, $this->privateKey, false) .
+        XmlTools::getSignature($signedInfoPayload, $this->privateKey, false) .
       '</ds:SignatureValue>';
     $reqHeader .= '<ds:KeyInfo Id="' . $keyId . '">' .
       '<wsse:SecurityTokenReference wsu:Id="' . $strId . '">' .
@@ -130,7 +128,7 @@ abstract class SoapClient {
 
     // Generate final request
     $req = '<soapenv:Envelope>' . $reqHeader . $reqBody . '</soapenv:Envelope>';
-    $req = $tools->injectNamespaces($req, $ns);
+    $req = XmlTools::injectNamespaces($req, $ns);
     $req = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $req;
 
     // Extract SOAP action from "<web:ACTION></web:ACTION>"

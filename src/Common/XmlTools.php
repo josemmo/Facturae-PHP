@@ -8,7 +8,7 @@ class XmlTools {
    * @param  string $value Input value
    * @return string        Escaped input
    */
-  public function escape($value) {
+  public static function escape($value) {
     return htmlspecialchars($value, ENT_XML1, 'UTF-8');
   }
 
@@ -21,40 +21,85 @@ class XmlTools {
    *
    * @return int Random number
    */
-  public function randomId() {
+  public static function randomId() {
     if (function_exists('random_int')) return random_int(0x10000000, 0x7FFFFFFF);
     return rand(100000, 999999);
   }
 
 
   /**
-   * Inject namespaces
-   * @param  string          $xml   Input XML
-   * @param  string|string[] $newNs Namespaces
-   * @return string                 Canonicalized XML with new namespaces
+   * Get namespaces from root element
+   * @param  string               $xml XML document
+   * @return array<string,string>      Namespaces in the form of <name, value>
    */
-  public function injectNamespaces($xml, $newNs) {
-    if (!is_array($newNs)) $newNs = array($newNs);
-    $xml = explode(">", $xml, 2);
-    $oldNs = explode(" ", $xml[0]);
-    $elementName = array_shift($oldNs);
+  public static function getNamespaces($xml) {
+    $namespaces = [];
 
-    // Combine and sort namespaces
-    $xmlns = array();
-    $attributes = array();
-    foreach (array_merge($oldNs, $newNs) as $name) {
-      if (strpos($name, 'xmlns:') === 0) {
-        $xmlns[] = $name;
-      } else {
-        $attributes[] = $name;
+    // Extract element opening tag
+    $xml = explode('>', $xml, 2);
+    $xml = $xml[0];
+
+    // Extract namespaces
+    $matches = [];
+    preg_match_all('/\s(xmlns:[0-9a-z]+)=["\'](.+?)["\']/i', $xml, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      $namespaces[$match[1]] = $match[2];
+    }
+
+    return $namespaces;
+  }
+
+
+  /**
+   * Inject namespaces
+   * @param  string               $xml        Input XML
+   * @param  array<string,string> $namespaces Namespaces to inject in the form of <name, value>
+   * @return string                           Canonicalized XML with new namespaces
+   */
+  public static function injectNamespaces($xml, $namespaces) {
+    $xml = explode('>', $xml, 2);
+
+    // Get element name (in the form of "<name")
+    $elementName = preg_split('/\s/', $xml[0], 2)[0];
+
+    // Include missing previous namespaces and attributes
+    $matches = [];
+    preg_match_all('/\s([0-9a-z:]+)=["\'](.+?)["\']/i', $xml[0], $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      if (!isset($namespaces[$match[1]])) {
+        $namespaces[$match[1]] = $match[2];
       }
     }
-    sort($xmlns);
-    sort($attributes);
-    $ns = array_merge($xmlns, $attributes);
+    ksort($namespaces);
+
+    // Prepare new XML element parts
+    $xmlns = [];
+    $attributes = [];
+    foreach ($namespaces as $name=>$value) {
+      if (mb_strpos($name, 'xmlns:') === 0) {
+        $xmlns[] = "$name=\"$value\"";
+      } else {
+        $attributes[] = "$name=\"$value\"";
+      }
+    }
 
     // Generate new XML element
-    $xml = $elementName . " " . implode(' ', $ns) . ">" . $xml[1];
+    $xml = $elementName . " " . implode(' ', array_merge($xmlns, $attributes)) . ">" . $xml[1];
+    return $xml;
+  }
+
+
+  /**
+   * Canonicalize XML document
+   * @param  string $xml Input XML
+   * @return string      Canonicalized XML
+   */
+  public static function c14n($xml) {
+    $xml = str_replace("\r", '', $xml);
+    $xml = preg_replace_callback('/<!\[CDATA\[(.*?)\]\]>/', function($match) {
+      return self::escape($match[1]);
+    }, $xml);
+    $xml = preg_replace('/<([0-9a-z:]+?) ?\/>/i', '<$1></$1>', $xml);
     return $xml;
   }
 
@@ -65,9 +110,9 @@ class XmlTools {
    * @param  boolean $pretty Pretty Base64 response
    * @return string          Base64 response
    */
-  public function toBase64($bytes, $pretty=false) {
+  public static function toBase64($bytes, $pretty=false) {
     $res = base64_encode($bytes);
-    return $pretty ? $this->prettify($res) : $res;
+    return $pretty ? self::prettify($res) : $res;
   }
 
 
@@ -76,7 +121,7 @@ class XmlTools {
    * @param  string $input Input string
    * @return string        Multi-line resposne
    */
-  private function prettify($input) {
+  private static function prettify($input) {
     return chunk_split($input, 76, "\n");
   }
 
@@ -87,8 +132,8 @@ class XmlTools {
    * @param  boolean $pretty Pretty Base64 response
    * @return string          Digest
    */
-  public function getDigest($input, $pretty=false) {
-    return $this->toBase64(hash("sha512", $input, true), $pretty);
+  public static function getDigest($input, $pretty=false) {
+    return self::toBase64(hash("sha512", $input, true), $pretty);
   }
 
 
@@ -98,11 +143,11 @@ class XmlTools {
    * @param  boolean $pretty Pretty Base64 response
    * @return string          Base64 Certificate
    */
-  public function getCert($pem, $pretty=true) {
+  public static function getCert($pem, $pretty=true) {
     $pem = str_replace("-----BEGIN CERTIFICATE-----", "", $pem);
     $pem = str_replace("-----END CERTIFICATE-----", "", $pem);
     $pem = str_replace("\n", "", str_replace("\r", "", $pem));
-    if ($pretty) $pem = $this->prettify($pem);
+    if ($pretty) $pem = self::prettify($pem);
     return $pem;
   }
 
@@ -113,9 +158,9 @@ class XmlTools {
    * @param  boolean $pretty    Pretty Base64 response
    * @return string             Base64 Digest
    */
-  public function getCertDigest($publicKey, $pretty=false) {
+  public static function getCertDigest($publicKey, $pretty=false) {
     $digest = openssl_x509_fingerprint($publicKey, "sha512", true);
-    return $this->toBase64($digest, $pretty);
+    return self::toBase64($digest, $pretty);
   }
 
 
@@ -126,9 +171,9 @@ class XmlTools {
    * @param  boolean $pretty     Pretty Base64 response
    * @return string              Base64 Signature
    */
-  public function getSignature($payload, $privateKey, $pretty=true) {
+  public static function getSignature($payload, $privateKey, $pretty=true) {
     openssl_sign($payload, $signature, $privateKey, OPENSSL_ALGO_SHA512);
-    return $this->toBase64($signature, $pretty);
+    return self::toBase64($signature, $pretty);
   }
 
 }

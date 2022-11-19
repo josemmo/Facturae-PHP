@@ -12,6 +12,7 @@ use josemmo\Facturae\Common\XmlTools;
 class FacturaeParty {
 
   public $isLegalEntity = true; // By default is a company and not a person
+  public $isEuropeanUnionResident = true; // By default resides in the EU
   public $taxNumber = null;
   public $name = null;
 
@@ -64,13 +65,11 @@ class FacturaeParty {
    * @return string         Entity as Facturae XML
    */
   public function getXML($schema) {
-    $tools = new XmlTools();
-
     // Add tax identification
     $xml = '<TaxIdentification>' .
              '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>' .
              '<ResidenceTypeCode>R</ResidenceTypeCode>' .
-             '<TaxIdentificationNumber>' . $tools->escape($this->taxNumber) . '</TaxIdentificationNumber>' .
+             '<TaxIdentificationNumber>' . XmlTools::escape($this->taxNumber) . '</TaxIdentificationNumber>' .
            '</TaxIdentification>';
 
     // Add administrative centres
@@ -80,12 +79,12 @@ class FacturaeParty {
         $xml .= '<AdministrativeCentre>';
         $xml .= '<CentreCode>' . $centre->code . '</CentreCode>';
         $xml .= '<RoleTypeCode>' . $centre->role . '</RoleTypeCode>';
-        $xml .= '<Name>' . $tools->escape($centre->name) . '</Name>';
+        $xml .= '<Name>' . XmlTools::escape($centre->name) . '</Name>';
         if (!is_null($centre->firstSurname)) {
-          $xml .= '<FirstSurname>' . $tools->escape($centre->firstSurname) . '</FirstSurname>';
+          $xml .= '<FirstSurname>' . XmlTools::escape($centre->firstSurname) . '</FirstSurname>';
         }
         if (!is_null($centre->lastSurname)) {
-          $xml .= '<SecondSurname>' . $tools->escape($centre->lastSurname) . '</SecondSurname>';
+          $xml .= '<SecondSurname>' . XmlTools::escape($centre->lastSurname) . '</SecondSurname>';
         }
 
         // Get centre address, else use fallback
@@ -99,23 +98,23 @@ class FacturaeParty {
 
         if ($addressTarget->countryCode === "ESP") {
           $xml .= '<AddressInSpain>' .
-            '<Address>' . $tools->escape($addressTarget->address) . '</Address>' .
+            '<Address>' . XmlTools::escape($addressTarget->address) . '</Address>' .
             '<PostCode>' . $addressTarget->postCode . '</PostCode>' .
-            '<Town>' . $tools->escape($addressTarget->town) . '</Town>' .
-            '<Province>' . $tools->escape($addressTarget->province) . '</Province>' .
+            '<Town>' . XmlTools::escape($addressTarget->town) . '</Town>' .
+            '<Province>' . XmlTools::escape($addressTarget->province) . '</Province>' .
             '<CountryCode>' . $addressTarget->countryCode . '</CountryCode>' .
             '</AddressInSpain>';
         } else {
           $xml .= '<OverseasAddress>' .
-            '<Address>' . $tools->escape($addressTarget->address) . '</Address>' .
-            '<PostCodeAndTown>' . $addressTarget->postCode . ' ' . $tools->escape($addressTarget->town) . '</PostCodeAndTown>' .
-            '<Province>' . $tools->escape($addressTarget->province) . '</Province>' .
+            '<Address>' . XmlTools::escape($addressTarget->address) . '</Address>' .
+            '<PostCodeAndTown>' . $addressTarget->postCode . ' ' . XmlTools::escape($addressTarget->town) . '</PostCodeAndTown>' .
+            '<Province>' . XmlTools::escape($addressTarget->province) . '</Province>' .
             '<CountryCode>' . $addressTarget->countryCode . '</CountryCode>' .
             '</OverseasAddress>';
         }
 
         if (!is_null($centre->description)) {
-          $xml .= '<CentreDescription>' . $tools->escape($centre->description) . '</CentreDescription>';
+          $xml .= '<CentreDescription>' . XmlTools::escape($centre->description) . '</CentreDescription>';
         }
         $xml .= '</AdministrativeCentre>';
       }
@@ -127,7 +126,7 @@ class FacturaeParty {
 
     // Add data exclusive to `LegalEntity`
     if ($this->isLegalEntity) {
-      $xml .= '<CorporateName>' . $tools->escape($this->name) . '</CorporateName>';
+      $xml .= '<CorporateName>' . XmlTools::escape($this->name) . '</CorporateName>';
       $fields = array("book", "registerOfCompaniesLocation", "sheet", "folio",
         "section", "volume");
 
@@ -148,25 +147,25 @@ class FacturaeParty {
 
     // Add data exclusive to `Individual`
     if (!$this->isLegalEntity) {
-      $xml .= '<Name>' . $tools->escape($this->name) . '</Name>';
-      $xml .= '<FirstSurname>' . $tools->escape($this->firstSurname) . '</FirstSurname>';
-      $xml .= '<SecondSurname>' . $tools->escape($this->lastSurname) . '</SecondSurname>';
+      $xml .= '<Name>' . XmlTools::escape($this->name) . '</Name>';
+      $xml .= '<FirstSurname>' . XmlTools::escape($this->firstSurname) . '</FirstSurname>';
+      $xml .= '<SecondSurname>' . XmlTools::escape($this->lastSurname) . '</SecondSurname>';
     }
 
     // Add address
     if ($this->countryCode === "ESP") {
       $xml .= '<AddressInSpain>' .
-        '<Address>' . $tools->escape($this->address) . '</Address>' .
+        '<Address>' . XmlTools::escape($this->address) . '</Address>' .
         '<PostCode>' . $this->postCode . '</PostCode>' .
-        '<Town>' . $tools->escape($this->town) . '</Town>' .
-        '<Province>' . $tools->escape($this->province) . '</Province>' .
+        '<Town>' . XmlTools::escape($this->town) . '</Town>' .
+        '<Province>' . XmlTools::escape($this->province) . '</Province>' .
         '<CountryCode>' . $this->countryCode . '</CountryCode>' .
         '</AddressInSpain>';
     } else {
       $xml .= '<OverseasAddress>' .
-        '<Address>' . $tools->escape($this->address) . '</Address>' .
-        '<PostCodeAndTown>' . $this->postCode . ' ' . $tools->escape($this->town) . '</PostCodeAndTown>' .
-        '<Province>' . $tools->escape($this->province) . '</Province>' .
+        '<Address>' . XmlTools::escape($this->address) . '</Address>' .
+        '<PostCodeAndTown>' . $this->postCode . ' ' . XmlTools::escape($this->town) . '</PostCodeAndTown>' .
+        '<Province>' . XmlTools::escape($this->province) . '</Province>' .
         '<CountryCode>' . $this->countryCode . '</CountryCode>' .
         '</OverseasAddress>';
     }
@@ -187,7 +186,6 @@ class FacturaeParty {
    * @return string Contact details XML
    */
   private function getContactDetailsXML() {
-    $tools = new XmlTools();
     $contactFields = [
       "phone" => "Telephone",
       "fax" => "TeleFax",
@@ -213,11 +211,24 @@ class FacturaeParty {
     foreach ($contactFields as $field=>$xmlName) {
       $value = $this->$field;
       if (!empty($value)) {
-        $xml .= "<$xmlName>" . $tools->escape($value) . "</$xmlName>";
+        $xml .= "<$xmlName>" . XmlTools::escape($value) . "</$xmlName>";
       }
     }
     $xml .= '</ContactDetails>';
 
+    return $xml;
+  }
+
+
+  /**
+   * Get item XML for reimbursable expense node
+   *
+   * @return string Reimbursable expense XML
+   */
+  public function getReimbursableExpenseXML() {
+    $xml  = '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>';
+    $xml .= '<ResidenceTypeCode>' . ($this->isEuropeanUnionResident ? 'R' : 'E') . '</ResidenceTypeCode>';
+    $xml .= '<TaxIdentificationNumber>' . XmlTools::escape($this->taxNumber) . '</TaxIdentificationNumber>';
     return $xml;
   }
 

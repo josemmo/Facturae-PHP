@@ -20,18 +20,17 @@ trait Faceb2bTrait {
    * @return SimpleXMLElement              Response
    */
   public function sendInvoice($invoice, $attachment=null) {
-    $tools = new XmlTools();
     $req = '<web:SendInvoice><request>';
 
     $req .= '<invoiceFile>' .
-        '<content>' . $tools->toBase64($invoice->getData()) . '</content>' .
+        '<content>' . XmlTools::toBase64($invoice->getData()) . '</content>' .
         '<name>' . $invoice->getFilename() . '</name>' .
         '<mime>text/xml</mime>' . // Mandatory MIME type
       '</invoiceFile>';
 
     if (!is_null($attachment)) {
       $req .= '<attachmentFile>' .
-          '<content>' . $tools->toBase64($attachment->getData()) . '</content>' .
+          '<content>' . XmlTools::toBase64($attachment->getData()) . '</content>' .
           '<name>' . $attachment->getFilename() . '</name>' .
           '<mime>' . $attachment->getMimeType() . '</mime>' .
         '</attachmentFile>';
@@ -191,11 +190,10 @@ trait Faceb2bTrait {
    * @return SimpleXMLElement          Response
    */
   public function validateInvoiceSignature($regId, $invoice) {
-    $tools = new XmlTools();
     $req = '<web:ValidateInvoiceSignature><request>';
     $req .= '<registryNumber>' . $regId . '</registryNumber>';
     $req .= '<invoiceFile>' .
-        '<content>' . $tools->toBase64($invoice->getData()) . '</content>' .
+        '<content>' . XmlTools::toBase64($invoice->getData()) . '</content>' .
         '<name>' . $invoice->getFilename() . '</name>' .
         '<mime>' . $invoice->getMimeType() . '</mime>' .
       '</invoiceFile>';

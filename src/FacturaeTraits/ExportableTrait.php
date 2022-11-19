@@ -3,6 +3,7 @@ namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\XmlTools;
 use josemmo\Facturae\FacturaePayment;
+use josemmo\Facturae\ReimbursableExpense;
 
 /**
  * Allows a Facturae instance to be exported to XML.
@@ -16,14 +17,12 @@ trait ExportableTrait {
    * @return string           Output XML
    */
   private function addOptionalFields($item, $fields) {
-    $tools = new XmlTools();
-
     $res = "";
     foreach ($fields as $key=>$name) {
       if (is_int($key)) $key = $name; // Allow $item to have a different property name
       if (!empty($item[$key])) {
         $xmlTag = ucfirst($name);
-        $res .= "<$xmlTag>" . $tools->escape($item[$key]) . "</$xmlTag>";
+        $res .= "<$xmlTag>" . XmlTools::escape($item[$key]) . "</$xmlTag>";
       }
     }
     return $res;
@@ -37,14 +36,11 @@ trait ExportableTrait {
    * @return string|int           XML data|Written file bytes
    */
   public function export($filePath=null) {
-    $tools = new XmlTools();
-
     // Notify extensions
     foreach ($this->extensions as $ext) $ext->__onBeforeExport();
 
     // Prepare document
-    $xml = '<fe:Facturae xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ' .
-           'xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
+    $xml = '<fe:Facturae xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
     $totals = $this->getTotals();
     $paymentDetailsXML = $this->getPaymentDetailsXML($totals);
 
@@ -61,10 +57,10 @@ trait ExportableTrait {
                   '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalInvoicesAmount>' .
                 '<TotalOutstandingAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['totalOutstandingAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalOutstandingAmount>' .
                 '<TotalExecutableAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
+                  '<TotalAmount>' . $this->pad($totals['totalExecutableAmount'], 'InvoiceTotal') . '</TotalAmount>' .
                 '</TotalExecutableAmount>' .
                 '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
               '</Batch>';
@@ -76,7 +72,7 @@ trait ExportableTrait {
       $xml .= $paymentDetailsXML;
       if (!is_null($this->header['assignmentClauses'])) {
         $xml .= '<FactoringAssignmentClauses>' .
-                  $tools->escape($this->header['assignmentClauses']) .
+                  XmlTools::escape($this->header['assignmentClauses']) .
                 '</FactoringAssignmentClauses>';
       }
       $xml .= '</FactoringAssignmentData>';
@@ -161,7 +157,7 @@ trait ExportableTrait {
       $xml .= '<' . $generalGroups[$g][0] . '>';
       foreach ($totals[$groupTag] as $elem) {
         $xml .= "<$xmlTag>";
-        $xml .= "<{$xmlTag}Reason>" . $tools->escape($elem['reason']) . "</{$xmlTag}Reason>";
+        $xml .= "<{$xmlTag}Reason>" . XmlTools::escape($elem['reason']) . "</{$xmlTag}Reason>";
         if (!is_null($elem['rate'])) {
           $xml .= "<{$xmlTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</{$xmlTag}Rate>";
         }
@@ -171,14 +167,51 @@ trait ExportableTrait {
       $xml .= '</' . $generalGroups[$g][0] . '>';
     }
 
+    // Add some total amounts
     $xml .= '<TotalGeneralDiscounts>' . $this->pad($totals['totalGeneralDiscounts'], 'TotalGeneralDiscounts') . '</TotalGeneralDiscounts>';
     $xml .= '<TotalGeneralSurcharges>' . $this->pad($totals['totalGeneralCharges'], 'TotalGeneralSurcharges') . '</TotalGeneralSurcharges>';
     $xml .= '<TotalGrossAmountBeforeTaxes>' . $this->pad($totals['grossAmountBeforeTaxes'], 'TotalGrossAmountBeforeTaxes') . '</TotalGrossAmountBeforeTaxes>';
     $xml .= '<TotalTaxOutputs>' . $this->pad($totals['totalTaxesOutputs'], 'TotalTaxOutputs') . '</TotalTaxOutputs>';
     $xml .= '<TotalTaxesWithheld>' . $this->pad($totals['totalTaxesWithheld'], 'TotalTaxesWithheld') . '</TotalTaxesWithheld>';
     $xml .= '<InvoiceTotal>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</InvoiceTotal>';
-    $xml .= '<TotalOutstandingAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalOutstandingAmount>';
-    $xml .= '<TotalExecutableAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalExecutableAmount>';
+
+    // Add reimbursable expenses
+    if (!empty($this->reimbursableExpenses)) {
+      $xml .= '<ReimbursableExpenses>';
+      foreach ($this->reimbursableExpenses as $expense) { /** @var ReimbursableExpense $expense */
+        $xml .= '<ReimbursableExpenses>';
+        if ($expense->seller !== null) {
+          $xml .= '<ReimbursableExpensesSellerParty>';
+          $xml .= $expense->seller->getReimbursableExpenseXML();
+          $xml .= '</ReimbursableExpensesSellerParty>';
+        }
+        if ($expense->buyer !== null) {
+          $xml .= '<ReimbursableExpensesBuyerParty>';
+          $xml .= $expense->buyer->getReimbursableExpenseXML();
+          $xml .= '</ReimbursableExpensesBuyerParty>';
+        }
+        if ($expense->issueDate !== null) {
+          $issueDate = is_string($expense->issueDate) ? strtotime($expense->issueDate) : $expense->issueDate;
+          $xml .= '<IssueDate>' . date('Y-m-d', $issueDate) . '</IssueDate>';
+        }
+        if ($expense->invoiceNumber !== null) {
+          $xml .= '<InvoiceNumber>' . XmlTools::escape($expense->invoiceNumber) . '</InvoiceNumber>';
+        }
+        if ($expense->invoiceSeriesCode !== null) {
+          $xml .= '<InvoiceSeriesCode>' . XmlTools::escape($expense->invoiceSeriesCode) . '</InvoiceSeriesCode>';
+        }
+        $xml .= '<ReimbursableExpensesAmount>' . $this->pad($expense->amount, 'ReimbursableExpense/Amount') . '</ReimbursableExpensesAmount>';
+        $xml .= '</ReimbursableExpenses>';
+      }
+      $xml .= '</ReimbursableExpenses>';
+    }
+
+    // Add more total amounts
+    $xml .= '<TotalOutstandingAmount>' . $this->pad($totals['totalOutstandingAmount'], 'TotalOutstandingAmount') . '</TotalOutstandingAmount>';
+    $xml .= '<TotalExecutableAmount>' . $this->pad($totals['totalExecutableAmount'], 'TotalExecutableAmount') . '</TotalExecutableAmount>';
+    if (!empty($this->reimbursableExpenses)) {
+      $xml .= '<TotalReimbursableExpenses>' . $this->pad($totals['totalReimbursableExpenses'], 'TotalReimbursableExpenses') . '</TotalReimbursableExpenses>';
+    }
     $xml .= '</InvoiceTotals>';
 
     // Add invoice items
@@ -197,7 +230,7 @@ trait ExportableTrait {
       ]);
 
       // Add required fields
-      $xml .= '<ItemDescription>' . $tools->escape($item['name']) . '</ItemDescription>' .
+      $xml .= '<ItemDescription>' . XmlTools::escape($item['name']) . '</ItemDescription>' .
         '<Quantity>' . $this->pad($item['quantity'], 'Item/Quantity') . '</Quantity>' .
         '<UnitOfMeasure>' . $item['unitOfMeasure'] . '</UnitOfMeasure>' .
         '<UnitPriceWithoutTax>' . $this->pad($item['unitPriceWithoutTax'], 'Item/UnitPriceWithoutTax') . '</UnitPriceWithoutTax>' .
@@ -214,7 +247,7 @@ trait ExportableTrait {
         $xml .= '<' . $itemGroups[$g][0] . '>';
         foreach ($item[$group] as $elem) {
           $xml .= "<$groupTag>";
-          $xml .= "<{$groupTag}Reason>" . $tools->escape($elem['reason']) . "</{$groupTag}Reason>";
+          $xml .= "<{$groupTag}Reason>" . XmlTools::escape($elem['reason']) . "</{$groupTag}Reason>";
           if (!is_null($elem['rate'])) {
             $xml .= "<{$groupTag}Rate>" . $this->pad($elem['rate'], 'DiscountCharge/Rate') . "</{$groupTag}Rate>";
           }
@@ -261,8 +294,8 @@ trait ExportableTrait {
       // Add line period dates
       if (!empty($item['periodStart']) && !empty($item['periodEnd'])) {
         $xml .= '<LineItemPeriod>';
-        $xml .= '<StartDate>' . $tools->escape($item['periodStart']) . '</StartDate>';
-        $xml .= '<EndDate>' . $tools->escape($item['periodEnd']) . '</EndDate>';
+        $xml .= '<StartDate>' . XmlTools::escape($item['periodStart']) . '</StartDate>';
+        $xml .= '<EndDate>' . XmlTools::escape($item['periodEnd']) . '</EndDate>';
         $xml .= '</LineItemPeriod>';
       }
 
@@ -284,7 +317,7 @@ trait ExportableTrait {
     if (count($this->legalLiterals) > 0) {
       $xml .= '<LegalLiterals>';
       foreach ($this->legalLiterals as $reference) {
-        $xml .= '<LegalReference>' . $tools->escape($reference) . '</LegalReference>';
+        $xml .= '<LegalReference>' . XmlTools::escape($reference) . '</LegalReference>';
       }
       $xml .= '</LegalLiterals>';
     }
@@ -296,8 +329,8 @@ trait ExportableTrait {
     $xml .= '</Invoice></Invoices></fe:Facturae>';
     foreach ($this->extensions as $ext) $xml = $ext->__onBeforeSign($xml);
 
-    // Add signature
-    $xml = $this->injectSignature($xml);
+    // Add signature and timestamp
+    $xml = $this->injectSignatureAndTimestamp($xml);
     foreach ($this->extensions as $ext) $xml = $ext->__onAfterSign($xml);
 
     // Prepend content type
@@ -363,9 +396,8 @@ trait ExportableTrait {
     if (!$hasData) return "";
 
     // Generate initial XML block
-    $tools = new XmlTools();
     $xml = '<AdditionalData>';
-    if (!empty($relInvoice)) $xml .= '<RelatedInvoice>' . $tools->escape($relInvoice) . '</RelatedInvoice>';
+    if (!empty($relInvoice)) $xml .= '<RelatedInvoice>' . XmlTools::escape($relInvoice) . '</RelatedInvoice>';
 
     // Add attachments
     if (!empty($this->attachments)) {
@@ -375,9 +407,9 @@ trait ExportableTrait {
         $type = end($type);
         $xml .= '<Attachment>';
         $xml .= '<AttachmentCompressionAlgorithm>NONE</AttachmentCompressionAlgorithm>';
-        $xml .= '<AttachmentFormat>' . $tools->escape($type) . '</AttachmentFormat>';
+        $xml .= '<AttachmentFormat>' . XmlTools::escape($type) . '</AttachmentFormat>';
         $xml .= '<AttachmentEncoding>BASE64</AttachmentEncoding>';
-        $xml .= '<AttachmentDescription>' . $tools->escape($att['description']) . '</AttachmentDescription>';
+        $xml .= '<AttachmentDescription>' . XmlTools::escape($att['description']) . '</AttachmentDescription>';
         $xml .= '<AttachmentData>' . base64_encode($att['file']->getData()) . '</AttachmentData>';
         $xml .= '</Attachment>';
       }
@@ -386,7 +418,7 @@ trait ExportableTrait {
 
     // Add additional information
     if (!empty($additionalInfo)) {
-      $xml .= '<InvoiceAdditionalInformation>' . $tools->escape($additionalInfo) . '</InvoiceAdditionalInformation>';
+      $xml .= '<InvoiceAdditionalInformation>' . XmlTools::escape($additionalInfo) . '</InvoiceAdditionalInformation>';
     }
 
     // Add extensions data

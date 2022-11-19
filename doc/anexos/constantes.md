@@ -14,7 +14,6 @@ permalink: /anexos/constantes.html
 |`Facturae::SCHEMA_3_2`|Formato de Facturae 3.2|
 |`Facturae::SCHEMA_3_2_1`|Formato de Facturae 3.2.1|
 |`Facturae::SCHEMA_3_2_2`|Formato de Facturae 3.2.2|
-|`Facturae::SIGN_POLICY_3_1`|Formato de firma 3.1|
 
 ---
 

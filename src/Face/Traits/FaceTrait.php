@@ -86,18 +86,17 @@ trait FaceTrait {
    * @return SimpleXMLElement              Response
    */
   public function sendInvoice($email, $invoice, $attachments=array()) {
-    $tools = new XmlTools();
     $req = '<web:enviarFactura><request>';
     $req .= '<correo>' . $email . '</correo>';
     $req .= '<factura>' .
-        '<factura>' . $tools->toBase64($invoice->getData()) . '</factura>' .
+        '<factura>' . XmlTools::toBase64($invoice->getData()) . '</factura>' .
         '<nombre>' . $invoice->getFilename() . '</nombre>' .
         '<mime>application/xml</mime>' . // Mandatory MIME type
       '</factura>';
     $req .= '<anexos>';
     foreach ($attachments as $file) {
       $req .= '<anexo>' .
-          '<anexo>' . $tools->toBase64($file->getData()) . '</anexo>' .
+          '<anexo>' . XmlTools::toBase64($file->getData()) . '</anexo>' .
           '<nombre>' . $file->getFilename() . '</nombre>' .
           '<mime>' . $file->getMimeType() . '</mime>' .
         '</anexo>';
