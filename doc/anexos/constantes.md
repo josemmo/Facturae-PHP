@@ -17,6 +17,15 @@ permalink: /anexos/constantes.html
 
 ---
 
+## Tipos de documento
+
+|Constante|Descripción|
+|--------:|:----------|
+|`Facturae::INVOICE_FULL`|Factura completa|
+|`Facturae::INVOICE_SIMPLIFIED`|Factura simplificada|
+
+---
+
 ## Modos de precisión
 
 |Constante|Descripción|

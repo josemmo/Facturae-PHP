@@ -92,7 +92,7 @@ trait ExportableTrait {
     $xml .= '<InvoiceHeader>' .
         '<InvoiceNumber>' . $this->header['number'] . '</InvoiceNumber>' .
         '<InvoiceSeriesCode>' . $this->header['serie'] . '</InvoiceSeriesCode>' .
-        '<InvoiceDocumentType>FC</InvoiceDocumentType>' .
+        '<InvoiceDocumentType>' . $this->header['type'] . '</InvoiceDocumentType>' .
         '<InvoiceClass>OO</InvoiceClass>' .
       '</InvoiceHeader>';
     $xml .= '<InvoiceIssueData>';

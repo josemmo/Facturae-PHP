@@ -23,6 +23,9 @@ class Facturae {
     "digest" => "Ohixl6upD6av8N7pEvDABhEL6hM="
   );
 
+  const INVOICE_FULL = "FC";
+  const INVOICE_SIMPLIFIED = "FA";
+
   const PRECISION_LINE = 1;
   const PRECISION_INVOICE = 2;
 

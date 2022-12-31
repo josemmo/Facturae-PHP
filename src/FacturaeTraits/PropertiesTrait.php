@@ -17,6 +17,7 @@ trait PropertiesTrait {
   protected $version = null;
   protected $precision = self::PRECISION_LINE;
   protected $header = array(
+    "type" => self::INVOICE_FULL,
     "serie" => null,
     "number" => null,
     "issueDate" => null,
@@ -172,6 +173,26 @@ trait PropertiesTrait {
    */
   public function getBuyer() {
     return $this->parties['buyer'];
+  }
+
+
+  /**
+   * Set document type
+   * @param  string   $type Document type
+   * @return Facturae       Invoice instance
+   */
+  public function setType($type) {
+    $this->header['type'] = $type;
+    return $this;
+  }
+
+
+  /**
+   * Get document type
+   * @return string Document type
+   */
+  public function getType() {
+    return $this->header['type'];
   }
 
 
