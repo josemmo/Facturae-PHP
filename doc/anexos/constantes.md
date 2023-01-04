@@ -35,6 +35,17 @@ permalink: /anexos/constantes.html
 
 ---
 
+## Modos de rectificación
+
+|Constante|Descripción|
+|--------:|:----------|
+|`CorrectiveDetails::METHOD_FULL`|Rectificación íntegra|
+|`CorrectiveDetails::METHOD_DIFFERENCES`|Rectificación por diferencias|
+|`CorrectiveDetails::METHOD_VOLUME_DISCOUNT`|Rectificación por descuento por volumen de operaciones durante un periodo|
+|`CorrectiveDetails::METHOD_AEAT_AUTHORIZED`|Autorizadas por la Agencia Tributaria|
+
+---
+
 ## Formas de pago
 
 |Constante|Descripción|
