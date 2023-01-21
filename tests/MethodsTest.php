@@ -17,6 +17,11 @@ final class MethodsTest extends AbstractTest {
     $fac = new Facturae($schema);
     $this->assertEquals($schema, $fac->getSchemaVersion());
 
+    // Document type
+    $this->assertEquals(Facturae::INVOICE_FULL, $fac->getType());
+    $fac->setType(Facturae::INVOICE_SIMPLIFIED);
+    $this->assertEquals(Facturae::INVOICE_SIMPLIFIED, $fac->getType());
+
     // Parties
     $seller = new FacturaeParty(['name'=>'Seller']);
     $buyer = new FacturaeParty(['name'=>'Buyer']);

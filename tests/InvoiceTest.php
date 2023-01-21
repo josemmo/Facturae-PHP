@@ -1,6 +1,7 @@
 <?php
 namespace josemmo\Facturae\Tests;
 
+use josemmo\Facturae\CorrectiveDetails;
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
@@ -94,6 +95,18 @@ final class InvoiceTest extends AbstractTest {
         ])
       ]
     ]));
+
+    // Creamos una factura rectificativa (solo en algunos casos)
+    if (!$isPfx) {
+      $fac->setCorrective(new CorrectiveDetails([
+        "invoiceSeriesCode" => "EMP201712",
+        "invoiceNumber"     => "0002",
+        "reason"            => "03",
+        "taxPeriodStart"    => "2017-10-01",
+        "taxPeriodEnd"      => "2017-10-31",
+        "correctionMethod"  => CorrectiveDetails::METHOD_DIFFERENCES
+      ]));
+    }
 
     // Añadimos los productos a incluir en la factura
     // En este caso, probaremos con tres lámpara por

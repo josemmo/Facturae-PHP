@@ -2,6 +2,7 @@
 namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\XmlTools;
+use josemmo\Facturae\CorrectiveDetails;
 use josemmo\Facturae\FacturaePayment;
 use josemmo\Facturae\ReimbursableExpense;
 
@@ -42,6 +43,8 @@ trait ExportableTrait {
     // Prepare document
     $xml = '<fe:Facturae xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
     $totals = $this->getTotals();
+    /** @var CorrectiveDetails|null */
+    $corrective = $this->getCorrective();
     $paymentDetailsXML = $this->getPaymentDetailsXML($totals);
 
     // Add header
@@ -89,12 +92,36 @@ trait ExportableTrait {
 
     // Add invoice data
     $xml .= '<Invoices><Invoice>';
-    $xml .= '<InvoiceHeader>' .
-        '<InvoiceNumber>' . $this->header['number'] . '</InvoiceNumber>' .
-        '<InvoiceSeriesCode>' . $this->header['serie'] . '</InvoiceSeriesCode>' .
-        '<InvoiceDocumentType>FC</InvoiceDocumentType>' .
-        '<InvoiceClass>OO</InvoiceClass>' .
-      '</InvoiceHeader>';
+    $xml .= '<InvoiceHeader>';
+    $xml .= '<InvoiceNumber>' . XmlTools::escape($this->header['number']) . '</InvoiceNumber>';
+    $xml .= '<InvoiceSeriesCode>' . XmlTools::escape($this->header['serie']) . '</InvoiceSeriesCode>';
+    $xml .= '<InvoiceDocumentType>' . $this->header['type'] . '</InvoiceDocumentType>';
+    $xml .= '<InvoiceClass>' . ($corrective === null ? 'OO' : 'OR') . '</InvoiceClass>';
+    if ($corrective !== null) {
+      $xml .= '<Corrective>';
+      if ($corrective->invoiceNumber !== null) {
+        $xml .= '<InvoiceNumber>' . XmlTools::escape($corrective->invoiceNumber) . '</InvoiceNumber>';
+      }
+      if ($corrective->invoiceSeriesCode !== null) {
+        $xml .= '<InvoiceSeriesCode>' . XmlTools::escape($corrective->invoiceSeriesCode) . '</InvoiceSeriesCode>';
+      }
+      $xml .= '<ReasonCode>' . $corrective->reason . '</ReasonCode>';
+      $xml .= '<ReasonDescription>' . XmlTools::escape($corrective->getReasonDescription()) . '</ReasonDescription>';
+      if ($corrective->taxPeriodStart !== null && $corrective->taxPeriodEnd !== null) {
+        $start = is_string($corrective->taxPeriodStart) ? strtotime($corrective->taxPeriodStart) : $corrective->taxPeriodStart;
+        $end = is_string($corrective->taxPeriodEnd) ? strtotime($corrective->taxPeriodEnd) : $corrective->taxPeriodEnd;
+        $xml .= '<TaxPeriod>' .
+            '<StartDate>' . date('Y-m-d', $start) . '</StartDate>' .
+            '<EndDate>' . date('Y-m-d', $end) . '</EndDate>' .
+          '</TaxPeriod>';
+      }
+      $xml .= '<CorrectionMethod>' . $corrective->correctionMethod . '</CorrectionMethod>';
+      $xml .= '<CorrectionMethodDescription>' .
+          XmlTools::escape($corrective->getCorrectionMethodDescription()) .
+        '</CorrectionMethodDescription>';
+      $xml .= '</Corrective>';
+    }
+    $xml .= '</InvoiceHeader>';
     $xml .= '<InvoiceIssueData>';
     $xml .= '<IssueDate>' . date('Y-m-d', $this->header['issueDate']) . '</IssueDate>';
     if (!is_null($this->header['startDate'])) {

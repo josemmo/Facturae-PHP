@@ -17,12 +17,32 @@ permalink: /anexos/constantes.html
 
 ---
 
+## Tipos de documento
+
+|Constante|Descripción|
+|--------:|:----------|
+|`Facturae::INVOICE_FULL`|Factura completa|
+|`Facturae::INVOICE_SIMPLIFIED`|Factura simplificada|
+
+---
+
 ## Modos de precisión
 
 |Constante|Descripción|
 |--------:|:----------|
 |`Facturae::PRECISION_LINE`|Precisión a nivel de línea|
 |`Facturae::PRECISION_INVOICE`|Precisión a nivel de factura|
+
+---
+
+## Modos de rectificación
+
+|Constante|Descripción|
+|--------:|:----------|
+|`CorrectiveDetails::METHOD_FULL`|Rectificación íntegra|
+|`CorrectiveDetails::METHOD_DIFFERENCES`|Rectificación por diferencias|
+|`CorrectiveDetails::METHOD_VOLUME_DISCOUNT`|Rectificación por descuento por volumen de operaciones durante un periodo|
+|`CorrectiveDetails::METHOD_AEAT_AUTHORIZED`|Autorizadas por la Agencia Tributaria|
 
 ---
 

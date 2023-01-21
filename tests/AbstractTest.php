@@ -95,13 +95,13 @@ abstract class AbstractTest extends TestCase {
     unset($ch);
 
     // Validate results
-    $this->assertNotEmpty($res);
-    $this->assertStringContainsString('euro_ok.png', $res, 'Invalid XML Format');
+    $this->assertNotEmpty($res, 'Invalid Validator Response');
+    $this->assertNotEmpty(strpos($res, 'euro_ok.png'), 'Invalid XML Format');
     if ($validateSignature) {
-      $this->assertStringContainsString('>Nivel de Firma Válido<', $res, 'Invalid Signature');
+      $this->assertNotEmpty(strpos($res, '>Nivel de Firma Válido<'), 'Invalid Signature');
     }
     if (strpos($res, '>Sellos de Tiempo<') !== false) {
-      $this->assertStringContainsString('>XAdES_T<', $res, 'Invalid Timestamp');
+      $this->assertNotEmpty(strpos($res, '>XAdES_T<'), 'Invalid Timestamp');
     }
   }
 
