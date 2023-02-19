@@ -208,8 +208,18 @@ final class InvoiceTest extends AbstractTest {
       "amount"            => 99.9991172
     ]));
 
-    // Establecemos un un cesionario (solo en algunos casos)
+    // Establecemos un tercero y un cesionario (solo en algunos casos)
     if ($isPfx) {
+      $fac->setThirdParty(new FacturaeParty([
+        "taxNumber" => "B99999999",
+        "name"      => "Gestoría de Ejemplo, S.L.",
+        "address"   => "C/ de la Gestoría, 24",
+        "postCode"  => "23456",
+        "town"      => "Madrid",
+        "province"  => "Madrid",
+        "phone"     => "915555555",
+        "email"     => "noexiste@gestoria.com"
+      ]));
       $fac->setAssignee(new FacturaeParty([
         "taxNumber" => "B00000000",
         "name"      => "Cesionario S.L.",

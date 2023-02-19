@@ -33,6 +33,7 @@ trait PropertiesTrait {
     "additionalInformation" => null
   );
   protected $parties = array(
+    "thirdParty" => null,
     "assignee" => null,
     "seller" => null,
     "buyer" => null
@@ -96,6 +97,26 @@ trait PropertiesTrait {
   public function setPrecision($precision) {
     $this->precision = $precision;
     return $this;
+  }
+
+
+  /**
+   * Set third party
+   * @param  FacturaeParty $assignee Third party information
+   * @return Facturae                Invoice instance
+   */
+  public function setThirdParty($thirdParty) {
+    $this->parties['thirdParty'] = $thirdParty;
+    return $this;
+  }
+
+
+  /**
+   * Get third party
+   * @return FacturaeParty|null Third party information
+   */
+  public function getThirdParty() {
+    return $this->parties['thirdParty'];
   }
 
 

@@ -61,10 +61,10 @@ class FacturaeParty {
   /**
    * Get XML
    *
-   * @param  string $schema Facturae schema version
-   * @return string         Entity as Facturae XML
+   * @param  boolean $includeAdministrativeCentres Whether to include administrative centers or not
+   * @return string                                Entity as Facturae XML
    */
-  public function getXML($schema) {
+  public function getXML($includeAdministrativeCentres) {
     // Add tax identification
     $xml = '<TaxIdentification>' .
              '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>' .
@@ -73,7 +73,7 @@ class FacturaeParty {
            '</TaxIdentification>';
 
     // Add administrative centres
-    if (count($this->centres) > 0) {
+    if ($includeAdministrativeCentres && count($this->centres) > 0) {
       $xml .= '<AdministrativeCentres>';
       foreach ($this->centres as $centre) {
         $xml .= '<AdministrativeCentre>';

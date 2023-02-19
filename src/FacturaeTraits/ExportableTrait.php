@@ -49,29 +49,32 @@ trait ExportableTrait {
 
     // Add header
     $batchIdentifier = $this->parties['seller']->taxNumber . $this->header['number'] . $this->header['serie'];
-    $xml .= '<FileHeader>' .
-              '<SchemaVersion>' . $this->version .'</SchemaVersion>' .
-              '<Modality>I</Modality>' .
-              '<InvoiceIssuerType>EM</InvoiceIssuerType>' .
-              '<Batch>' .
-                '<BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
-                '<InvoicesCount>1</InvoicesCount>' .
-                '<TotalInvoicesAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
-                '</TotalInvoicesAmount>' .
-                '<TotalOutstandingAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['totalOutstandingAmount'], 'InvoiceTotal') . '</TotalAmount>' .
-                '</TotalOutstandingAmount>' .
-                '<TotalExecutableAmount>' .
-                  '<TotalAmount>' . $this->pad($totals['totalExecutableAmount'], 'InvoiceTotal') . '</TotalAmount>' .
-                '</TotalExecutableAmount>' .
-                '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
-              '</Batch>';
+    $xml .= '<FileHeader>';
+    $xml .= '<SchemaVersion>' . $this->version .'</SchemaVersion>';
+    $xml .= '<Modality>I</Modality>';
+    $xml .= '<InvoiceIssuerType>EM</InvoiceIssuerType>';
+    if (!is_null($this->parties['thirdParty'])) {
+      $xml .= '<ThirdParty>' . $this->parties['thirdParty']->getXML(false) . '</ThirdParty>';
+    }
+    $xml .= '<Batch>' .
+              '<BatchIdentifier>' . $batchIdentifier . '</BatchIdentifier>' .
+              '<InvoicesCount>1</InvoicesCount>' .
+              '<TotalInvoicesAmount>' .
+                '<TotalAmount>' . $this->pad($totals['invoiceAmount'], 'InvoiceTotal') . '</TotalAmount>' .
+              '</TotalInvoicesAmount>' .
+              '<TotalOutstandingAmount>' .
+                '<TotalAmount>' . $this->pad($totals['totalOutstandingAmount'], 'InvoiceTotal') . '</TotalAmount>' .
+              '</TotalOutstandingAmount>' .
+              '<TotalExecutableAmount>' .
+                '<TotalAmount>' . $this->pad($totals['totalExecutableAmount'], 'InvoiceTotal') . '</TotalAmount>' .
+              '</TotalExecutableAmount>' .
+              '<InvoiceCurrencyCode>' . $this->currency . '</InvoiceCurrencyCode>' .
+            '</Batch>';
 
     // Add factoring assignment data
     if (!is_null($this->parties['assignee'])) {
       $xml .= '<FactoringAssignmentData>';
-      $xml .= '<Assignee>' . $this->parties['assignee']->getXML($this->version) . '</Assignee>';
+      $xml .= '<Assignee>' . $this->parties['assignee']->getXML(false) . '</Assignee>';
       $xml .= $paymentDetailsXML;
       if (!is_null($this->header['assignmentClauses'])) {
         $xml .= '<FactoringAssignmentClauses>' .
@@ -86,8 +89,8 @@ trait ExportableTrait {
 
     // Add parties
     $xml .= '<Parties>' .
-              '<SellerParty>' . $this->parties['seller']->getXML($this->version) . '</SellerParty>' .
-              '<BuyerParty>' . $this->parties['buyer']->getXML($this->version) . '</BuyerParty>' .
+              '<SellerParty>' . $this->parties['seller']->getXML(true) . '</SellerParty>' .
+              '<BuyerParty>' . $this->parties['buyer']->getXML(true) . '</BuyerParty>' .
             '</Parties>';
 
     // Add invoice data
