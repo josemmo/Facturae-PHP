@@ -52,7 +52,7 @@ trait ExportableTrait {
     $xml .= '<FileHeader>';
     $xml .= '<SchemaVersion>' . $this->version .'</SchemaVersion>';
     $xml .= '<Modality>I</Modality>';
-    $xml .= '<InvoiceIssuerType>EM</InvoiceIssuerType>';
+    $xml .= '<InvoiceIssuerType>' . $this->header['issuerType'] . '</InvoiceIssuerType>';
     if (!is_null($this->parties['thirdParty'])) {
       $xml .= '<ThirdParty>' . $this->parties['thirdParty']->getXML(false) . '</ThirdParty>';
     }

@@ -26,6 +26,16 @@ permalink: /anexos/constantes.html
 
 ---
 
+## Tipos de emisor
+
+|Constante|Descripción|
+|--------:|:----------|
+|`Facturae::ISSUER_SELLER`|Proveedor (emisor)|
+|`Facturae::ISSUER_BUYER`|Destinatario (receptor)|
+|`Facturae::ISSUER_THIRD_PARTY`|Tercero|
+
+---
+
 ## Modos de precisión
 
 |Constante|Descripción|

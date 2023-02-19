@@ -220,6 +220,7 @@ final class InvoiceTest extends AbstractTest {
         "phone"     => "915555555",
         "email"     => "noexiste@gestoria.com"
       ]));
+      $this->assertEquals(Facturae::ISSUER_THIRD_PARTY, $fac->getIssuerType());
       $fac->setAssignee(new FacturaeParty([
         "taxNumber" => "B00000000",
         "name"      => "Cesionario S.L.",

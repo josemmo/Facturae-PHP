@@ -22,3 +22,5 @@ $fac->setThirdParty(new FacturaeParty([
   "email"     => "noexiste@gestoria.com"
 ]));
 ```
+
+El tipo de emisor de una factura cambiará automáticamente a `Facturae::ISSUER_THIRD_PARTY` al establecer los datos de un tercero.
