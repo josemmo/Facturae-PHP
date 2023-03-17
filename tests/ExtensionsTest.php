@@ -69,14 +69,37 @@ final class ExtensionsTest extends AbstractTest {
     $extXml = explode('</Extensions>', $extXml[1])[0];
 
     // Validamos la parte de FACeB2B
+    $schemaPath = $this->getSchema();
     $faceXml = new \DOMDocument();
     $faceXml->loadXML($extXml);
-    $isValidXml = $faceXml->schemaValidate(self::FB2B_XSD_PATH);
+    $isValidXml = $faceXml->schemaValidate($schemaPath);
     $this->assertTrue($isValidXml);
+    unlink($schemaPath);
 
     // Validamos la ejecución de DisclaimerExtension
     $disclaimerPos = strpos($rawXml, '<LegalReference>' . $disclaimer->getDisclaimer() . '</LegalReference>');
     $this->assertTrue($disclaimerPos !== false);
   }
 
+  /**
+   * Get path to FaceB2B schema file
+   * @return string Path to schema file
+   */
+  private function getSchema() {
+    // Get XSD contents
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, self::FB2B_XSD_PATH);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_COOKIEFILE, '');
+    $res = curl_exec($ch);
+    curl_close($ch);
+    unset($ch);
+
+    // Save to disk
+    $path = self::OUTPUT_DIR . "/faceb2b.xsd";
+    file_put_contents($path, $res);
+
+    return $path;
+  }
 }
