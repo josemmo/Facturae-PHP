@@ -330,10 +330,14 @@ trait ExportableTrait {
       }
 
       // Add more optional fields
-      $xml .= $this->addOptionalFields($item, [
-        "description" => "AdditionalLineItemInformation",
-        "articleCode"
-      ]);
+      $xml .= $this->addOptionalFields($item, ["description" => "AdditionalLineItemInformation"]);
+      if (!is_null($item['specialTaxableEventCode']) && !is_null($item['specialTaxableEventReason'])) {
+        $xml .= '<SpecialTaxableEvent>';
+        $xml .= '<SpecialTaxableEventCode>' . XmlTools::escape($item['specialTaxableEventCode']) . '</SpecialTaxableEventCode>';
+        $xml .= '<SpecialTaxableEventReason>' . XmlTools::escape($item['specialTaxableEventReason']) . '</SpecialTaxableEventReason>';
+        $xml .= '</SpecialTaxableEvent>';
+      }
+      $xml .= $this->addOptionalFields($item, ["articleCode"]);
 
       // Close invoice line
       $xml .= '</InvoiceLine>';

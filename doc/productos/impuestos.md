@@ -66,3 +66,22 @@ $fac->addItem(new FacturaeItem([
   ]
 ]));
 ```
+
+## Fiscalidad especial
+Algunas operaciones son subjetivas de una fiscalidad especial (*special taxable event* en inglés). Por ejemplo, determinados productos se ven exentos de impuestos.
+Habitualmente, la forma en la que se declaran estos casos es marcando la línea de producto con IVA al 0% y especificando la justificación de la fiscalidad especial:
+```php
+$fac->addItem(new FacturaeItem([
+  "name" => "Un producto exento de IVA",
+  "unitPrice" => 100,
+
+  // Se marca la línea con IVA 0%
+  "taxes" => [Facturae::TAX_IVA => 0],
+
+  // Se declara el producto como exento de IVA
+  "specialTaxableEventCode" => FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT,
+
+  // Se detalla el motivo
+  "specialTaxableEventReason" => "El motivo detallado de la exención de impuestos"
+]));
+```

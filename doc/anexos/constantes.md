@@ -118,6 +118,15 @@ permalink: /anexos/constantes.html
 
 ---
 
+## Códigos de fiscalidad especial
+
+|Constante|Descripción|
+|--------:|:----------|
+|`FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT`|Operación sujeta y exenta|
+|`FacturaeItem::SPECIAL_TAXABLE_EVENT_NON_SUBJECT`|Operación no sujeta|
+
+---
+
 ## Unidades de medida
 
 |Constante|Descripción|

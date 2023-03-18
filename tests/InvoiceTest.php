@@ -116,6 +116,15 @@ final class InvoiceTest extends AbstractTest {
     // Y ahora, una línea con IVA al 0%
     $fac->addItem("Algo exento de IVA", 100, 1, Facturae::TAX_IVA, 0);
 
+    // Otra línea con IVA 0% y código de fiscalidad especial
+    $fac->addItem(new FacturaeItem([
+      "name" => "Otro algo exento de IVA",
+      "unitPrice" => 50,
+      "taxes" => [Facturae::TAX_IVA => 0],
+      "specialTaxableEventCode" => FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT,
+      "specialTaxableEventReason" => "El motivo detallado de la exención de impuestos"
+    ]));
+
     // Vamos a añadir un producto utilizando la API avanzada
     // que tenga IVA al 10%, IRPF al 15%, descuento del 10% y recargo del 5%
     $fac->addItem(new FacturaeItem([
