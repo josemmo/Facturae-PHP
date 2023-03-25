@@ -19,6 +19,7 @@ trait PropertiesTrait {
   protected $precision = self::PRECISION_LINE;
   protected $header = array(
     "type" => self::INVOICE_FULL,
+    "issuerType" => self::ISSUER_SELLER,
     "serie" => null,
     "number" => null,
     "issueDate" => null,
@@ -33,6 +34,7 @@ trait PropertiesTrait {
     "additionalInformation" => null
   );
   protected $parties = array(
+    "thirdParty" => null,
     "assignee" => null,
     "seller" => null,
     "buyer" => null
@@ -96,6 +98,27 @@ trait PropertiesTrait {
   public function setPrecision($precision) {
     $this->precision = $precision;
     return $this;
+  }
+
+
+  /**
+   * Set third party
+   * @param  FacturaeParty $assignee Third party information
+   * @return Facturae                Invoice instance
+   */
+  public function setThirdParty($thirdParty) {
+    $this->parties['thirdParty'] = $thirdParty;
+    $this->setIssuerType(self::ISSUER_THIRD_PARTY);
+    return $this;
+  }
+
+
+  /**
+   * Get third party
+   * @return FacturaeParty|null Third party information
+   */
+  public function getThirdParty() {
+    return $this->parties['thirdParty'];
   }
 
 
@@ -216,6 +239,26 @@ trait PropertiesTrait {
    */
   public function getType() {
     return $this->header['type'];
+  }
+
+
+  /**
+   * Set issuer type
+   * @param  string   $issuerType Issuer type
+   * @return Facturae             Invoice instance
+   */
+  public function setIssuerType($issuerType) {
+    $this->header['issuerType'] = $issuerType;
+    return $this;
+  }
+
+
+  /**
+   * Get issuer type
+   * @return string Issuer type
+   */
+  public function getIssuerType() {
+    return $this->header['issuerType'];
   }
 
 

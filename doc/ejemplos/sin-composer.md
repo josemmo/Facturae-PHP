@@ -9,7 +9,8 @@ permalink: /ejemplos/sin-composer.html
 Este ejemplo muestra cómo usar `Facturae-PHP` sin tener configurado un entorno de Composer, solo descargando el código fuente de la librería.
 
 ```php
-require_once 'ruta/hacia/Facturae-PHP/src/Common/KeyPairReader.php';
+require_once 'ruta/hacia/Facturae-PHP/src/Common/FacturaeSigner.php';
+require_once 'ruta/hacia/Facturae-PHP/src/Common/KeyPairReaderTrait.php';
 require_once 'ruta/hacia/Facturae-PHP/src/Common/XmlTools.php';
 require_once 'ruta/hacia/Facturae-PHP/src/FacturaeTraits/PropertiesTrait.php';
 require_once 'ruta/hacia/Facturae-PHP/src/FacturaeTraits/UtilsTrait.php';

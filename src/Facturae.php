@@ -10,7 +10,7 @@ use josemmo\Facturae\FacturaeTraits\ExportableTrait;
  * Class for creating electronic invoices that comply with the Spanish FacturaE format.
  */
 class Facturae {
-  const VERSION = "1.7.5";
+  const VERSION = "1.7.6";
   const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
   const SCHEMA_3_2 = "3.2";
@@ -25,6 +25,10 @@ class Facturae {
 
   const INVOICE_FULL = "FC";
   const INVOICE_SIMPLIFIED = "FA";
+
+  const ISSUER_SELLER = "EM";
+  const ISSUER_BUYER = "RE";
+  const ISSUER_THIRD_PARTY = "TE";
 
   const PRECISION_LINE = 1;
   const PRECISION_INVOICE = 2;

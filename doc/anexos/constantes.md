@@ -26,6 +26,16 @@ permalink: /anexos/constantes.html
 
 ---
 
+## Tipos de emisor
+
+|Constante|Descripción|
+|--------:|:----------|
+|`Facturae::ISSUER_SELLER`|Proveedor (emisor)|
+|`Facturae::ISSUER_BUYER`|Destinatario (receptor)|
+|`Facturae::ISSUER_THIRD_PARTY`|Tercero|
+
+---
+
 ## Modos de precisión
 
 |Constante|Descripción|
@@ -105,6 +115,15 @@ permalink: /anexos/constantes.html
 |`Facturae::TAX_IGFEI`|Impuesto sobre los Gases Fluorados de Efecto Invernadero|
 |`Facturae::TAX_IRNR`|Impuesto sobre la Renta de No Residentes|
 |`Facturae::TAX_ISS`|Impuesto sobre Sociedades|
+
+---
+
+## Códigos de fiscalidad especial
+
+|Constante|Descripción|
+|--------:|:----------|
+|`FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT`|Operación sujeta y exenta|
+|`FacturaeItem::SPECIAL_TAXABLE_EVENT_NON_SUBJECT`|Operación no sujeta|
 
 ---
 

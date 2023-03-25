@@ -7,6 +7,10 @@ namespace josemmo\Facturae;
  * Represents an invoice item
  */
 class FacturaeItem {
+  /** Subject and exempt operation */
+  const SPECIAL_TAXABLE_EVENT_EXEMPT = "01";
+  /** Non-subject operation */
+  const SPECIAL_TAXABLE_EVENT_NON_SUBJECT = "02";
 
   private $articleCode = null;
   private $name = null;
@@ -19,6 +23,8 @@ class FacturaeItem {
   private $charges = array();
   private $taxesOutputs = array();
   private $taxesWithheld = array();
+  private $specialTaxableEventCode = null;
+  private $specialTaxableEventReason = null;
 
   private $issuerContractReference = null;
   private $issuerContractDate = null;
