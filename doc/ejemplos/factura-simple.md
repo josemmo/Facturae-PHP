@@ -55,8 +55,8 @@ $fac->addItem("Lámpara de pie", 20.14, 3, Facturae::TAX_IVA, 21);
 
 // Ya solo queda firmar la factura ...
 $fac->sign(
-  "ruta/hacia/clave_publica.pem",
-  "ruta/hacia/clave_privada.pem",
+  "ruta/hacia/banco-de-certificados.p12",
+  null,
   "passphrase"
 );
 
