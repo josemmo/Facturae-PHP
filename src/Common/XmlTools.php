@@ -146,7 +146,7 @@ class XmlTools {
   public static function getCert($pem, $pretty=true) {
     $pem = str_replace("-----BEGIN CERTIFICATE-----", "", $pem);
     $pem = str_replace("-----END CERTIFICATE-----", "", $pem);
-    $pem = str_replace("\n", "", str_replace("\r", "", $pem));
+    $pem = str_replace(["\r", "\n"], ['', ''], $pem);
     if ($pretty) $pem = self::prettify($pem);
     return $pem;
   }

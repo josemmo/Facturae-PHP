@@ -11,8 +11,12 @@ use josemmo\Facturae\Common\XmlTools;
  */
 class FacturaeParty {
 
+  const EU_COUNTRY_CODES = [
+    'AUT', 'BEL', 'BGR', 'CYP', 'CZE', 'DEU', 'DNK', 'ESP', 'EST', 'FIN', 'FRA', 'GRC', 'HRV', 'HUN',
+    'IRL', 'ITA', 'LTU', 'LUX', 'LVA', 'MLT', 'NLD', 'POL', 'PRT', 'ROU', 'SVK', 'SVN', 'SWE'
+  ];
+
   public $isLegalEntity = true; // By default is a company and not a person
-  public $isEuropeanUnionResident = true; // By default resides in the EU
   public $taxNumber = null;
   public $name = null;
 
@@ -33,6 +37,8 @@ class FacturaeParty {
   public $town = null;
   public $province = null;
   public $countryCode = "ESP";
+  /** @var boolean|null */
+  public $isEuropeanUnionResident = null; // By default is calculated based on the country code
 
   public $email = null;
   public $phone = null;
@@ -68,7 +74,7 @@ class FacturaeParty {
     // Add tax identification
     $xml = '<TaxIdentification>' .
              '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>' .
-             '<ResidenceTypeCode>R</ResidenceTypeCode>' .
+             '<ResidenceTypeCode>' . $this->getResidenceTypeCode() . '</ResidenceTypeCode>' .
              '<TaxIdentificationNumber>' . XmlTools::escape($this->taxNumber) . '</TaxIdentificationNumber>' .
            '</TaxIdentification>';
 
@@ -181,6 +187,29 @@ class FacturaeParty {
 
 
   /**
+   * Get residence type code
+   *
+   * @return string Residence type code
+   */
+  public function getResidenceTypeCode() {
+    if ($this->countryCode === "ESP") {
+      return "R";
+    }
+
+    // Handle overrides
+    if ($this->isEuropeanUnionResident === true) {
+      return "U";
+    }
+    if ($this->isEuropeanUnionResident === false) {
+      return "E";
+    }
+
+    // Handle European countries
+    return in_array($this->countryCode, self::EU_COUNTRY_CODES, true) ? "U" : "E";
+  }
+
+
+  /**
    * Get contact details XML
    *
    * @return string Contact details XML
@@ -227,7 +256,7 @@ class FacturaeParty {
    */
   public function getReimbursableExpenseXML() {
     $xml  = '<PersonTypeCode>' . ($this->isLegalEntity ? 'J' : 'F') . '</PersonTypeCode>';
-    $xml .= '<ResidenceTypeCode>' . ($this->isEuropeanUnionResident ? 'R' : 'E') . '</ResidenceTypeCode>';
+    $xml .= '<ResidenceTypeCode>' . $this->getResidenceTypeCode() . '</ResidenceTypeCode>';
     $xml .= '<TaxIdentificationNumber>' . XmlTools::escape($this->taxNumber) . '</TaxIdentificationNumber>';
     return $xml;
   }

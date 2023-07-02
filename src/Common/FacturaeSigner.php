@@ -204,9 +204,8 @@ final class FacturaeSigner {
 
     // Build <ds:KeyInfo /> element
     $privateData = openssl_pkey_get_details($this->privateKey);
-    $modulus = chunk_split(base64_encode($privateData['rsa']['n']), 76);
-    $modulus = str_replace("\r", '', $modulus);
-    $exponent = base64_encode($privateData['rsa']['e']);
+    $modulus = XmlTools::toBase64($privateData['rsa']['n'], true);
+    $exponent = XmlTools::toBase64($privateData['rsa']['e']);
     $dsKeyInfo = '<ds:KeyInfo Id="' . $this->certificateId . '">' . "\n" . '<ds:X509Data>' . "\n";
     foreach ($this->publicChain as $pemCertificate) {
       $dsKeyInfo .= '<ds:X509Certificate>' . "\n" . XmlTools::getCert($pemCertificate) . '</ds:X509Certificate>' . "\n";
