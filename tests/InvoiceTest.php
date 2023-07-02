@@ -210,7 +210,7 @@ final class InvoiceTest extends AbstractTest {
     // Añadimos un suplido
     $fac->addReimbursableExpense(new ReimbursableExpense([
       "seller"            => new FacturaeParty(["taxNumber" => "00000000A"]),
-      "buyer"             => new FacturaeParty(["taxNumber" => "12-3456789", "isEuropeanUnionResident" => false]),
+      "buyer"             => new FacturaeParty(["taxNumber" => "12-3456789", "countryCode" => "PRT"]),
       "issueDate"         => "2017-11-27",
       "invoiceNumber"     => "EX-19912",
       "invoiceSeriesCode" => "156A",
