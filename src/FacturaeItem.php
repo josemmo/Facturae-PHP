@@ -55,6 +55,7 @@ class FacturaeItem {
     // Catalog taxes property (backward compatibility)
     if (isset($properties['taxes'])) {
       foreach ($properties['taxes'] as $r=>$tax) {
+        if (empty($r)) continue;
         if (!is_array($tax)) $tax = array("rate"=>$tax, "amount"=>0);
         if (!isset($tax['isWithheld'])) { // Get value by default
           $tax['isWithheld'] = Facturae::isWithheldTax($r);
