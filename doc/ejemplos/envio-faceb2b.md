@@ -13,7 +13,7 @@ require_once 'ruta/hacia/vendor/autoload.php';
 
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeFile;
-use josemmo\Facturae\Face\FaceB2bClient;
+use josemmo\Facturae\Face\Faceb2bClient;
 
 // Creamos una factura válida (ver ejemplo simple)
 $fac = new Facturae();
@@ -24,7 +24,7 @@ $invoice = new FacturaeFile();
 $invoice->loadData($fac->export(), "test-invoice.xsig");
 
 // Creamos una conexión con FACe
-$faceb2b = new FaceB2bClient("path_to_certificate.pfx", null, "passphrase");
+$faceb2b = new Faceb2bClient("path_to_certificate.pfx", null, "passphrase");
 //$faceb2b->setProduction(false); // Descomenta esta línea para entorno de desarrollo
 
 // Subimos la factura a FACeB2B
