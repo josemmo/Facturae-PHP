@@ -832,7 +832,7 @@ trait PropertiesTrait {
           if (!isset($totals[$taxGroup][$type])) {
             $totals[$taxGroup][$type] = array();
           }
-          $taxKey = $tax['rate'] . ":" . $tax['surcharge'];
+          $taxKey = floatval($tax['rate']) . ":" . floatval($tax['surcharge']);
           if (!isset($totals[$taxGroup][$type][$taxKey])) {
             $totals[$taxGroup][$type][$taxKey] = array(
               "base" => 0,
