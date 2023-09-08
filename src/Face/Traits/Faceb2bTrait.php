@@ -2,6 +2,8 @@
 namespace josemmo\Facturae\Face\Traits;
 
 use josemmo\Facturae\Common\XmlTools;
+use josemmo\Facturae\FacturaeFile;
+use SimpleXMLElement;
 
 trait Faceb2bTrait {
   /**

@@ -4,6 +4,7 @@ namespace josemmo\Facturae\Face;
 use josemmo\Facturae\Facturae;
 use josemmo\Facturae\Common\KeyPairReaderTrait;
 use josemmo\Facturae\Common\XmlTools;
+use SimpleXMLElement;
 
 abstract class SoapClient {
 
