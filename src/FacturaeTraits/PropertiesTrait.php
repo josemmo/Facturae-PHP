@@ -2,8 +2,10 @@
 namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\CorrectiveDetails;
+use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
+use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaePayment;
 use josemmo\Facturae\ReimbursableExpense;
 
@@ -593,6 +595,7 @@ trait PropertiesTrait {
       "rate"   => $isPercentage ? $value : null,
       "amount" => $isPercentage ? null   : $value
     );
+    return $this;
   }
 
 
@@ -622,6 +625,7 @@ trait PropertiesTrait {
    */
   public function setRelatedInvoice($relatedInvoice) {
     $this->header['relatedInvoice'] = $relatedInvoice;
+    return $this;
   }
 
 
@@ -671,6 +675,7 @@ trait PropertiesTrait {
       "file" => $file,
       "description" => $description
     );
+    return $this;
   }
 
 
