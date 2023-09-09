@@ -2,18 +2,20 @@
 namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\XmlTools;
-use josemmo\Facturae\CorrectiveDetails;
+use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaePayment;
 use josemmo\Facturae\ReimbursableExpense;
 
 /**
  * Allows a Facturae instance to be exported to XML.
+ *
+ * @var Facturae $this
  */
 trait ExportableTrait {
 
   /**
    * Add optional fields
-   * @param  object   $item   Subject item
+   * @param  array    $item   Subject item
    * @param  string[] $fields Optional fields
    * @return string           Output XML
    */
@@ -43,7 +45,6 @@ trait ExportableTrait {
     // Prepare document
     $xml = '<fe:Facturae xmlns:fe="' . self::$SCHEMA_NS[$this->version] . '">';
     $totals = $this->getTotals();
-    /** @var CorrectiveDetails|null */
     $corrective = $this->getCorrective();
     $paymentDetailsXML = $this->getPaymentDetailsXML($totals);
 

@@ -34,7 +34,7 @@ class FacturaePayment {
   public $method = self::TYPE_CASH;
 
   /**
-   * Payment due date (as UNIX timestamp or parseable date string)
+   * Payment due date (as UNIX timestamp or parsable date string)
    * @var int|string|null
    */
   public $dueDate = null;

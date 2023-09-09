@@ -13,6 +13,8 @@ use josemmo\Facturae\ReimbursableExpense;
  * Implements all attributes and methods needed to make Facturae instantiable.
  * This includes all properties that define an electronic invoice, but without
  * additional functionalities such as signing or exporting.
+ *
+ * @var Facturae $this
  */
 trait PropertiesTrait {
   protected $currency = "EUR";

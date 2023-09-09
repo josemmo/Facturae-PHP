@@ -45,7 +45,7 @@ final class FacturaeSigner {
   public $timestampId;
 
   /**
-   * Class constuctor
+   * Class constructor
    */
   public function __construct() {
     $this->regenerateIds();
@@ -72,7 +72,7 @@ final class FacturaeSigner {
 
   /**
    * Set signing time
-   * @param  int|string $time Time of the signature as UNIX timestamp or parseable date
+   * @param  int|string $time Time of the signature as UNIX timestamp or parsable date
    * @return self             This instance
    */
   public function setSigningTime($time) {

@@ -1,5 +1,6 @@
 <?php
 namespace josemmo\Facturae\Extensions;
+
 use josemmo\Facturae\Facturae;
 
 abstract class FacturaeExtension {

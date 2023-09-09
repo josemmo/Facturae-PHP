@@ -1,8 +1,13 @@
 <?php
 namespace josemmo\Facturae\FacturaeTraits;
 
+use josemmo\Facturae\Extensions\FacturaeExtension;
+use josemmo\Facturae\Facturae;
+
 /**
- * Implements utilitary methods for an instantiable Facturae.
+ * Implements utility methods for an instantiable Facturae.
+ *
+ * @var Facturae $this
  */
 trait UtilsTrait {
   protected $extensions = array();
@@ -48,8 +53,8 @@ trait UtilsTrait {
 
   /**
    * Get extension
-   * @param  string    $name Extension name or class name
-   * @return Extension       Extension instance
+   * @param  string            $name Extension name or class name
+   * @return FacturaeExtension       Extension instance
    */
   public function getExtension($name) {
     $topNamespace = explode('\\', __NAMESPACE__);

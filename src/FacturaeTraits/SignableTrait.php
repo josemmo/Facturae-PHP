@@ -2,10 +2,13 @@
 namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\Common\FacturaeSigner;
+use josemmo\Facturae\Facturae;
 
 /**
  * Implements all properties and methods needed for an instantiable
  * Facturae to be signed and time stamped.
+ *
+ * @var Facturae $this
  */
 trait SignableTrait {
   /** @var FacturaeSigner|null */
