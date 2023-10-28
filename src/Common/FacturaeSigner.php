@@ -154,8 +154,11 @@ final class FacturaeSigner {
     $signingTime = ($this->signingTime === null) ? time() : $this->signingTime;
     $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
-    foreach ($certData['issuer'] as $item=>$value) {
-      $certIssuer[] = "$item=$value";
+    foreach ($certData['issuer'] as $item=>$rawValues) {
+      $values = is_array($rawValues) ? $rawValues : [$rawValues];
+      foreach ($values as $value) {
+        $certIssuer[] = "$item=$value";
+      }
     }
     $certIssuer = implode(',', array_reverse($certIssuer));
     $xadesSignedProperties = '<xades:SignedProperties Id="'. $this->signatureSignedPropertiesId . '">' .
