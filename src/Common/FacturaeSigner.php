@@ -13,6 +13,7 @@ final class FacturaeSigner {
   const SIGN_POLICY_NAME = 'Política de Firma FacturaE v3.1';
   const SIGN_POLICY_URL = 'http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf';
   const SIGN_POLICY_DIGEST = 'Ohixl6upD6av8N7pEvDABhEL6hM=';
+  public const REPLACE_NON_STANDARD_FIELDS = ['organizationIdentifier' => 'OID.2.5.4.97'];
 
   use KeyPairReaderTrait;
 
@@ -155,6 +156,10 @@ final class FacturaeSigner {
     $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
     foreach ($certData['issuer'] as $item=>$value) {
+      if (array_key_exists($item, self::REPLACE_NON_STANDARD_FIELDS)) {
+        $item = self::REPLACE_NON_STANDARD_FIELDS[$item];
+      }
+
       $certIssuer[] = "$item=$value";
     }
     $certIssuer = implode(',', array_reverse($certIssuer));
