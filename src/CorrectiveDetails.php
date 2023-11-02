@@ -35,13 +35,13 @@ class CorrectiveDetails {
   public $reasonDescription = null;
 
   /**
-   * Start of tax period (as UNIX timestamp or parseable date string)
+   * Start of tax period (as UNIX timestamp or parsable date string)
    * @var string|int|null
    */
   public $taxPeriodStart = null;
 
   /**
-   * End of tax period (as UNIX timestamp or parseable date string)
+   * End of tax period (as UNIX timestamp or parsable date string)
    * @var string|int|null
    */
   public $taxPeriodEnd = null;

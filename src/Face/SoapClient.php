@@ -44,8 +44,8 @@ abstract class SoapClient {
 
   /**
    * Send SOAP request
-   * @param  string           $body Request body
-   * @return SimpleXMLElement       Response
+   * @param  string            $body Request body
+   * @return \SimpleXMLElement       Response
    */
   protected function request($body) {
     // Generate random IDs for this request

@@ -119,7 +119,7 @@ class XmlTools {
   /**
    * Prettify
    * @param  string $input Input string
-   * @return string        Multi-line resposne
+   * @return string        Multi-line response
    */
   private static function prettify($input) {
     return chunk_split($input, 76, "\n");

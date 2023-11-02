@@ -2,6 +2,7 @@
 namespace josemmo\Facturae\Face\Traits;
 
 use josemmo\Facturae\Common\XmlTools;
+use josemmo\Facturae\FacturaeFile;
 
 trait FaceTrait {
   /**
@@ -15,7 +16,7 @@ trait FaceTrait {
 
   /**
    * Get invoice status codes
-   * @return SimpleXMLElement Response
+   * @return \SimpleXMLElement Response
    */
   public function getStatus() {
     return $this->request('<web:consultarEstados></web:consultarEstados>');
@@ -24,8 +25,8 @@ trait FaceTrait {
 
   /**
    * Get administrations
-   * @param  boolean          $onlyTopLevel Get only top level administrations
-   * @return SimpleXMLElement               Response
+   * @param  boolean           $onlyTopLevel Get only top level administrations
+   * @return \SimpleXMLElement               Response
    */
   public function getAdministrations($onlyTopLevel=true) {
     $tag = "consultarAdministraciones";
@@ -36,8 +37,8 @@ trait FaceTrait {
 
   /**
    * Get units
-   * @param  string|null      $code Administration code
-   * @return SimpleXMLElement       Response
+   * @param  string|null       $code Administration code
+   * @return \SimpleXMLElement       Response
    */
   public function getUnits($code=null) {
     if (is_null($code)) return $this->request('<web:consultarUnidades></web:consultarUnidades>');
@@ -49,8 +50,8 @@ trait FaceTrait {
 
   /**
    * Get NIFs
-   * @param  string|null      $code Administration code
-   * @return SimpleXMLElement       Response
+   * @param  string|null       $code Administration code
+   * @return \SimpleXMLElement       Response
    */
   public function getNifs($code=null) {
     if (is_null($code)) return $this->request('<web:consultarNIFs></web:consultarNIFs>');
@@ -62,8 +63,8 @@ trait FaceTrait {
 
   /**
    * Get invoice
-   * @param  string|string[]  $regId Invoice register ID(s)
-   * @return SimpleXMLElement        Response
+   * @param  string|string[]   $regId Invoice register ID(s)
+   * @return \SimpleXMLElement        Response
    */
   public function getInvoices($regId) {
     if (is_string($regId)) {
@@ -80,10 +81,10 @@ trait FaceTrait {
 
   /**
    * Send invoice
-   * @param  string           $email       Email address
-   * @param  FacturaeFile     $invoice     Invoice
-   * @param  FacturaeFile[]   $attachments Attachments
-   * @return SimpleXMLElement              Response
+   * @param  string            $email       Email address
+   * @param  FacturaeFile      $invoice     Invoice
+   * @param  FacturaeFile[]    $attachments Attachments
+   * @return \SimpleXMLElement              Response
    */
   public function sendInvoice($email, $invoice, $attachments=array()) {
     $req = '<web:enviarFactura><request>';
@@ -109,9 +110,9 @@ trait FaceTrait {
 
   /**
    * Cancel invoice
-   * @param  string           $regId  Invoice register ID
-   * @param  string           $reason Cancelation reason
-   * @return SimpleXMLElement         Response
+   * @param  string            $regId  Invoice register ID
+   * @param  string            $reason Cancellation reason
+   * @return \SimpleXMLElement         Response
    */
   public function cancelInvoice($regId, $reason) {
     return $this->request('<web:anularFactura>' .

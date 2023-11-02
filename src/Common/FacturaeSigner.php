@@ -46,7 +46,7 @@ final class FacturaeSigner {
   public $timestampId;
 
   /**
-   * Class constuctor
+   * Class constructor
    */
   public function __construct() {
     $this->regenerateIds();
@@ -73,7 +73,7 @@ final class FacturaeSigner {
 
   /**
    * Set signing time
-   * @param  int|string $time Time of the signature as UNIX timestamp or parseable date
+   * @param  int|string $time Time of the signature as UNIX timestamp or parsable date
    * @return self             This instance
    */
   public function setSigningTime($time) {
@@ -155,12 +155,17 @@ final class FacturaeSigner {
     $signingTime = ($this->signingTime === null) ? time() : $this->signingTime;
     $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
-    foreach ($certData['issuer'] as $item=>$value) {
+
+    foreach ($certData['issuer'] as $item=>$rawValues) {
+      $values = is_array($rawValues) ? $rawValues : [$rawValues];
+      
       if (array_key_exists($item, self::REPLACE_NON_STANDARD_FIELDS)) {
         $item = self::REPLACE_NON_STANDARD_FIELDS[$item];
       }
-
-      $certIssuer[] = "$item=$value";
+      
+      foreach ($values as $value) {
+        $certIssuer[] = "$item=$value";
+      }
     }
     $certIssuer = implode(',', array_reverse($certIssuer));
     $xadesSignedProperties = '<xades:SignedProperties Id="'. $this->signatureSignedPropertiesId . '">' .
