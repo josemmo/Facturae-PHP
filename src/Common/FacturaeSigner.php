@@ -13,6 +13,27 @@ final class FacturaeSigner {
   const SIGN_POLICY_NAME = 'Política de Firma FacturaE v3.1';
   const SIGN_POLICY_URL = 'http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf';
   const SIGN_POLICY_DIGEST = 'Ohixl6upD6av8N7pEvDABhEL6hM=';
+  const ALLOWED_OID_TYPES = [
+    // Mandatory fields in https://datatracker.ietf.org/doc/html/rfc4514#section-3
+    'CN'     => 'CN',
+    'L'      => 'L',
+    'ST'     => 'ST',
+    'O'      => 'O',
+    'OU'     => 'OU',
+    'C'      => 'C',
+    'STREET' => 'STREET',
+    'DC'     => 'DC',
+    'UID'    => 'UID',
+
+    // Other fields with well-known names
+    'GN' => 'GN',
+    'SN' => 'SN',
+
+    // Other fields with compatibility issues
+    'organizationIdentifier' => 'OID.2.5.4.97',
+    'serialNumber'           => 'OID.2.5.4.5',
+    'title'                  => 'OID.2.5.4.12',
+  ];
 
   use KeyPairReaderTrait;
 
@@ -155,12 +176,16 @@ final class FacturaeSigner {
     $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
     foreach ($certData['issuer'] as $item=>$rawValues) {
+      if (!isset(self::ALLOWED_OID_TYPES[$item])) {
+        continue;
+      }
+      $item = self::ALLOWED_OID_TYPES[$item];
       $values = is_array($rawValues) ? $rawValues : [$rawValues];
       foreach ($values as $value) {
         $certIssuer[] = "$item=$value";
       }
     }
-    $certIssuer = implode(',', array_reverse($certIssuer));
+    $certIssuer = implode(', ', array_reverse($certIssuer));
     $xadesSignedProperties = '<xades:SignedProperties Id="'. $this->signatureSignedPropertiesId . '">' .
       '<xades:SignedSignatureProperties>' .
         '<xades:SigningTime>' . date('c', $signingTime) . '</xades:SigningTime>' .
