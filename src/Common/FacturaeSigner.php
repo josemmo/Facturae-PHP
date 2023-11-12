@@ -176,7 +176,7 @@ final class FacturaeSigner {
     $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
     foreach ($certData['issuer'] as $item=>$rawValues) {
-      if (!isset(self::ALLOWED_OID_TYPES[$item])) {
+      if (!array_key_exists($item, self::ALLOWED_OID_TYPES)) {
         continue;
       }
       $item = self::ALLOWED_OID_TYPES[$item];
