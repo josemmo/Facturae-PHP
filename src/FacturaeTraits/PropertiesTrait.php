@@ -2,8 +2,10 @@
 namespace josemmo\Facturae\FacturaeTraits;
 
 use josemmo\Facturae\CorrectiveDetails;
+use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeFile;
 use josemmo\Facturae\FacturaeItem;
+use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaePayment;
 use josemmo\Facturae\ReimbursableExpense;
 
@@ -11,6 +13,8 @@ use josemmo\Facturae\ReimbursableExpense;
  * Implements all attributes and methods needed to make Facturae instantiable.
  * This includes all properties that define an electronic invoice, but without
  * additional functionalities such as signing or exporting.
+ *
+ * @var Facturae $this
  */
 trait PropertiesTrait {
   protected $currency = "EUR";
@@ -593,6 +597,7 @@ trait PropertiesTrait {
       "rate"   => $isPercentage ? $value : null,
       "amount" => $isPercentage ? null   : $value
     );
+    return $this;
   }
 
 
@@ -622,6 +627,7 @@ trait PropertiesTrait {
    */
   public function setRelatedInvoice($relatedInvoice) {
     $this->header['relatedInvoice'] = $relatedInvoice;
+    return $this;
   }
 
 
@@ -671,6 +677,7 @@ trait PropertiesTrait {
       "file" => $file,
       "description" => $description
     );
+    return $this;
   }
 
 

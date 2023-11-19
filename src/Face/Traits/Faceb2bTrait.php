@@ -2,6 +2,8 @@
 namespace josemmo\Facturae\Face\Traits;
 
 use josemmo\Facturae\Common\XmlTools;
+use josemmo\Facturae\FacturaeFile;
+use SimpleXMLElement;
 
 trait Faceb2bTrait {
   /**
@@ -116,8 +118,8 @@ trait Faceb2bTrait {
 
   /**
    * Confirm invoice download
-   * @param  string           $regId   Registry number
-   * @return SimpleXMLElement          Response
+   * @param  string           $regId Registry number
+   * @return SimpleXMLElement        Response
    */
   public function confirmInvoiceDownload($regId) {
     return $this->request('<web:ConfirmInvoiceDownload><request>' .
@@ -147,8 +149,8 @@ trait Faceb2bTrait {
 
   /**
    * Mark invoice as paid
-   * @param  string           $regId   Registry number
-   * @return SimpleXMLElement          Response
+   * @param  string           $regId Registry number
+   * @return SimpleXMLElement        Response
    */
   public function markInvoiceAsPaid($regId) {
     return $this->request('<web:MarkInvoiceAsPaid><request>' .
@@ -159,8 +161,8 @@ trait Faceb2bTrait {
 
   /**
    * Accept invoice cancellation
-   * @param  string           $regId   Registry number
-   * @return SimpleXMLElement          Response
+   * @param  string           $regId Registry number
+   * @return SimpleXMLElement        Response
    */
   public function acceptInvoiceCancellation($regId) {
     return $this->request('<web:AcceptInvoiceCancellation><request>' .

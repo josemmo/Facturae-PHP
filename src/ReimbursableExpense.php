@@ -15,7 +15,7 @@ class ReimbursableExpense {
   public $buyer = null;
 
   /**
-   * Issue date (as UNIX timestamp or parseable date string)
+   * Issue date (as UNIX timestamp or parsable date string)
    * @var string|int|null
    */
   public $issueDate = null;
