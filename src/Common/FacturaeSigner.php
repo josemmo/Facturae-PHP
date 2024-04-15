@@ -175,14 +175,18 @@ final class FacturaeSigner {
     $signingTime = ($this->signingTime === null) ? time() : $this->signingTime;
     $certData = openssl_x509_parse($this->publicChain[0]);
     $certIssuer = [];
-    foreach ($certData['issuer'] as $item=>$rawValues) {
-      if (!array_key_exists($item, self::ALLOWED_OID_TYPES)) {
-        continue;
-      }
-      $item = self::ALLOWED_OID_TYPES[$item];
+    foreach ($certData['issuer'] as $rawType=>$rawValues) {
       $values = is_array($rawValues) ? $rawValues : [$rawValues];
       foreach ($values as $value) {
-        $certIssuer[] = "$item=$value";
+        if ($rawType === "UNDEF" && preg_match('/^VAT[A-Z]{2}-/', $value) === 1) {
+          $type = "OID.2.5.4.97"; // Fix for OpenSSL <3.0.0
+        } else {
+          if (!array_key_exists($rawType, self::ALLOWED_OID_TYPES)) {
+            continue; // Skip unknown OID types
+          }
+          $type = self::ALLOWED_OID_TYPES[$rawType];
+        }
+        $certIssuer[] = "$type=$value";
       }
     }
     $certIssuer = implode(', ', array_reverse($certIssuer));
