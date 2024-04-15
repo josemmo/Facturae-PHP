@@ -65,5 +65,13 @@ file_put_contents(__DIR__ . "/factura.xsig", $signedXml);
   - Sellado de tiempo según el [RFC3161](https://www.ietf.org/rfc/rfc3161.txt)
   - Envío automatizado de facturas a **FACe y FACeB2B** 🔥
 
+## Usan Facturae-PHP
+Estas son algunas de las organizaciones y soluciones software que usan Facturae-PHP o mantienen un fork interno basado en el código de la librería:
+
+<a href="https://www.holded.com/" target="_blank"><img height="50" alt="Holded" src="https://i.imgur.com/zqdQsPA.png"></a>
+<a href="https://hotelgest.com/" target="_blank"><img height="50" alt="hotelgest" src="https://i.imgur.com/hyuKAOt.png"></a>
+<a href="https://invoiceninja.com/" target="_blank"><img height="50" alt="InvoiceNinja" src="https://i.imgur.com/ySryAUA.png"></a>
+<a href="https://facturascripts.com/" target="_blank"><img height="50" alt="FacturaScripts" src="https://i.imgur.com/UPnUVCD.png"></a>
+
 ## Licencia
 Facturae-PHP se encuentra bajo [licencia MIT](LICENSE). Eso implica que puedes utilizar este paquete en cualquier proyecto (incluso con fines comerciales), siempre y cuando hagas referencia al uso y autoría de la misma.
