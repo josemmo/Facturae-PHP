@@ -51,7 +51,7 @@ final class WebservicesTest extends AbstractTest {
   public function testFace() {
     $this->checkEnv();
 
-    $face = new FaceClient(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $face = new FaceClient(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
     $face->setProduction(false);
 
     // Test misc. methods
@@ -92,7 +92,7 @@ final class WebservicesTest extends AbstractTest {
         ])
       ]
     ]));
-    $fac->sign(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
 
     // Send invoice
     $invoiceFile = new FacturaeFile();
@@ -131,7 +131,7 @@ final class WebservicesTest extends AbstractTest {
   public function testFaceb2b() {
     $this->checkEnv();
 
-    $faceb2b = new Faceb2bClient(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $faceb2b = new Faceb2bClient(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
     $faceb2b->setProduction(false);
 
     // Test misc. methods
@@ -158,7 +158,7 @@ final class WebservicesTest extends AbstractTest {
       "code" => "ESA789231250000",
       "name" => "Centro administrativo receptor"
     ]));
-    $fac->sign(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
 
     // Send invoice
     $invoiceFile = new FacturaeFile();
