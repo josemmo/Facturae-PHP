@@ -8,6 +8,7 @@ use josemmo\Facturae\Common\XmlTools;
 abstract class SoapClient {
 
   const REQUEST_EXPIRATION = 60; // In seconds
+  private $useExcC14n = true;
 
   use KeyPairReaderTrait;
 
@@ -25,6 +26,15 @@ abstract class SoapClient {
       $this->addCertificate($storeOrCertificate);
       $this->setPrivateKey($privateKey, $passphrase);
     }
+  }
+
+
+  /**
+   * Set exclusive canonicalization mode
+   * @param boolean $enabled Whether to use EXC-C14N (`true`) or C14N (`false`)
+   */
+  public function setExclusiveC14n($enabled) {
+    $this->useExcC14n = $enabled;
   }
 
 
@@ -91,8 +101,10 @@ abstract class SoapClient {
       '</wsse:BinarySecurityToken>';
 
     // Generate signed info
+    $c14nNamespace = $this->useExcC14n ? "http://www.w3.org/2001/10/xml-exc-c14n#" : "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
+    $signedInfoNs = $this->useExcC14n ? ['xmlns:ds' => $ns['xmlns:ds']] : $ns;
     $signedInfo = '<ds:SignedInfo>' .
-        '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315">' .
+        '<ds:CanonicalizationMethod Algorithm="' . $c14nNamespace . '">' .
         '</ds:CanonicalizationMethod>' .
         '<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"></ds:SignatureMethod>' .
         '<ds:Reference URI="#' . $timestampId . '">' .
@@ -104,7 +116,7 @@ abstract class SoapClient {
           '<ds:DigestValue>' . $bodyDigest . '</ds:DigestValue>' .
         '</ds:Reference>' .
       '</ds:SignedInfo>';
-    $signedInfoPayload = XmlTools::injectNamespaces($signedInfo, $ns);
+    $signedInfoPayload = XmlTools::injectNamespaces($signedInfo, $signedInfoNs);
 
     // Add signature and KeyInfo to header
     $reqHeader .= '<ds:Signature Id="' . $sigId . '">' .

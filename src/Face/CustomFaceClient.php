@@ -5,6 +5,7 @@ use josemmo\Facturae\Face\Traits\FaceTrait;
 
 class CustomFaceClient extends SoapClient {
   private $endpointUrl;
+  private $webNamespace = "https://webservice.face.gob.es";
 
   use FaceTrait;
 
@@ -19,6 +20,23 @@ class CustomFaceClient extends SoapClient {
   public function __construct($endpointUrl, $publicPath, $privatePath=null, $passphrase="") {
     parent::__construct($publicPath, $privatePath, $passphrase);
     $this->endpointUrl = $endpointUrl;
+  }
+
+
+  /**
+   * Set custom web service namespace
+   * @param string $webNamespace Web service namespace to override the default one
+   */
+  public function setWebNamespace($webNamespace) {
+    $this->webNamespace = $webNamespace;
+  }
+
+
+  /**
+   * @inheritdoc
+   */
+  protected function getWebNamespace() {
+    return $this->webNamespace;
   }
 
 
