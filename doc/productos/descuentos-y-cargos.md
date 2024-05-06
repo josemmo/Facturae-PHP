@@ -44,7 +44,7 @@ $fac->addItem(new FacturaeItem([
   "name" => "Un producto con descuento",
   "unitPrice" => 100,
   "discounts" => [
-    ["reason" => "Descuento de 5€", "amount" => 5, "haxTaxes" => false]
+    ["reason" => "Descuento de 5€", "amount" => 5, "hasTaxes" => false]
   ],
   "taxes" => [Facturae::TAX_IVA => 10]
 ]));
