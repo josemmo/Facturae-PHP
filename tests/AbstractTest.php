@@ -10,7 +10,6 @@ abstract class AbstractTest extends TestCase {
   const OUTPUT_DIR = __DIR__ . "/output";
   const CERTS_DIR = __DIR__ . "/certs";
   const FACTURAE_CERT_PASS = "1234";
-  const WEBSERVICES_CERT_PASS = "IZProd2021";
   const NOTIFICATIONS_EMAIL = "josemmo@pm.me";
   const COOKIES_PATH = self::OUTPUT_DIR . "/cookies.txt";
 

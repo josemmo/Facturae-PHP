@@ -10,6 +10,7 @@ use josemmo\Facturae\Facturae;
  * @var Facturae $this
  */
 trait UtilsTrait {
+  /** @var FacturaeExtension[] */
   protected $extensions = array();
 
   /**

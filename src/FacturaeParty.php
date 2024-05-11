@@ -16,38 +16,87 @@ class FacturaeParty {
     'IRL', 'ITA', 'LTU', 'LUX', 'LVA', 'MLT', 'NLD', 'POL', 'PRT', 'ROU', 'SVK', 'SVN', 'SWE'
   ];
 
+  /** @var boolean */
   public $isLegalEntity = true; // By default is a company and not a person
+  /** @var string|null */
   public $taxNumber = null;
+  /** @var string|null */
   public $name = null;
 
-  // This block is only used for legal entities
-  public $book = null;                        // "Libro"
-  public $registerOfCompaniesLocation = null; // "Registro mercantil"
-  public $sheet = null;                       // "Hoja"
-  public $folio = null;                       // "Folio"
-  public $section = null;                     // "Sección"
-  public $volume = null;                      // "Tomo"
+  /**
+   * Libro (only for legal entities)
+   * @var string|null
+   */
+  public $book = null;
+  /**
+   * Registro mercantil (only for legal entities)
+   * @var string|null
+   */
+  public $registerOfCompaniesLocation = null;
+  /**
+   * Hoja (only for legal entities)
+   * @var string|null
+   */
+  public $sheet = null;
+  /**
+   * Folio (only for legal entities)
+   * @var string|null
+   */
+  public $folio = null;
+  /**
+   * Sección (only for legal entities)
+   * @var string|null
+   */
+  public $section = null;
+  /**
+   * Tomo (only for legal entities)
+   * @var string|null
+   */
+  public $volume = null;
 
-  // This block is only required for individuals
+  /**
+   * First surname (required for individuals)
+   * @var string|null
+   */
   public $firstSurname = null;
+  /**
+   * Last surname (required for individuals)
+   * @var string|null
+   */
   public $lastSurname = null;
 
+  /** @var string|null */
   public $address = null;
+  /** @var string|null */
   public $postCode = null;
+  /** @var string|null */
   public $town = null;
+  /** @var string|null */
   public $province = null;
+  /** @var string */
   public $countryCode = "ESP";
-  /** @var boolean|null */
-  public $isEuropeanUnionResident = null; // By default is calculated based on the country code
+  /**
+   * NOTE: By default (when `null`) is calculated based on the country code
+   * @var boolean|null
+   */
+  public $isEuropeanUnionResident = null;
 
+  /** @var string|null */
   public $email = null;
+  /** @var string|null */
   public $phone = null;
+  /** @var string|null */
   public $fax = null;
+  /** @var string|null */
   public $website = null;
 
+  /** @var string|null */
   public $contactPeople = null;
+  /** @var string|null */
   public $cnoCnae = null;
+  /** @var string|null */
   public $ineTownCode = null;
+  /** @var FacturaeCentre[] */
   public $centres = array();
 
 

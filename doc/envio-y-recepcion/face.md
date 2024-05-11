@@ -50,6 +50,17 @@ $endpointUrl = "https://w390w.gipuzkoa.net/WAS/HACI/HFAServiciosProveedoresWEB/s
 $face = new CustomFaceClient($endpointUrl, "certificado.pfx", null, "passphrase");
 ```
 
+Si al intentar conectarte al punto de recepción obtienes un error similar a "A bad canonicalization algorithm was specified", es posible que el servidor de destino no soporte canonicalización de XML exclusiva ([EXC-C14N](https://www.w3.org/TR/xml-exc-c14n/)).
+Para usar C14N en vez de EXC-C14N, utiliza este método del cliente:
+```php
+$face->setExclusiveC14n(false);
+```
+
+Otro error típico es "Document element namespace mismatch expected". En ese caso, el punto de entrada necesita usar un namespace personalizado, que puedes especificar usando este método:
+```php
+$face->setWebNamespace('https://webservice.efact.es/sspp'); // Ejemplo para e-FACT
+```
+
 ---
 
 ## Listado de métodos

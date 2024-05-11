@@ -5,6 +5,7 @@ use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeParty;
 use josemmo\Facturae\FacturaeCentre;
 use josemmo\Facturae\FacturaeFile;
+use josemmo\Facturae\Face\CustomFaceClient;
 use josemmo\Facturae\Face\FaceClient;
 use josemmo\Facturae\Face\Faceb2bClient;
 
@@ -50,7 +51,7 @@ final class WebservicesTest extends AbstractTest {
   public function testFace() {
     $this->checkEnv();
 
-    $face = new FaceClient(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $face = new FaceClient(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
     $face->setProduction(false);
 
     // Test misc. methods
@@ -58,6 +59,11 @@ final class WebservicesTest extends AbstractTest {
     $this->assertNotEmpty($face->getAdministrations()->administraciones);
     $this->assertNotEmpty($face->getUnits('E04921501')->relaciones);
     $this->assertNotEmpty($face->getNifs('E04921501')->nifs);
+
+    // Test C14N (non-exclusive)
+    $face->setExclusiveC14n(false);
+    $this->assertNotEmpty($face->getStatus()->estados);
+    $face->setExclusiveC14n(true);
 
     // Generate invoice
     $fac = $this->getWsBaseInvoice();
@@ -86,7 +92,7 @@ final class WebservicesTest extends AbstractTest {
         ])
       ]
     ]));
-    $fac->sign(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
 
     // Send invoice
     $invoiceFile = new FacturaeFile();
@@ -107,19 +113,36 @@ final class WebservicesTest extends AbstractTest {
   }
 
 
+  public function testCustomFace() {
+    $this->checkEnv();
+
+    $endpointUrl = "https://efact-pre.aoc.cat/bustia/services/EFactWebServiceProxyService";
+    $customFace = new CustomFaceClient($endpointUrl, self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
+    $customFace->setWebNamespace('https://webservice.efact.es/sspp');
+
+    // Test misc. methods
+    $this->assertNotEmpty($customFace->getStatus()->estados);
+  }
+
+
   /**
    * Test FACeB2B
    */
   public function testFaceb2b() {
     $this->checkEnv();
 
-    $faceb2b = new Faceb2bClient(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $faceb2b = new Faceb2bClient(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
     $faceb2b->setProduction(false);
 
     // Test misc. methods
     $this->assertNotEmpty($faceb2b->getCodes()->codes);
     $this->assertEquals(intval($faceb2b->getRegisteredInvoices()->resultStatus->code), 0);
     $this->assertEquals(intval($faceb2b->getInvoiceCancellations()->resultStatus->code), 0);
+
+    // Test C14N (non-exclusive)
+    $faceb2b->setExclusiveC14n(false);
+    $this->assertNotEmpty($faceb2b->getCodes()->codes);
+    $faceb2b->setExclusiveC14n(true);
 
     // Generate invoice
     $fac = $this->getWsBaseInvoice();
@@ -135,7 +158,7 @@ final class WebservicesTest extends AbstractTest {
       "code" => "ESA789231250000",
       "name" => "Centro administrativo receptor"
     ]));
-    $fac->sign(self::CERTS_DIR . "/webservices.p12", null, self::WEBSERVICES_CERT_PASS);
+    $fac->sign(self::CERTS_DIR . "/facturae.p12", null, self::FACTURAE_CERT_PASS);
 
     // Send invoice
     $invoiceFile = new FacturaeFile();

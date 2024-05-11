@@ -25,18 +25,29 @@ class FacturaeCentre {
   const ROLE_B2B_COLLECTION_RECEIVER = "Collection receiver";
   const ROLE_B2B_ISSUER = "Issuer";
 
+  /** @var string|null */
   public $code = null;
+  /** @var string|null */
   public $role = null;
 
+  /** @var string|null */
   public $name = null;
+  /** @var string|null */
   public $firstSurname = null;
+  /** @var string|null */
   public $lastSurname = null;
+  /** @var string|null */
   public $description = null;
 
+  /** @var string|null */
   public $address = null;
+  /** @var string|null */
   public $postCode = null;
+  /** @var string|null */
   public $town = null;
+  /** @var string|null */
   public $province = null;
+  /** @var string */
   public $countryCode = "ESP";
 
 
