@@ -4,9 +4,13 @@ namespace josemmo\Facturae\Extensions;
 use josemmo\Facturae\FacturaeCentre;
 
 class Fb2bExtension extends FacturaeExtension {
+  /** @var array<string,string> */
   private $publicSectorInfo = array();
+  /** @var FacturaeCentre|null */
   private $receiver = null;
+  /** @var FacturaeCentre[] */
   private $sellerCentres = array();
+  /** @var FacturaeCentre[] */
   private $buyerCentres = array();
 
   /**

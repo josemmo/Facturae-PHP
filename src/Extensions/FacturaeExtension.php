@@ -4,6 +4,7 @@ namespace josemmo\Facturae\Extensions;
 use josemmo\Facturae\Facturae;
 
 abstract class FacturaeExtension {
+  /** @var Facturae */
   private $fac;
 
   /**

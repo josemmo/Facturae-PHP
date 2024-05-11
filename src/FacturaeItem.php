@@ -12,32 +12,54 @@ class FacturaeItem {
   /** Non-subject operation */
   const SPECIAL_TAXABLE_EVENT_NON_SUBJECT = "02";
 
+  /** @var int|string|null */
   private $articleCode = null;
+  /** @var string|null */
   private $name = null;
+  /** @var string|null */
   private $description = null;
+  /** @var int|float */
   private $quantity = 1;
+  /** @var string */
   private $unitOfMeasure = Facturae::UNIT_DEFAULT;
+  /** @var int|float|null */
   private $unitPrice = null;
+  /** @var int|float|null */
   private $unitPriceWithoutTax = null;
   private $discounts = array();
   private $charges = array();
   private $taxesOutputs = array();
   private $taxesWithheld = array();
+  /** @var string|null */
   private $specialTaxableEventCode = null;
+  /** @var string|null */
   private $specialTaxableEventReason = null;
 
+  /** @var string|null */
   private $issuerContractReference = null;
+  /** @var string|null */
   private $issuerContractDate = null;
+  /** @var string|null */
   private $issuerTransactionReference = null;
+  /** @var string|null */
   private $issuerTransactionDate = null;
+  /** @var string|null */
   private $receiverContractReference = null;
+  /** @var string|null */
   private $receiverContractDate = null;
+  /** @var string|null */
   private $receiverTransactionReference = null;
+  /** @var string|null */
   private $receiverTransactionDate = null;
+  /** @var string|null */
   private $fileReference = null;
+  /** @var string|null */
   private $fileDate = null;
+  /** @var string|null */
   private $sequenceNumber = null;
+  /** @var string|null */
   private $periodStart = null;
+  /** @var string|null */
   private $periodEnd = null;
 
 
