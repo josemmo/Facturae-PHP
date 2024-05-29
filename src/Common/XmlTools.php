@@ -2,6 +2,27 @@
 namespace josemmo\Facturae\Common;
 
 class XmlTools {
+  const ALLOWED_OID_TYPES = [
+    // Mandatory fields in https://datatracker.ietf.org/doc/html/rfc4514#section-3
+    'CN'     => 'CN',
+    'L'      => 'L',
+    'ST'     => 'ST',
+    'O'      => 'O',
+    'OU'     => 'OU',
+    'C'      => 'C',
+    'STREET' => 'STREET',
+    'DC'     => 'DC',
+    'UID'    => 'UID',
+
+    // Other fields with well-known names
+    'GN' => 'GN',
+    'SN' => 'SN',
+
+    // Other fields with compatibility issues
+    'organizationIdentifier' => 'OID.2.5.4.97',
+    'serialNumber'           => 'OID.2.5.4.5',
+    'title'                  => 'OID.2.5.4.12',
+  ];
 
   /**
    * Escape XML value
@@ -161,6 +182,39 @@ class XmlTools {
   public static function getCertDigest($publicKey, $pretty=false) {
     $digest = openssl_x509_fingerprint($publicKey, "sha512", true);
     return self::toBase64($digest, $pretty);
+  }
+
+
+  /**
+   * Get certificate distinguished name
+   * @param  array  $data Certificate issuer or subject name data
+   * @return string       Distinguished name
+   */
+  public static function getCertDistinguishedName($data) {
+    $name = [];
+    foreach ($data as $rawType=>$rawValues) {
+      $values = is_array($rawValues) ? $rawValues : [$rawValues];
+      foreach ($values as $value) {
+        // Default case: allowed OID type
+        if (array_key_exists($rawType, self::ALLOWED_OID_TYPES)) {
+          $type = self::ALLOWED_OID_TYPES[$rawType];
+          $name[] = "$type=$value";
+          continue;
+        }
+
+        // Fix for undefined properties in OpenSSL <3.0.0
+        if ($rawType === "UNDEF") {
+          $decodedValue = (substr($value, 0, 1) === '#') ? hex2bin(substr($value, 5)) : $value;
+          if (preg_match('/^VAT[A-Z]{2}-/', $decodedValue) === 1) {
+            $name[] = "OID.2.5.4.97=$value";
+          }
+        }
+
+        // Unknown OID type, ignore
+      }
+    }
+    $name = implode(', ', array_reverse($name));
+    return $name;
   }
 
 

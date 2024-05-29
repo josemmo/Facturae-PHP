@@ -45,4 +45,59 @@ final class XmlToolsTest extends AbstractTest {
     $this->assertEquals('<abc:hello><xyz:world></xyz:world><earth></earth><everyone></everyone></abc:hello>', $c14n);
   }
 
+
+  public function testCanGenerateDistinguishedNames() {
+      $this->assertEquals(
+        'CN=EIDAS CERTIFICADO PRUEBAS - 99999999R, SN=EIDAS CERTIFICADO, GN=PRUEBAS, OID.2.5.4.5=IDCES-99999999R, C=ES',
+        XmlTools::getCertDistinguishedName([
+          'C' => 'ES',
+          'serialNumber' => 'IDCES-99999999R',
+          'GN' => 'PRUEBAS',
+          'SN' => 'EIDAS CERTIFICADO',
+          'CN' => 'EIDAS CERTIFICADO PRUEBAS - 99999999R'
+        ])
+      );
+      $this->assertEquals(
+        'OID.2.5.4.97=VATFR-12345678901, CN=A Common Name, OU=Field, OU=Repeated, C=FR',
+        XmlTools::getCertDistinguishedName([
+          'C' => 'FR',
+          'OU' => ['Repeated', 'Field'],
+          'CN' => 'A Common Name',
+          'ignoreMe' => 'This should not be here',
+          'organizationIdentifier' => 'VATFR-12345678901',
+        ])
+      );
+      $this->assertEquals(
+        'OID.2.5.4.97=VATES-A11223344, CN=ACME ROOT, OU=ACME-CA, O=ACME Inc., L=Barcelona, C=ES',
+        XmlTools::getCertDistinguishedName([
+          'C' => 'ES',
+          'L' => 'Barcelona',
+          'O' => 'ACME Inc.',
+          'OU' => 'ACME-CA',
+          'CN' => 'ACME ROOT',
+          'UNDEF' => 'VATES-A11223344'
+        ])
+      );
+      $this->assertEquals(
+        'OID.2.5.4.97=#0c0f56415445532d413030303030303030, CN=Common Name (UTF-8), OU=Unit, O=Organization, C=ES',
+        XmlTools::getCertDistinguishedName([
+          'C' => 'ES',
+          'O' => 'Organization',
+          'OU' => 'Unit',
+          'CN' => 'Common Name (UTF-8)',
+          'UNDEF' => '#0c0f56415445532d413030303030303030'
+        ])
+      );
+      $this->assertEquals(
+        'OID.2.5.4.97=#130f56415445532d413636373231343939, CN=Common Name (printable), OU=Unit, O=Organization, C=ES',
+        XmlTools::getCertDistinguishedName([
+          'C' => 'ES',
+          'O' => 'Organization',
+          'OU' => 'Unit',
+          'CN' => 'Common Name (printable)',
+          'UNDEF' => '#130f56415445532d413636373231343939'
+        ])
+      );
+  }
+
 }
