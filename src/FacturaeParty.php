@@ -22,6 +22,12 @@ class FacturaeParty {
   public $taxNumber = null;
   /** @var string|null */
   public $name = null;
+  
+  /**
+   * Nombre comercial (only for legal entities)
+   * @var string|null
+   */
+  public $tradeName = null;
 
   /**
    * Libro (only for legal entities)
@@ -182,6 +188,11 @@ class FacturaeParty {
     // Add data exclusive to `LegalEntity`
     if ($this->isLegalEntity) {
       $xml .= '<CorporateName>' . XmlTools::escape($this->name) . '</CorporateName>';
+	  
+      if(!empty($this->tradeName)) {
+        $xml .= '<TradeName>' . XmlTools::escape($this->tradeName) . '</TradeName>';
+      }
+	  
       $fields = array("book", "registerOfCompaniesLocation", "sheet", "folio",
         "section", "volume");
 
