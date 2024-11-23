@@ -44,6 +44,7 @@ final class InvoiceTest extends AbstractTest {
     $fac->setSeller(new FacturaeParty([
       "taxNumber" => "A00000000",
       "name"      => "Perico el de los Palotes S.A.",
+      "tradeName" => "Peri Co.",
       "address"   => "C/ Falsa, 123",
       "postCode"  => "23456",
       "town"      => "Madrid",

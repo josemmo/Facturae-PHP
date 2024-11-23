@@ -12,6 +12,7 @@ $empresa = new FacturaeParty([
   "isLegalEntity" => true, // Se asume true si se omite
   "taxNumber"     => "A00000000",
   "name"          => "Perico el de los Palotes S.A.",
+  "tradeName"     => "Peri Co.", // Nombre comercial
   "address"       => "C/ Falsa, 123",
   "postCode"      => "12345",
   "town"          => "Madrid",
