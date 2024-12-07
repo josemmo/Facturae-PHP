@@ -67,6 +67,16 @@ final class SignerTest extends AbstractTest {
   }
 
 
+  public function testNormalizesLineBreaks() {
+    $xml = '<fe:Facturae xmlns:fe="http://www.facturae.es/Facturae/2014/v3.2.1/Facturae">' .
+      "    <test>This contains\r\nWindows line breaks</test>\n" .
+      "    <test>This contains\rclassic MacOS line breaks</test>\n" .
+      '</fe:Facturae>';
+    $signedXml = $this->getSigner()->sign($xml);
+    $this->assertStringNotContainsString("\r", $signedXml);
+  }
+
+
   public function testCannotTimestampWithoutTsaDetails() {
     $this->expectException(RuntimeException::class);
     $signer = new FacturaeSigner();

@@ -129,6 +129,10 @@ final class FacturaeSigner {
       throw new RuntimeException('Invalid signing key material: failed to read private key');
     }
 
+    // Normalize line breaks
+    $xml = str_replace("\r\n", "\n", $xml);
+    $xml = str_replace("\r", "\n", $xml);
+
     // Extract root element
     $openTagPosition = mb_strpos($xml, '<fe:Facturae ');
     if ($openTagPosition === false) {
