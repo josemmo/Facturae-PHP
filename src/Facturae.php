@@ -25,7 +25,8 @@ class Facturae {
 
   const INVOICE_FULL = "FC";
   const INVOICE_SIMPLIFIED = "FA";
-
+  const INVOICE_SELFINVOICE = "AF";
+  
   const ISSUER_SELLER = "EM";
   const ISSUER_BUYER = "RE";
   const ISSUER_THIRD_PARTY = "TE";
