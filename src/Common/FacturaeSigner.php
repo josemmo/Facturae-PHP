@@ -129,16 +129,21 @@ final class FacturaeSigner {
       throw new RuntimeException('Invalid signing key material: failed to read private key');
     }
 
+    if (preg_match_all('~</?([^/>:]+):Facturae>?~', $xml, $tags, PREG_SET_ORDER) !== 2) {
+      throw new RuntimeException('Invalid XML document');
+    }
+
+    if ($tags[0][1] !== $tags[1][1]) {
+      throw new RuntimeException('Invalid XML document');
+    }
+
+    $open_tag = $tags[0][0];
+    $close_tag = $tags[1][0];
+
     // Extract root element
-    $openTagPosition = mb_strpos($xml, '<fe:Facturae ');
-    if ($openTagPosition === false) {
-      throw new RuntimeException('XML document is missing <fe:Facturae /> element');
-    }
-    $closeTagPosition = mb_strpos($xml, '</fe:Facturae>');
-    if ($closeTagPosition === false) {
-      throw new RuntimeException('XML document is missing </fe:Facturae> closing tag');
-    }
-    $closeTagPosition += 14;
+    $openTagPosition = mb_strpos($xml, $open_tag);
+    $closeTagPosition = mb_strpos($xml, $close_tag);
+    $closeTagPosition += strlen($close_tag);
     $xmlRoot = mb_substr($xml, $openTagPosition, $closeTagPosition-$openTagPosition);
 
     // Inject XMLDSig namespace
@@ -263,7 +268,7 @@ final class FacturaeSigner {
     '</ds:Signature>';
 
     // Build new document
-    $xmlRoot = str_replace('</fe:Facturae>', "$dsSignature</fe:Facturae>", $xmlRoot);
+    $xmlRoot = str_replace($close_tag, $dsSignature . $close_tag, $xmlRoot);
     $xml = mb_substr($xml, 0, $openTagPosition) . $xmlRoot . mb_substr($xml, $closeTagPosition);
 
     return $xml;
