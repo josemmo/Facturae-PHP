@@ -62,6 +62,19 @@ class CorrectiveDetails {
   public $correctionMethodDescription = null;
 
   /**
+   * Free text to describe the reason why the invoice is corrected.
+   * @var string|null
+   */
+  public $additionalReasonDescription = null;
+
+  /**
+   * Date on which the corrective invoice is issued. (as UNIX timestamp or parsable date string)  
+   * Mandatory where "CorrectionMethod" takes the * value "01" or "02" 
+   * @var string|int|null
+   */
+  public $invoiceIssueDate = null;
+
+  /**
    * Class constructor
    * @param array $properties Corrective details properties as an array
    */
