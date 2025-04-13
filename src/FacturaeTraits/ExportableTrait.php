@@ -124,11 +124,13 @@ trait ExportableTrait {
           XmlTools::escape($corrective->getCorrectionMethodDescription()) .
         '</CorrectionMethodDescription>';
       if ($corrective->additionalReasonDescription !== null) {
-        $xml .= '<AdditionalReasonDescription>'.XmlTools::escape($corrective->additionalReasonDescription).'</AdditionalReasonDescription>';
+        $xml .= '<AdditionalReasonDescription>' .
+            XmlTools::escape($corrective->additionalReasonDescription) .
+          '</AdditionalReasonDescription>';
       }
       if ($corrective->invoiceIssueDate !== null) {
         $invoiceIssueDate = is_string($corrective->invoiceIssueDate) ? strtotime($corrective->invoiceIssueDate) : $corrective->invoiceIssueDate;
-        $xml .= '<InvoiceIssueDate>'.date('Y-m-d', $invoiceIssueDate).'</InvoiceIssueDate>';
+        $xml .= '<InvoiceIssueDate>' . date('Y-m-d', $invoiceIssueDate) . '</InvoiceIssueDate>';
       }
       $xml .= '</Corrective>';
     }
