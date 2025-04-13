@@ -10,14 +10,18 @@ Por defecto, todos los documentos generados con la librería son facturas origin
 **rectificativa** se deben añadir una serie de propiedades adicionales a través del método `$fac->setCorrective()`:
 ```php
 $fac->setCorrective(new CorrectiveDetails([
-  // Serie y número de la factura a rectificar
+  // Serie, número y fecha de la factura a rectificar
   "invoiceSeriesCode" => "EMP201712",
   "invoiceNumber"     => "0002",
+  "invoiceIssueDate"  => "2017-10-03", // Desde schema v3.2.2
 
   // Código del motivo de la rectificación según:
   // - RD 1496/2003 (del "01" al 16")
   // - Art. 80 Ley 37/92 (del "80" al "85")
   "reason" => "01",
+
+  // Aclaraciones opcionales del motivo de rectificación
+  "additionalReasonDescription" => "Una aclaración",
 
   // Periodo de tributación de la factura a rectificar
   "taxPeriodStart" => "2017-10-01",

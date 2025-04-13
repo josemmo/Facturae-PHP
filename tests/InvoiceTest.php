@@ -100,12 +100,14 @@ final class InvoiceTest extends AbstractTest {
     // Creamos una factura rectificativa (solo en algunos casos)
     if (!$isPfx) {
       $fac->setCorrective(new CorrectiveDetails([
-        "invoiceSeriesCode" => "EMP201712",
-        "invoiceNumber"     => "0002",
-        "reason"            => "03",
-        "taxPeriodStart"    => "2017-10-01",
-        "taxPeriodEnd"      => "2017-10-31",
-        "correctionMethod"  => CorrectiveDetails::METHOD_DIFFERENCES
+        "invoiceSeriesCode"           => "EMP201712",
+        "invoiceNumber"               => "0002",
+        "invoiceIssueDate"            => ($schemaVersion === Facturae::SCHEMA_3_2_2) ? "2017-10-03" : null,
+        "reason"                      => "03",
+        "additionalReasonDescription" => "Una aclaración de texto libre",
+        "taxPeriodStart"              => "2017-10-01",
+        "taxPeriodEnd"                => "2017-10-31",
+        "correctionMethod"            => CorrectiveDetails::METHOD_DIFFERENCES
       ]));
     }
 
