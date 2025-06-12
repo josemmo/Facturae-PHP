@@ -708,7 +708,7 @@ trait PropertiesTrait {
    * @param  FacturaeItem|string|array $desc      Item to add or description
    * @param  float                     $unitPrice Price per unit, taxes included
    * @param  float                     $quantity  Quantity
-   * @param  int                       $taxType   Tax type
+   * @param  string                    $taxType   Tax type
    * @param  float                     $taxRate   Tax rate
    * @return Facturae                             Invoice instance
    */
