@@ -52,6 +52,7 @@ final class InvoiceTest extends AbstractTest {
       "book"      => "0",
       "sheet"     => "1",
       "merchantRegister" => "RG",
+      "additionalRegistrationData" => "xxxxx",
       "phone"       => "910112233",
       "fax"         => "910112234",
       "email"       => "noexiste@ejemplo.com",

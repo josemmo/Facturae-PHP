@@ -55,6 +55,11 @@ class FacturaeParty {
    * @var string|null
    */
   public $volume = null;
+  /**
+   * Otros datos registrales (only for legal entities)
+   * @var string|null
+   */
+  public $additionalRegistrationData = null;
 
   /**
    * First surname (required for individuals)
@@ -188,7 +193,7 @@ class FacturaeParty {
         $xml .= '<TradeName>' . XmlTools::escape($this->tradeName) . '</TradeName>';
       }
 
-      $fields = ["book", "registerOfCompaniesLocation", "sheet", "folio", "section", "volume"];
+      $fields = ["book", "registerOfCompaniesLocation", "sheet", "folio", "section", "volume", "additionalRegistrationData"];
       $nonEmptyFields = [];
       foreach ($fields as $fieldName) {
         if (!empty($this->{$fieldName})) $nonEmptyFields[] = $fieldName;
