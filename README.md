@@ -8,6 +8,9 @@
 
 Facturae-PHP es un paquete escrito puramente en PHP que permite generar facturas electrónicas siguiendo el formato estructurado [Facturae](http://www.facturae.gob.es/), **añadirlas firma electrónica** XAdES y sellado de tiempo, e incluso **enviarlas a FACe o FACeB2B** sin necesidad de ninguna librería o clase adicional.
 
+> [!NOTE]
+> Esta librería **no** genera registros de facturación de VERI*FACTU. Para ello, consulta [Verifactu-PHP](https://github.com/josemmo/Verifactu-PHP).
+
 En apenas 25 líneas de código y con un tiempo de ejecución inferior a 0,4 µs es posible generar, firmar y exportar una factura electrónica totalmente válida:
 
 ```php
