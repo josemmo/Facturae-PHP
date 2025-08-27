@@ -30,7 +30,7 @@ class XmlTools {
    * @return string        Escaped input
    */
   public static function escape($value) {
-    return htmlspecialchars($value, ENT_XML1, 'UTF-8');
+    return htmlspecialchars($value ?? '', ENT_XML1, 'UTF-8');
   }
 
 
