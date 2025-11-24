@@ -26,7 +26,10 @@ class FacturaeFile {
     // Load MIME type
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $this->mime = finfo_buffer($finfo, $data);
-    finfo_close($finfo);
+    if (PHP_VERSION_ID < 80500) {
+      finfo_close($finfo);
+    }
+    unset($finfo);
   }
 
 
@@ -43,7 +46,10 @@ class FacturaeFile {
     // Load MIME type
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $this->mime = finfo_file($finfo, $path);
-    finfo_close($finfo);
+    if (PHP_VERSION_ID < 80500) {
+      finfo_close($finfo);
+    }
+    unset($finfo);
   }
 
 
