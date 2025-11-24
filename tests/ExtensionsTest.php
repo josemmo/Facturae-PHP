@@ -93,7 +93,9 @@ final class ExtensionsTest extends AbstractTest {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_COOKIEFILE, '');
     $res = curl_exec($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+      curl_close($ch);
+    }
     unset($ch);
 
     // Save to disk

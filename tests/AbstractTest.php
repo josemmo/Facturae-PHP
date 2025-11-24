@@ -75,7 +75,9 @@ abstract class AbstractTest extends TestCase {
       CURLOPT_COOKIEJAR => self::COOKIES_PATH
     ));
     $res = curl_exec($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+      curl_close($ch);
+    }
     unset($ch);
     if (strpos($res, "window.open('facturae.jsp'") === false) {
       $this->expectException(\UnexpectedValueException::class);
@@ -90,7 +92,9 @@ abstract class AbstractTest extends TestCase {
       CURLOPT_COOKIEFILE => self::COOKIES_PATH
     ));
     $res = curl_exec($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+      curl_close($ch);
+    }
     unset($ch);
 
     // Validate results

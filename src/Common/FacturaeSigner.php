@@ -347,7 +347,9 @@ final class FacturaeSigner {
     if ($tsr === false) {
       throw new RuntimeException('Failed to get TSR from server: ' . curl_error($ch));
     }
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+      curl_close($ch);
+    }
     unset($ch);
 
     // Validate TimeStampReply
