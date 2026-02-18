@@ -5,6 +5,7 @@ use josemmo\Facturae\FacturaeTraits\PropertiesTrait;
 use josemmo\Facturae\FacturaeTraits\UtilsTrait;
 use josemmo\Facturae\FacturaeTraits\SignableTrait;
 use josemmo\Facturae\FacturaeTraits\ExportableTrait;
+use josemmo\Facturae\FacturaeTraits\ImportableTrait;
 
 /**
  * Class for creating electronic invoices that comply with the Spanish FacturaE format.
@@ -167,4 +168,5 @@ class Facturae {
   use UtilsTrait;
   use SignableTrait;
   use ExportableTrait;
+  use ImportableTrait;
 }
