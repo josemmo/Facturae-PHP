@@ -1,0 +1,54 @@
+## Plan: Refactor importación XML Facturae
+
+Crear una clase independiente de importación XML que hidrate una instancia completa de Facturae con mapeo dinámico recursivo, sin acoplarse a un namespace fijo de versión, y añadir los puntos de entrada sugeridos en la API pública (`injectXml` y `JsonSerializable`) manteniendo compatibilidad con el exportador actual.
+
+**Steps**
+1. Fase 1 — Diseño del importador base
+   1.1 Definir `josemmo\Facturae\Common\FacturaeImporter` en `src/Common/FacturaeImporter.php` con `public function loadXml(string $xmlContent): Facturae`.
+   1.2 Implementar parseo seguro con `DOMDocument` + `DOMXPath` y detección dinámica de namespace raíz de `Facturae` para registrar prefijo interno de XPath en runtime (sin hardcode de URI v3.2.x).
+   1.3 Resolver versión de esquema leyendo `FileHeader/SchemaVersion` y crear `new Facturae($schemaVersion)` antes de hidratar para respetar reglas de precisión/versionado. (*bloquea 2 y 3*)
+2. Fase 2 — Mapeo dinámico recursivo (núcleo + complejos)
+   2.1 Crear un motor recursivo que recorra nodos hijos y pruebe `method_exists($factura, 'set' . $nodeName)` para setters directos de clase principal.
+   2.2 Añadir normalización de nombres de nodo→setter para casos no triviales del XML (`InvoiceNumber` + `InvoiceSeriesCode` -> `setNumber`, fechas/acotaciones que usan métodos agregados), priorizando setter explícito cuando exista y fallback a mapeo compuesto cuando el XML separa campos.
+   2.3 Implementar hidratadores de objetos complejos reutilizando constructores existentes por array: `FacturaeParty`, `FacturaeItem`, `FacturaePayment`, `FacturaeCentre`, `CorrectiveDetails`, `ReimbursableExpense`.
+   2.4 Para colecciones (`Items`, `PaymentDetails`, descuentos/cargos generales, impuestos) usar métodos agregadores de `Facturae` (`addItem`, `addPayment`, `addDiscount`, `addCharge`, `addReimbursableExpense`) para evitar acceso directo a estado interno.
+   2.5 Parsear impuestos de línea y convertirlos al formato esperado por `FacturaeItem::__construct` (`taxes` con `isWithheld`/`surcharge`) para preservar cálculos existentes. (*depende de 2.3*)
+3. Fase 3 — Cobertura total de bloques exportados
+   3.1 Cubrir `FileHeader`, `Parties`, `InvoiceHeader`, `InvoiceIssueData`, `InvoiceTotals` (solo lectura de campos necesarios), `Items`, `PaymentDetails`, `LegalLiterals`, `AdditionalData`, `ReimbursableExpenses`, `FactoringAssignmentData`, adjuntos/referencias.
+   3.2 Definir política explícita para `Extensions`: si no hay importador específico por extensión, preservar comportamiento seguro (ignorar sin romper carga) y documentarlo. (*puede ir en paralelo con 4.2*)
+   3.3 Añadir tolerancia a ausencia de nodos opcionales: el importador nunca debe fallar por bloques no presentes; solo hidrata lo disponible. (*transversal*)
+4. Fase 4 — API pública en Facturae
+   4.1 Añadir `public static function injectXml(string $xml): self` en `Facturae` como helper fino que instancia `FacturaeImporter` y delega en `loadXml`.
+   4.2 Hacer que `Facturae` implemente `\JsonSerializable` y añadir `jsonSerialize(): array` devolviendo propiedades protegidas mediante `get_object_vars($this)` desde el propio contexto de clase.
+5. Fase 5 — Tests y validación
+   5.1 Crear test de roundtrip XML→Objeto→XML (nuevo test dedicado, p.ej. `tests/ImporterTest.php`) partiendo de un invoice con datos representativos (parties, items, taxes, discounts, payments, corrective si aplica).
+   5.2 Flujo de test: generar XML A con `export()`, cargar con `FacturaeImporter::loadXml`, exportar XML B y comparar estructura/valores con `SimpleXMLElement` (evitar comparación textual estricta por orden/canonicalización).
+   5.3 Añadir aserciones de regresión para campos críticos: número/serie, fechas, party tax ids, líneas, importes, impuestos retenidos/repercutidos y método de pago.
+   5.4 Ejecutar suite focalizada (`phpunit --filter Importer`) y luego suite general para verificar que no rompe exportación existente.
+
+**Relevant files**
+- `/var/www/html/facture/src/Common/FacturaeImporter.php` — nueva clase importadora con parseo XPath y mapeo recursivo.
+- `/var/www/html/facture/src/Facturae.php` — `injectXml`, `JsonSerializable` y `jsonSerialize`.
+- `/var/www/html/facture/src/FacturaeTraits/PropertiesTrait.php` — referencia de setters/agregadores que usará el importador (sin cambios salvo necesidad puntual de compatibilidad).
+- `/var/www/html/facture/src/FacturaeTraits/ExportableTrait.php` — contrato de salida XML a replicar en sentido inverso.
+- `/var/www/html/facture/src/FacturaeItem.php` — formato esperado de `taxes/discounts/charges` en construcción.
+- `/var/www/html/facture/src/FacturaeParty.php` — forma de hidratar entidades y centros administrativos.
+- `/var/www/html/facture/tests/AbstractTest.php` — fixture base reusable para roundtrip.
+- `/var/www/html/facture/tests/ImporterTest.php` — nuevo test roundtrip.
+
+**Verification**
+1. Ejecutar `phpunit --filter ImporterTest` y confirmar roundtrip estable por estructura/valores.
+2. Ejecutar `phpunit --filter "DiscountsTest|PrecisionTest|InvoiceTest"` para validar compatibilidad con cálculos y exportador.
+3. Ejecutar `phpunit` completo si las pruebas focalizadas pasan.
+4. Verificar manualmente con un XML de cada namespace (`3.2`, `3.2.1`, `3.2.2`) que `loadXml` detecta versión y no depende de prefijos fijos.
+
+**Decisions**
+- Alcance confirmado por usuario: cobertura total de los bloques que actualmente genera `export()`.
+- El mapeo dinámico con `method_exists` es obligatorio, pero se complementa con mapeos compuestos para nodos XML que no tienen setter 1:1.
+- Comparación de roundtrip será semántica (nodos/valores) y no textual binaria, para evitar falsos negativos por orden/formato XML.
+- Fuera de alcance inicial: soporte de importación profunda de payloads propios de extensiones externas no estandarizadas; se cargará de forma tolerante.
+
+**Further Considerations**
+1. Extensiones: recomendar interfaz opcional de importación por extensión (`__onAfterImport` o similar) en iteración posterior para cubrir `<Extensions>` de terceros.
+2. Robustez: valorar modo estricto opcional (lanza excepción ante nodo desconocido) frente a modo tolerante por defecto.
+3. Rendimiento: para XML muy grandes, considerar streaming parcial en iteración futura; ahora priorizar exactitud funcional y paridad con exportación.

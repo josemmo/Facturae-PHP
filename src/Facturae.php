@@ -1,6 +1,7 @@
 <?php
 namespace josemmo\Facturae;
 
+use josemmo\Facturae\Common\FacturaeImporter;
 use josemmo\Facturae\FacturaeTraits\PropertiesTrait;
 use josemmo\Facturae\FacturaeTraits\UtilsTrait;
 use josemmo\Facturae\FacturaeTraits\SignableTrait;
@@ -9,7 +10,7 @@ use josemmo\Facturae\FacturaeTraits\ExportableTrait;
 /**
  * Class for creating electronic invoices that comply with the Spanish FacturaE format.
  */
-class Facturae {
+class Facturae implements \JsonSerializable {
   const VERSION = "1.8.4";
   const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
@@ -167,4 +168,28 @@ class Facturae {
   use UtilsTrait;
   use SignableTrait;
   use ExportableTrait;
+
+
+  /**
+   * Import invoice from XML content.
+   *
+   * @param  string $xml XML content
+   * @return self        Hydrated invoice instance
+   */
+  public static function injectXml(string $xml): self {
+    return (new FacturaeImporter())->loadXml($xml);
+  }
+
+
+  /**
+   * Serialize invoice to a JSON-compatible array.
+   *
+   * Returns all protected instance properties so consumers can call
+   * {@see json_encode()} on this object without accessing internals directly.
+   *
+   * @return array Invoice properties
+   */
+  public function jsonSerialize(): array {
+    return get_object_vars($this);
+  }
 }
