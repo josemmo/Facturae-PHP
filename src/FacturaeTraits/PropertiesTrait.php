@@ -107,8 +107,8 @@ trait PropertiesTrait {
 
   /**
    * Set third party
-   * @param  FacturaeParty $assignee Third party information
-   * @return Facturae                Invoice instance
+   * @param  FacturaeParty $thirdParty Third party information
+   * @return Facturae                  Invoice instance
    */
   public function setThirdParty($thirdParty) {
     $this->parties['thirdParty'] = $thirdParty;
@@ -342,9 +342,9 @@ trait PropertiesTrait {
 
   /**
    * Set billing period
-   * @param  int|string $date Start date
-   * @param  int|string $date End date
-   * @return Facturae         Invoice instance
+   * @param  int|string $startDate Start date
+   * @param  int|string $endDate   End date
+   * @return Facturae              Invoice instance
    */
   public function setBillingPeriod($startDate, $endDate) {
     if (is_string($startDate)) $startDate = strtotime($startDate);
@@ -357,7 +357,7 @@ trait PropertiesTrait {
 
   /**
    * Get billing period
-   * @return array Start and end dates for billing period
+   * @return array{"startDate":int|null,"endDate":int|null} Start and end dates for billing period
    */
   public function getBillingPeriod() {
     return array(
@@ -567,7 +567,7 @@ trait PropertiesTrait {
 
   /**
    * Get general discounts
-   * @return array Invoice general discounts
+   * @return array{"reason":string,"rate":float|null,"amount":float|null}[] Invoice general discounts
    */
   public function getDiscounts() {
     return $this->discounts;
@@ -603,7 +603,7 @@ trait PropertiesTrait {
 
   /**
    * Get general charges
-   * @return array Invoice general charges
+   * @return array{"reason":string,"rate":float|null,"amount":float|null}[] Invoice general charges
    */
   public function getCharges() {
     return $this->charges;
