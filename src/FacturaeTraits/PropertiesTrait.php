@@ -51,6 +51,7 @@ trait PropertiesTrait {
   protected $legalLiterals = array();
   protected $discounts = array();
   protected $charges = array();
+  protected $withholdings = array();
   protected $attachments = array();
   /** @var FacturaePayment[] */
   protected $payments = array();
@@ -621,6 +622,42 @@ trait PropertiesTrait {
 
 
   /**
+   * Add withholding
+   * @param  string   $reason       Withholding reason
+   * @param  float    $value        Withholding percent or amount
+   * @param  boolean  $isPercentage Whether value is percentage or not
+   * @return Facturae               Invoice instance
+   */
+  public function addWithholding($reason, $value, $isPercentage=true) {
+    $this->withholdings[] = array(
+      "reason" => $reason,
+      "rate"   => $isPercentage ? $value : null,
+      "amount" => $isPercentage ? null   : $value
+    );
+    return $this;
+  }
+
+
+  /**
+   * Get withholdings
+   * @return array{"reason":string,"rate":float|null,"amount":float|null}[] Invoice withholdings
+   */
+  public function getWithholding() {
+    return $this->withholdings;
+  }
+
+
+  /**
+   * Clear withholdings
+   * @return Facturae Invoice instance
+   */
+  public function clearWithholding() {
+    $this->withholdings = array();
+    return $this;
+  }
+
+
+  /**
    * Set related invoice
    * @param  string   $relatedInvoice Related invoice number
    * @return Facturae                 Invoice instance
@@ -789,6 +826,7 @@ trait PropertiesTrait {
       "taxesWithheld" => array(),
       "generalDiscounts" => array(),
       "generalCharges" => array(),
+      "withholdings" => array(),
       "invoiceAmount" => 0,
       "grossAmount" => 0,
       "totalGeneralDiscounts" => 0,
@@ -797,6 +835,7 @@ trait PropertiesTrait {
       "totalTaxesWithheld" => 0,
       "totalReimbursableExpenses" => 0,
       "totalOutstandingAmount" => 0,
+      "totalWithholdings" => 0,
       "totalExecutableAmount" => 0
     );
 
@@ -894,7 +933,26 @@ trait PropertiesTrait {
     );
     $totals['invoiceAmount'] = $totals['grossAmountBeforeTaxes'] + $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld'];
     $totals['totalOutstandingAmount'] = $totals['invoiceAmount'];
-    $totals['totalExecutableAmount'] = $totals['invoiceAmount'] + $totals['totalReimbursableExpenses'];
+
+    // Calculate withholdings
+    foreach ($this->withholdings as $item) {
+      if ($item['rate'] === null) {
+        $rate = null;
+        $amount = $item['amount'];
+      } else {
+        $rate = $item['rate'];
+        $amount = $totals['totalOutstandingAmount'] * ($rate / 100);
+      }
+      $totals['withholdings'][] = [
+        "reason" => $item['reason'],
+        "rate" => $rate,
+        "amount" => $amount
+      ];
+      $totals['totalWithholdings'] += $amount;
+    }
+
+    // Calculate executable amount
+    $totals['totalExecutableAmount'] = $totals['invoiceAmount'] - $totals['totalWithholdings'] + $totals['totalReimbursableExpenses'];
 
     return $totals;
   }

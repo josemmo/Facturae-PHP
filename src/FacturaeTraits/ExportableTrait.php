@@ -248,6 +248,17 @@ trait ExportableTrait {
 
     // Add more total amounts
     $xml .= '<TotalOutstandingAmount>' . $this->pad($totals['totalOutstandingAmount'], 'TotalOutstandingAmount') . '</TotalOutstandingAmount>';
+    if (!empty($totals['withholdings'])) {
+      $xml .= '<AmountsWithheld>';
+      foreach ($totals['withholdings'] as $item) {
+        $xml .= '<WithholdingReason>' . XmlTools::escape($item['reason']) . '</WithholdingReason>';
+        if (!is_null($item['rate'])) {
+          $xml .= '<WithholdingRate>' . $this->pad($item['rate'], 'Withholding/Rate') . '</WithholdingRate>';
+        }
+        $xml .= '<WithholdingAmount>' . $this->pad($item['amount'], 'Withholding/Amount') . '</WithholdingAmount>';
+      }
+      $xml .= '</AmountsWithheld>';
+    }
     $xml .= '<TotalExecutableAmount>' . $this->pad($totals['totalExecutableAmount'], 'TotalExecutableAmount') . '</TotalExecutableAmount>';
     if (!empty($this->reimbursableExpenses)) {
       $xml .= '<TotalReimbursableExpenses>' . $this->pad($totals['totalReimbursableExpenses'], 'TotalReimbursableExpenses') . '</TotalReimbursableExpenses>';
