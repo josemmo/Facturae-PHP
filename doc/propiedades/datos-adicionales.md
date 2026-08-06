@@ -1,7 +1,7 @@
 ---
 title: Datos adicionales
 parent: Propiedades de una factura
-nav_order: 5
+nav_order: 6
 permalink: /propiedades/datos-adicionales.html
 ---
 

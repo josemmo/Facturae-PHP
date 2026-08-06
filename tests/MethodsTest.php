@@ -75,18 +75,22 @@ final class MethodsTest extends AbstractTest {
     $fac->clearLegalLiterals();
     $this->assertEquals([], $fac->getLegalLiterals());
 
-    // Discounts and charges
+    // Discounts, charges and withholdings
     $fac->addDiscount('First', 10);
     $fac->addDiscount('Second', 15, false);
     $fac->addCharge('First', 20);
     $fac->addCharge('Second', 25, false);
     $fac->addCharge('Third', 30);
+    $fac->addWithholding('First', 40);
     $this->assertCount(2, $fac->getDiscounts());
     $this->assertCount(3, $fac->getCharges());
+    $this->assertCount(1, $fac->getWithholding());
     $fac->clearDiscounts();
     $this->assertEquals([], $fac->getDiscounts());
     $fac->clearCharges();
     $this->assertEquals([], $fac->getCharges());
+    $fac->clearWithholding();
+    $this->assertEquals([], $fac->getWithholding());
 
     // Items
     $items = array(

@@ -10,7 +10,7 @@ use josemmo\Facturae\FacturaeTraits\ExportableTrait;
  * Class for creating electronic invoices that comply with the Spanish FacturaE format.
  */
 class Facturae {
-  const VERSION = "1.8.4";
+  const VERSION = "1.8.5";
   const USER_AGENT = "FacturaePHP/" . self::VERSION;
 
   const SCHEMA_3_2 = "3.2";
@@ -149,6 +149,7 @@ class Facturae {
       '' => ['min'=>2, 'max'=>2],
       'Tax/TaxRate' => ['min'=>2, 'max'=>8],
       'DiscountCharge/Rate' => ['min'=>2, 'max'=>8],
+      'Withholding/Rate'    => ['min'=>2, 'max'=>8],
       'Item/Quantity'            => ['min'=>0, 'max'=>8],
       'Item/UnitPriceWithoutTax' => ['min'=>2, 'max'=>8],
     ],
@@ -156,6 +157,7 @@ class Facturae {
       '' => ['min'=>2, 'max'=>2],
       'DiscountCharge/Rate'   => ['min'=>4, 'max'=>4],
       'DiscountCharge/Amount' => ['min'=>6, 'max'=>6],
+      'Withholding/Rate'      => ['min'=>4, 'max'=>4],
       'Item/Quantity'            => ['min'=>0, 'max'=>8],
       'Item/UnitPriceWithoutTax' => ['min'=>6, 'max'=>6],
       'Item/TotalCost'           => ['min'=>6, 'max'=>6],

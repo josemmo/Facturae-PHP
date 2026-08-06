@@ -51,6 +51,7 @@ trait PropertiesTrait {
   protected $legalLiterals = array();
   protected $discounts = array();
   protected $charges = array();
+  protected $withholdings = array();
   protected $attachments = array();
   /** @var FacturaePayment[] */
   protected $payments = array();
@@ -107,8 +108,8 @@ trait PropertiesTrait {
 
   /**
    * Set third party
-   * @param  FacturaeParty $assignee Third party information
-   * @return Facturae                Invoice instance
+   * @param  FacturaeParty $thirdParty Third party information
+   * @return Facturae                  Invoice instance
    */
   public function setThirdParty($thirdParty) {
     $this->parties['thirdParty'] = $thirdParty;
@@ -342,9 +343,9 @@ trait PropertiesTrait {
 
   /**
    * Set billing period
-   * @param  int|string $date Start date
-   * @param  int|string $date End date
-   * @return Facturae         Invoice instance
+   * @param  int|string $startDate Start date
+   * @param  int|string $endDate   End date
+   * @return Facturae              Invoice instance
    */
   public function setBillingPeriod($startDate, $endDate) {
     if (is_string($startDate)) $startDate = strtotime($startDate);
@@ -357,7 +358,7 @@ trait PropertiesTrait {
 
   /**
    * Get billing period
-   * @return array Start and end dates for billing period
+   * @return array{"startDate":int|null,"endDate":int|null} Start and end dates for billing period
    */
   public function getBillingPeriod() {
     return array(
@@ -567,7 +568,7 @@ trait PropertiesTrait {
 
   /**
    * Get general discounts
-   * @return array Invoice general discounts
+   * @return array{"reason":string,"rate":float|null,"amount":float|null}[] Invoice general discounts
    */
   public function getDiscounts() {
     return $this->discounts;
@@ -603,7 +604,7 @@ trait PropertiesTrait {
 
   /**
    * Get general charges
-   * @return array Invoice general charges
+   * @return array{"reason":string,"rate":float|null,"amount":float|null}[] Invoice general charges
    */
   public function getCharges() {
     return $this->charges;
@@ -616,6 +617,42 @@ trait PropertiesTrait {
    */
   public function clearCharges() {
     $this->charges = array();
+    return $this;
+  }
+
+
+  /**
+   * Add withholding
+   * @param  string   $reason       Withholding reason
+   * @param  float    $value        Withholding percent or amount
+   * @param  boolean  $isPercentage Whether value is percentage or not
+   * @return Facturae               Invoice instance
+   */
+  public function addWithholding($reason, $value, $isPercentage=true) {
+    $this->withholdings[] = array(
+      "reason" => $reason,
+      "rate"   => $isPercentage ? $value : null,
+      "amount" => $isPercentage ? null   : $value
+    );
+    return $this;
+  }
+
+
+  /**
+   * Get withholdings
+   * @return array{"reason":string,"rate":float|null,"amount":float|null}[] Invoice withholdings
+   */
+  public function getWithholding() {
+    return $this->withholdings;
+  }
+
+
+  /**
+   * Clear withholdings
+   * @return Facturae Invoice instance
+   */
+  public function clearWithholding() {
+    $this->withholdings = array();
     return $this;
   }
 
@@ -789,6 +826,7 @@ trait PropertiesTrait {
       "taxesWithheld" => array(),
       "generalDiscounts" => array(),
       "generalCharges" => array(),
+      "withholdings" => array(),
       "invoiceAmount" => 0,
       "grossAmount" => 0,
       "totalGeneralDiscounts" => 0,
@@ -797,6 +835,7 @@ trait PropertiesTrait {
       "totalTaxesWithheld" => 0,
       "totalReimbursableExpenses" => 0,
       "totalOutstandingAmount" => 0,
+      "totalWithholdings" => 0,
       "totalExecutableAmount" => 0
     );
 
@@ -894,7 +933,26 @@ trait PropertiesTrait {
     );
     $totals['invoiceAmount'] = $totals['grossAmountBeforeTaxes'] + $totals['totalTaxesOutputs'] - $totals['totalTaxesWithheld'];
     $totals['totalOutstandingAmount'] = $totals['invoiceAmount'];
-    $totals['totalExecutableAmount'] = $totals['invoiceAmount'] + $totals['totalReimbursableExpenses'];
+
+    // Calculate withholdings
+    foreach ($this->withholdings as $item) {
+      if ($item['rate'] === null) {
+        $rate = null;
+        $amount = $item['amount'];
+      } else {
+        $rate = $item['rate'];
+        $amount = $totals['totalOutstandingAmount'] * ($rate / 100);
+      }
+      $totals['withholdings'][] = [
+        "reason" => $item['reason'],
+        "rate" => $rate,
+        "amount" => $amount
+      ];
+      $totals['totalWithholdings'] += $amount;
+    }
+
+    // Calculate executable amount
+    $totals['totalExecutableAmount'] = $totals['invoiceAmount'] - $totals['totalWithholdings'] + $totals['totalReimbursableExpenses'];
 
     return $totals;
   }

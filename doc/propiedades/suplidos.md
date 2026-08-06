@@ -1,7 +1,7 @@
 ---
 title: Suplidos
 parent: Propiedades de una factura
-nav_order: 8
+nav_order: 9
 permalink: /propiedades/suplidos.html
 ---
 

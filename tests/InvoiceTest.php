@@ -207,9 +207,10 @@ final class InvoiceTest extends AbstractTest {
       "dentro del campo LegalLiterals del XML de la factura");
     $fac->addLegalLiteral("Y este, \"otro\" con 'caracteres' a <escapar>");
 
-    // Añadimos recargos y descuentos sobre el total de la factura
+    // Añadimos recargos, descuentos y garantías sobre el total de la factura
     $fac->addDiscount('A mitad de precio', 50);
     $fac->addCharge('Recargo del 50%', 50);
+    $fac->addWithholding('Garantía del 2%', 2);
 
     // Añadimos un suplido
     $fac->addReimbursableExpense(new ReimbursableExpense([

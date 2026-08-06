@@ -1,7 +1,7 @@
 ---
 title: Rectificativas
 parent: Propiedades de una factura
-nav_order: 9
+nav_order: 10
 permalink: /propiedades/rectificativas.html
 ---
 
