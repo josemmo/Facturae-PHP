@@ -169,16 +169,19 @@ abstract class SoapClient {
     unset($ch);
 
     // Parse response
-    $xml = new \DOMDocument();
-    $xml->loadXML($res);
-    $xml = $xml->getElementsByTagName('Body')->item(0)
-      ->getElementsByTagName('*')->item(0);
-    while (true) {
-      $child = $xml->getElementsByTagName('return')->item(0);
-      if (is_null($child)) break;
-      $xml = $child;
+    $dom = new \DOMDocument();
+    if (!$dom->loadXML($res)) {
+      throw new \RuntimeException('Malformed XML from SOAP response');
     }
-    $xml = simplexml_import_dom($xml);
+    $body = $dom->getElementsByTagName('Body')->item(0);
+    $node = $body ? $body->getElementsByTagName('*')->item(0) : null;
+    if (!$node) {
+      throw new \RuntimeException('Missing <Body /> node from SOAP response');
+    }
+    while ($child = $node->getElementsByTagName('return')->item(0)) {
+      $node = $child;
+    }
+    $xml = simplexml_import_dom($node);
 
     return $xml;
   }

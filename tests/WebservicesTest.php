@@ -55,7 +55,11 @@ final class WebservicesTest extends AbstractTest {
     $face->setProduction(false);
 
     // Test misc. methods
-    $this->assertNotEmpty($face->getStatus()->estados);
+    try {
+      $this->assertNotEmpty($face->getStatus()->estados);
+    } catch (\RuntimeException $e) {
+      $this->markTestSkipped('FACe staging server is down, skipped test');
+    }
     $this->assertNotEmpty($face->getAdministrations()->administraciones);
     $this->assertNotEmpty($face->getUnits('E04921501')->relaciones);
     $this->assertNotEmpty($face->getNifs('E04921501')->nifs);
@@ -135,7 +139,11 @@ final class WebservicesTest extends AbstractTest {
     $faceb2b->setProduction(false);
 
     // Test misc. methods
-    $this->assertNotEmpty($faceb2b->getCodes()->codes);
+    try {
+      $this->assertNotEmpty($faceb2b->getCodes()->codes);
+    } catch (\RuntimeException $e) {
+      $this->markTestSkipped('FACeB2B staging server is down, skipped test');
+    }
     $this->assertEquals(intval($faceb2b->getRegisteredInvoices()->resultStatus->code), 0);
     $this->assertEquals(intval($faceb2b->getInvoiceCancellations()->resultStatus->code), 0);
 
